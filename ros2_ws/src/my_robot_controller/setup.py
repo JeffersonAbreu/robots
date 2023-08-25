@@ -1,4 +1,4 @@
-from setuptools import find_packages, setup
+from setuptools import setup
 
 package_name = 'my_robot_controller'
 
@@ -20,6 +20,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            "test_node = my_robot_controller.my_first_node:main",
+            "draw_circle = my_robot_controller.draw_circle:main",
+            "pose_subscriber = my_robot_controller.pose_subscriber:main"
         ],
     },
 )

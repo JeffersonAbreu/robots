@@ -1,0 +1,19 @@
+[0.725s] Invoking command in '/home/ti/tcc/robots/ros2_ws/build/my_robot_controller': PYTHONPATH=/home/ti/tcc/robots/ros2_ws/build/my_robot_controller/prefix_override:/home/ti/tcc/robots/ros2_ws/install/my_robot_controller/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py develop --editable --build-directory /home/ti/tcc/robots/ros2_ws/build/my_robot_controller/build --no-deps install_data
+[1.000s] running develop
+[1.167s] running egg_info
+[1.167s] writing my_robot_controller.egg-info/PKG-INFO
+[1.167s] writing dependency_links to my_robot_controller.egg-info/dependency_links.txt
+[1.167s] writing entry points to my_robot_controller.egg-info/entry_points.txt
+[1.168s] writing requirements to my_robot_controller.egg-info/requires.txt
+[1.168s] writing top-level names to my_robot_controller.egg-info/top_level.txt
+[1.169s] reading manifest file 'my_robot_controller.egg-info/SOURCES.txt'
+[1.171s] writing manifest file 'my_robot_controller.egg-info/SOURCES.txt'
+[1.172s] running build_ext
+[1.172s] Creating /home/ti/tcc/robots/ros2_ws/install/my_robot_controller/lib/python3.10/site-packages/my-robot-controller.egg-link (link to .)
+[1.173s] Installing draw_circle script to /home/ti/tcc/robots/ros2_ws/install/my_robot_controller/lib/my_robot_controller
+[1.173s] Installing test_node script to /home/ti/tcc/robots/ros2_ws/install/my_robot_controller/lib/my_robot_controller
+[1.174s] 
+[1.174s] Installed /home/ti/tcc/robots/ros2_ws/build/my_robot_controller
+[1.174s] running install_data
+[1.174s] copying package.xml -> /home/ti/tcc/robots/ros2_ws/install/my_robot_controller/share/my_robot_controller
+[1.220s] Invoked command in '/home/ti/tcc/robots/ros2_ws/build/my_robot_controller' returned '0': PYTHONPATH=/home/ti/tcc/robots/ros2_ws/build/my_robot_controller/prefix_override:/home/ti/tcc/robots/ros2_ws/install/my_robot_controller/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py develop --editable --build-directory /home/ti/tcc/robots/ros2_ws/build/my_robot_controller/build --no-deps install_data
