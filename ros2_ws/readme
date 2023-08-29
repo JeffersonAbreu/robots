@@ -1,7 +1,8 @@
-https://youtu.be/Gg25GfA456o?si=OtdwaoNXYoTOftfk&t=3316
 sudo apt install python3-colcon-common-extensions
 
 echo /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash >> ~/.bashrc 
+
+cd src
 ros2 pkg create my_robot_controller --build-type ament_python --dependencies rclpy
 
 
