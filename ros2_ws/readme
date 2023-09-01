@@ -9,3 +9,4 @@ ros2 pkg create my_robot_controller --build-type ament_python --dependencies rcl
 pip3 install setuptools==58.2.0
 
 sudo apt install python3-pip
+sudo apt install ros-humble-joint-state-publisher-gui
