@@ -17,6 +17,19 @@
             filename="libignition-gazebo-scene-broadcaster-system.so"
             name="ignition::gazebo::systems::SceneBroadcaster">
         </plugin>
+        <plugin
+            filename="libignition-gazebo-imu-system.so"
+            name="ignition::gazebo::systems::Imu">
+        </plugin>
+        <plugin
+            filename="libignition-gazebo-contact-system.so"
+            name="ignition::gazebo::systems::Contact">
+        </plugin>
+        <plugin
+            filename="libignition-gazebo-sensors-system.so"
+            name="ignition::gazebo::systems::Sensors">
+            <render_engine>ogre2</render_engine>
+        </plugin>
 
         <light type="directional" name="sun">
             <cast_shadows>true</cast_shadows>
@@ -81,6 +94,9 @@
                     vertical. O angulo de yaw e medido em relacao ao eixo Z e, assim como os outros, e
                     expresso em graus ou radianos.
             -->
+            <frame name="lidar_frame" attached_to='chassis'>
+                <pose>0.8 0 0.5 0 0 0</pose>
+            </frame>
 
             <link name='chassis'>
                 <pose relative_to='__model__'>0.5 0 0.4 0 0 0</pose>
@@ -139,6 +155,42 @@
                         </box>
                     </geometry>
                 </collision>
+
+                <sensor name="imu_sensor" type="imu">
+                    <always_on>1</always_on>
+                    <update_rate>1</update_rate>
+                    <visualize>true</visualize>
+                    <topic>imu</topic>
+                </sensor>
+                
+                <sensor name='gpu_lidar' type='gpu_lidar'>
+                    <pose relative_to='lidar_frame'>0 0 0 0 0 0</pose>
+                    <topic>lidar</topic>
+                    <update_rate>10</update_rate>
+                    <ray>
+                        <scan>
+                            <horizontal>
+                                <samples>640</samples>
+                                <resolution>1</resolution>
+                                <min_angle>-1.396263</min_angle>
+                                <max_angle>1.396263</max_angle>
+                            </horizontal>
+                            <vertical>
+                                <samples>1</samples>
+                                <resolution>0.01</resolution>
+                                <min_angle>0</min_angle>
+                                <max_angle>0</max_angle>
+                            </vertical>
+                        </scan>
+                        <range>
+                            <min>0.08</min>
+                            <max>10.0</max>
+                            <resolution>0.01</resolution>
+                        </range>
+                    </ray>
+                    <always_on>1</always_on>
+                    <visualize>true</visualize>
+                </sensor>
             </link>
 
             <link name='left_wheel'>
@@ -352,6 +404,179 @@
                     `type='ball'`, o que fornece 3 graus de liberdade rotacional.
                 -->
             </joint>
+
+            <!-- 
+                A tag `<plugin>` possui dois atributos: `filename`, que recebe o nome do arquivo da biblioteca, e
+                `name`, que recebe o nome do plugin. Nas tags `<left_joint>` e `<right_joint>`,
+                definimos as juntas que conectam a roda esquerda e a roda direita ao corpo do robô, no
+                nosso caso, `left_wheel_joint` e `right_wheel_joint`. `<wheel_separation>` recebe a
+                distância entre as duas rodas. Nosso robô tem a roda esquerda a 0,6 m e a roda direita a
+                -0,6 m no eixo y em relação ao chassi, então a separação entre as rodas é de 1,2 m.
+                `<wheel_radius>` recebe o raio da roda, que foi definido na tag `<radius>` sob o elo da
+                roda. `<odom_publish_frequency>` define a frequência com a qual a odometria é publicada
+                em `/model/vehicle_blue/odometry`. `cmd_vel` é o tópico de entrada para o plugin
+                DiffDrive.
+            -->
+            <plugin
+                filename="libignition-gazebo-diff-drive-system.so"
+                name="ignition::gazebo::systems::DiffDrive">
+                <left_joint>left_wheel_joint</left_joint>
+                <right_joint>right_wheel_joint</right_joint>
+                <wheel_separation>1.2</wheel_separation>
+                <wheel_radius>0.4</wheel_radius>
+                <odom_publish_frequency>1</odom_publish_frequency>
+                <topic>cmd_vel</topic>
+            </plugin>
+            <!-- 
+                Inicie o mundo do robô:
+                ```bash
+                    ign gazebo building_robot.sdf
+                ```
+                Em outro terminal, vamos enviar uma mensagem para o nosso robô:
+                ```bash
+                    ign topic -t "/cmd_vel" -m ignition.msgs.Twist -p "linear: {x: 0.5}, angular: {z: 0.05}"
+                ```
+
+                Isso enviará um comando para o robô com uma velocidade linear de 0,5 e uma velocidade angular de
+                0,05, fazendo com que o robô se mova. Certifique-se de que o mundo do robô já esteja em
+                execução no primeiro terminal antes de enviar o comando.
+
+                Agora você deve ter o seu robô se movendo na simulação.
+                  Observação: Não esqueça de pressionar o botão de reprodução na simulação.
+
+                O comando especifica o tópico para publicação após a opção -t. Após a opção -m, especificamos o
+                tipo de mensagem. Nosso robô espera mensagens do tipo Twist, que consiste em dois
+                componentes, linear e angular. Após a opção -p, especificamos o conteúdo (valor) da
+                mensagem: velocidade linear x: 0,5 e velocidade angular z: 0,05.
+
+                Dica: Você pode descobrir o que cada opção do tópico faz usando este comando:
+                ```bash
+                    ign topic -h
+                ```
+                Para obter mais informações sobre Tópicos e Mensagens no Ignition, consulte os tutoriais da
+                biblioteca de Transport.
+
+                # Para mover o robô usando as teclas do teclado, você pode adicionar dois novos plugins:
+                    KeyPublisher e TriggeredPublisher.
+
+                KeyPublisher é um plugin do ign-gui que lê as teclas do teclado e as envia para um tópico padrão
+                /keyboard/keypress. Vamos tentar este plugin da seguinte maneira:
+
+                1. Em um terminal, digite:
+
+                ```bash
+                    ign gazebo building_robot.sdf
+                ```
+
+                2. No canto superior direito da janela de simulação, clique na lista suspensa de plugins
+                (ícone de três pontos verticais) e selecione Key Publisher.
+
+                3. Em outro terminal, digite:
+                ```bash
+                    ign topic -e -t /keyboard/keypress
+                ```
+
+                Este último comando exibirá todas as mensagens enviadas no tópico /keyboard/keypress.
+
+                Na janela do Ignition, pressione diferentes teclas e você deverá ver dados (números) no terminal
+                onde você executou o comando `ign topic -e -t /keyboard/keypress`. Isso indica que o
+                KeyPublisher está lendo as teclas do teclado e enviando as informações para o tópico.
+            -->
         </model>
+        <model name='wall'>
+            <static>true</static>
+            <pose>5 0 0 0 0 0</pose><!--pose
+            relative to the world-->
+            <link name='box'>
+                <pose />
+                <visual name='visual'>
+                    <geometry>
+                        <box>
+                            <size>0.5 10.0 2.0</size>
+                        </box>
+                    </geometry>
+                    <!--let's
+                    add color to our link-->
+                    <material>
+                        <ambient>0.0 0.0 1.0 1</ambient>
+                        <diffuse>0.0 0.0 1.0 1</diffuse>
+                        <specular>0.0 0.0 1.0 1</specular>
+                    </material>
+                </visual>
+                <collision name='collision'>
+                    <geometry>
+                        <box>
+                            <size>0.5 10.0 2.0</size>
+                        </box>
+                    </geometry>
+                </collision>
+                <sensor name='sensor_contact' type='contact'>
+                    <contact>
+                        <collision>collision</collision>
+                    </contact>
+                </sensor>
+            </link>
+            <plugin filename="libignition-gazebo-touchplugin-system.so"
+                name="ignition::gazebo::systems::TouchPlugin">
+                <target>vehicle_blue</target>
+                <namespace>wall</namespace>
+                <time>0.001</time>
+                <enabled>true</enabled>
+            </plugin>
+        </model>
+
+        <plugin filename="libignition-gazebo-triggered-publisher-system.so"
+            name="ignition::gazebo::systems::TriggeredPublisher">
+            <input type="ignition.msgs.Boolean" topic="/wall/touched">
+                <match>data: true</match>
+            </input>
+            <output type="ignition.msgs.Twist" topic="/cmd_vel">
+                linear: {x: 0.0}, angular: {z: 0.0}
+            </output>
+        </plugin>
+
+        <!-- Moving Forward-->
+        <plugin filename="libignition-gazebo-triggered-publisher-system.so"
+            name="ignition::gazebo::systems::TriggeredPublisher">
+            <input type="ignition.msgs.Int32" topic="/keyboard/keypress">
+                <match field="data">16777235</match>
+            </input>
+            <output type="ignition.msgs.Twist" topic="/cmd_vel">
+                linear: {x: 0.5}, angular: {z: 0.0}
+            </output>
+        </plugin>
+
+        <!-- Moving Backward-->
+        <plugin filename="libignition-gazebo-triggered-publisher-system.so"
+            name="ignition::gazebo::systems::TriggeredPublisher">
+            <input type="ignition.msgs.Int32" topic="/keyboard/keypress">
+                <match field="data">16777237</match>
+            </input>
+            <output type="ignition.msgs.Twist" topic="/cmd_vel">
+                linear: {x: -0.5}, angular: {z: 0.0}
+            </output>
+        </plugin>
+
+        <!-- Rotating Left-->
+        <plugin filename="libignition-gazebo-triggered-publisher-system.so"
+            name="ignition::gazebo::systems::TriggeredPublisher">
+            <input type="ignition.msgs.Int32" topic="/keyboard/keypress">
+                <match field="data">16777234</match>
+            </input>
+            <output type="ignition.msgs.Twist" topic="/cmd_vel">
+                linear: {x: 0.0}, angular: {z: 0.5}
+            </output>
+        </plugin>
+
+        <!-- Rotating Right-->
+        <plugin filename="libignition-gazebo-triggered-publisher-system.so"
+            name="ignition::gazebo::systems::TriggeredPublisher">
+            <input type="ignition.msgs.Int32" topic="/keyboard/keypress">
+                <match field="data">16777236</match>
+            </input>
+            <output type="ignition.msgs.Twist" topic="/cmd_vel">
+                linear: {x: 0.0}, angular: {z: -0.5}
+            </output>
+        </plugin>
     </world>
 </sdf>
