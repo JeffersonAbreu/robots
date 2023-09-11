@@ -1,0 +1,357 @@
+<?xml version="1.0"?>
+<sdf version="1.8">
+    <world name="car_world">
+        <physics name="1ms" type="ignored">
+            <max_step_size>0.001</max_step_size>
+            <real_time_factor>1.0</real_time_factor>
+        </physics>
+        <plugin
+            filename="libignition-gazebo-physics-system.so"
+            name="ignition::gazebo::systems::Physics">
+        </plugin>
+        <plugin
+            filename="libignition-gazebo-user-commands-system.so"
+            name="ignition::gazebo::systems::UserCommands">
+        </plugin>
+        <plugin
+            filename="libignition-gazebo-scene-broadcaster-system.so"
+            name="ignition::gazebo::systems::SceneBroadcaster">
+        </plugin>
+
+        <light type="directional" name="sun">
+            <cast_shadows>true</cast_shadows>
+            <pose>0 0 10 0 0 0</pose>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <specular>0.2 0.2 0.2 1</specular>
+            <attenuation>
+                <range>1000</range>
+                <constant>0.9</constant>
+                <linear>0.01</linear>
+                <quadratic>0.001</quadratic>
+            </attenuation>
+            <direction>-0.5 0.1 -0.9</direction>
+        </light>
+
+        <model name="ground_plane">
+            <static>true</static>
+            <link name="link">
+                <collision name="collision">
+                    <geometry>
+                        <plane>
+                            <normal>0 0 1</normal>
+                        </plane>
+                    </geometry>
+                </collision>
+                <visual name="visual">
+                    <geometry>
+                        <plane>
+                            <normal>0 0 1</normal>
+                            <size>100 100</size>
+                        </plane>
+                    </geometry>
+                    <material>
+                        <ambient>0.8 0.8 0.8 1</ambient>
+                        <diffuse>0.8 0.8 0.8 1</diffuse>
+                        <specular>0.8 0.8 0.8 1</specular>
+                    </material>
+                </visual>
+            </link>
+        </model>
+
+        <model name='vehicle_blue' canonical_link='chassis'>
+            <!-- 
+                A tag <pose> e usada para definir a posicao e a orientacao do nosso modelo, e o atributo
+                relative_to e usado para definir a pose do modelo em relacao a qualquer outro quadro. Se
+                relative_to nao for definido, a <pose> do modelo sera relativa ao mundo.
+            -->
+            <pose relative_to='world'>0 0 0 0 0 0</pose>
+            <!-- 
+                Os valores dentro da tag <pose> sao os seguintes: <pose>X Y Z R P Y</pose>,
+                onde X, Y, Z representam a posicao do quadro e
+                R, P, Y representam a orientacao em 
+                    Roll (Rotacao em Rolo): O movimento de rotacao ao longo do eixo X. Imagine um aviao fazendo um
+                    movimento de rolagem no ar, onde uma asa se eleva enquanto a outra abaixa. O angulo de
+                    roll e medido em relacao ao eixo X, e geralmente e expresso em graus ou radianos.
+
+                    Pitch (Arfagem): O movimento de rotacao ao longo do eixo Y. Isso e semelhante ao movimento de
+                    inclinacao de um objeto para cima ou para baixo. O angulo de pitch e medido em relacao
+                    ao eixo Y e tambem e expresso em graus ou radianos.
+
+                    Yaw (Guinada): O movimento de rotacao ao longo do eixo Z. e como girar um objeto ao redor do eixo
+                    vertical. O angulo de yaw e medido em relacao ao eixo Z e, assim como os outros, e
+                    expresso em graus ou radianos.
+            -->
+
+            <link name='chassis'>
+                <pose relative_to='__model__'>0.5 0 0.4 0 0 0</pose>
+
+                <inertial>
+                    <!--
+                        inertial properties of the link mass, inertia matix
+                    -->
+                    <mass>1.14395</mass>
+                    <inertia>
+                        <ixx>0.095329</ixx>
+                        <ixy>0</ixy>
+                        <ixz>0</ixz>
+                        <iyy>0.381317</iyy>
+                        <iyz>0</iyz>
+                        <izz>0.476646</izz>
+                    </inertia>
+                </inertial>
+                <visual name='visual'>
+                    <!-- 
+                        Como o nome sugere, a tag `<visual>` e responsavel por como nosso link aparecera. Definimos a forma
+                        do nosso link dentro da tag `<geometry>` como um `<box>` (um paralelepipedo) e,
+                        em seguida, especificamos as tres dimensoes (em metros) desta caixa dentro da
+                        tag `<size>`. Em seguida, dentro da tag `<material>`, definimos o material do
+                        nosso link. Aqui, definimos as cores `<ambient>`, `<diffuse>` e `<specular>` em
+                        um conjunto de quatro numeros, cada um na faixa de [0, 1], representando
+                        vermelho/verde/azul/alfa.
+                    -->
+                    <geometry>
+                        <box>
+                            <size>2.0 1.0 0.5</size>
+                        </box>
+                    </geometry>
+                    <!--let's
+                    add color to our link-->
+                    <material>
+                        <ambient>0.0 0.0 1.0 1</ambient>
+                        <diffuse>0.0 0.0 1.0 1</diffuse>
+                        <specular>0.0 0.0 1.0 1</specular>
+                    </material>
+                </visual>
+                <collision name='collision'>
+                    <!-- 
+                        A tag `<collision>` define as propriedades de colisao do link, como nosso link reagira com outros
+                        objetos e o efeito do mecanismo de fisica sobre ele.
+
+                        Observacao: `<collision>` pode ser diferente das propriedades visuais, por exemplo, modelos de
+                        colisao mais simples sao frequentemente usados para reduzir o tempo de calculo.
+                        Isso significa que a representacao da colisao pode ser mais simples do que a
+                        representacao visual do objeto, a fim de otimizar o desempenho computacional
+                        durante a simulacao.
+                    -->
+                    <geometry>
+                        <box>
+                            <size>2.0 1.0 0.5</size>
+                        </box>
+                    </geometry>
+                </collision>
+            </link>
+
+            <link name='left_wheel'>
+                <!-- 
+                    Definimos o nome do nosso link como `left_wheel` e, em seguida, definimos sua `<pose>` em relacao
+                    ao link `chassis`. A roda precisava ser posicionada a esquerda e atras do chassi,
+                    razao pela qual escolhemos os valores para a pose como -0.5 0.6 0. Alem disso, nossa
+                    roda e um cilindro, mas esta deitada de lado. Portanto, definimos o valor de
+                    orientacao como -1.5707 0 0, que representa uma rotacao de -90 graus em torno do
+                    eixo x (os angulos estao em radianos). Em seguida, definimos as propriedades de
+                    inercia da roda, a massa e a matriz de inercia.
+                -->
+                <pose relative_to="chassis">-0.5 0.6 0 -1.5707 0 0</pose>
+                <inertial>
+                    <mass>1</mass>
+                    <inertia>
+                        <ixx>0.043333</ixx>
+                        <ixy>0</ixy>
+                        <ixz>0</ixz>
+                        <iyy>0.043333</iyy>
+                        <iyz>0</iyz>
+                        <izz>0.08</izz>
+                    </inertia>
+                </inertial>
+
+                <visual name='visual'>
+                    <geometry>
+                        <cylinder>
+                            <radius>0.4</radius>
+                            <length>0.2</length>
+                        </cylinder>
+                    </geometry>
+                    <material>
+                        <ambient>1.0 0.0 0.0 1</ambient>
+                        <diffuse>1.0 0.0 0.0 1</diffuse>
+                        <specular>1.0 0.0 0.0 1</specular>
+                    </material>
+                </visual>
+                <collision name='collision'>
+                    <geometry>
+                        <cylinder>
+                            <radius>0.4</radius>
+                            <length>0.2</length>
+                        </cylinder>
+                    </geometry>
+                </collision>
+            </link>
+
+            <!-- 
+                O mesmo que a roda esquerda, mas com uma posicao diferente
+            -->
+            <link name='right_wheel'>
+                <pose relative_to="chassis">-0.5 -0.6 0 -1.5707 0 0</pose> <!--angles
+                are in radian-->
+                <inertial>
+                    <mass>1</mass>
+                    <inertia>
+                        <ixx>0.043333</ixx>
+                        <ixy>0</ixy>
+                        <ixz>0</ixz>
+                        <iyy>0.043333</iyy>
+                        <iyz>0</iyz>
+                        <izz>0.08</izz>
+                    </inertia>
+                </inertial>
+                <visual name='visual'>
+                    <geometry>
+                        <cylinder>
+                            <radius>0.4</radius>
+                            <length>0.2</length>
+                        </cylinder>
+                    </geometry>
+                    <material>
+                        <ambient>1.0 0.0 0.0 1</ambient>
+                        <diffuse>1.0 0.0 0.0 1</diffuse>
+                        <specular>1.0 0.0 0.0 1</specular>
+                    </material>
+                </visual>
+                <collision name='collision'>
+                    <geometry>
+                        <cylinder>
+                            <radius>0.4</radius>
+                            <length>0.2</length>
+                        </cylinder>
+                    </geometry>
+                </collision>
+            </link>
+
+            <!-- 
+                Definindo um quadro arbitrario
+                A partir do SDF 1.7 (Fortress utiliza o SDF 1.8), podemos definir quadros arbitrarios.
+                Ele tem dois atributos:
+                   name: o nome do quadro.
+                   attached_to: o nome do quadro ou do elo ao qual este quadro esta anexado.
+            -->
+            <frame name="caster_frame" attached_to='chassis'>
+                <pose>0.8 0 -0.2 0 0 0</pose>
+            </frame>
+
+            <!--
+                caster wheel
+                Nos nomeamos nosso quadro como "caster_frame" e o anexamos ao elo "chassis". Em seguida, usamos a
+                tag `<pose>` para definir a posicao e orientacao do quadro. Nao usamos o atributo
+                `relative_to`, portanto, a pose e em relacao ao quadro nomeado no atributo
+                `attached_to`, que e o "chassis" no nosso caso.
+            -->
+            <link name='caster'>
+                <!-- 
+                    Nosso ultimo elo e o "caster" e sua pose esta em relacao ao quadro "caster_frame" que definimos
+                    anteriormente. Como voce pode notar, fechamos a tag `<pose>` sem definir a posicao
+                    ou orientacao; neste caso, a pose do elo e a mesma (identidade) que a do quadro em
+                    `relative_to`.
+
+                    Nas tags `<visual>` e `<collision>`, definimos uma forma diferente, `<sphere>`, que requer o
+                    `<radius>` da esfera.
+
+                    Conectando elos (juntas)
+                    Precisamos conectar esses elos; aqui entra a tag `<joint>`. A tag de junta conecta dois elos e
+                    define como eles se moverao em relacao um ao outro. Dentro da tag `<joint>,`
+                    precisamos definir os dois elos a serem conectados e suas relacoes (modo de
+                    movimento).
+                -->
+                <pose relative_to='caster_frame' />
+                <inertial>
+                    <mass>1</mass>
+                    <inertia>
+                        <ixx>0.016</ixx>
+                        <ixy>0</ixy>
+                        <ixz>0</ixz>
+                        <iyy>0.016</iyy>
+                        <iyz>0</iyz>
+                        <izz>0.016</izz>
+                    </inertia>
+                </inertial>
+                <visual name='visual'>
+                    <geometry>
+                        <sphere>
+                            <radius>0.2</radius>
+                        </sphere>
+                    </geometry>
+                    <material>
+                        <ambient>0.0 1 0.0 1</ambient>
+                        <diffuse>0.0 1 0.0 1</diffuse>
+                        <specular>0.0 1 0.0 1</specular>
+                    </material>
+                </visual>
+                <collision name='collision'>
+                    <geometry>
+                        <sphere>
+                            <radius>0.2</radius>
+                        </sphere>
+                    </geometry>
+                </collision>
+            </link>
+            <!-- Junta da Roda Esquerda -->
+            <joint name='left_wheel_joint' type='revolute'>
+                <pose relative_to='left_wheel' />
+                <!-- 
+                    Nossa primeira junta e a `left_wheel_joint`. Ela possui dois atributos: `name='left_wheel_joint'` e
+                    `type='revolute'`. O tipo `revolute` fornece 1 grau de liberdade rotacional com limites
+                    de junta. A pose da junta e a mesma que o quadro do elo filho, que e o quadro
+                    `left_wheel`.
+                -->
+                <parent>chassis</parent>
+                <child>left_wheel</child>
+                <!-- 
+                    Cada junta conecta dois elos (corpos) juntos. Aqui, estamos conectando o "chassis" com a
+                    "left_wheel". "chassis" e o elo pai e "left_wheel" e o elo filho.
+                -->
+                <axis>
+                    <xyz expressed_in='__model__'>0 1 0</xyz>
+                    <!--
+                        As juntas podem ser definidas como qualquer quadro ou ate mesmo quadros
+                        arbitrarios.
+                    -->
+                    <limit>
+                        <lower>-1.79769e+308</lower>    <!--negative
+                        infinity-->
+                        <upper>1.79769e+308</upper>     <!--positive
+                        infinity-->
+                    </limit>
+                </axis>
+                <!-- 
+                    Aqui nos definimos o eixo de rotacao. O eixo de rotacao pode ser qualquer quadro, nao apenas o
+                    quadro pai ou filho. Escolhemos o eixo y em relacao ao quadro do modelo, entao
+                    colocamos 1 no elemento y e zeros nos outros. Para a junta revoluta, precisamos
+                    definir os limites do angulo de rotacao nos tags `<lower>` e `<upper>`.
+
+                    Observacao: Os angulos estao em radianos.
+                -->
+            </joint>
+            <joint name='right_wheel_joint' type='revolute'>
+                <pose relative_to='right_wheel' />
+                <parent>chassis</parent>
+                <child>right_wheel</child>
+                <axis>
+                    <xyz expressed_in='__model__'>0 1 0</xyz>
+                    <limit>
+                        <lower>-1.79769e+308</lower>    <!--negative
+                        infinity-->
+                        <upper>1.79769e+308</upper>     <!--positive
+                        infinity-->
+                    </limit>
+                </axis>
+            </joint>
+            <joint name='caster_wheel' type='ball'>
+                <parent>chassis</parent>
+                <child>caster</child>
+                <!-- 
+                    Para a roda de apoio (caster), precisamos de um tipo diferente de junta (conexao). Usamos
+                    `type='ball'`, o que fornece 3 graus de liberdade rotacional.
+                -->
+            </joint>
+        </model>
+    </world>
+</sdf>
