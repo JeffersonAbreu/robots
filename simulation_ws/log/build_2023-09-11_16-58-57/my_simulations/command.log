@@ -1,0 +1,2 @@
+Invoking command in '/home/ti/tcc/robots/simulation_ws/build/my_simulations': /usr/bin/cmake /home/ti/tcc/robots/simulation_ws/src/my_simulations -DCATKIN_INSTALL_INTO_PREFIX_ROOT=0 -DCMAKE_INSTALL_PREFIX=/home/ti/tcc/robots/simulation_ws/install/my_simulations
+Invoked command in '/home/ti/tcc/robots/simulation_ws/build/my_simulations' returned '1': /usr/bin/cmake /home/ti/tcc/robots/simulation_ws/src/my_simulations -DCATKIN_INSTALL_INTO_PREFIX_ROOT=0 -DCMAKE_INSTALL_PREFIX=/home/ti/tcc/robots/simulation_ws/install/my_simulations
