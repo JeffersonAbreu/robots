@@ -14,3 +14,4 @@ https://dhanuzch.medium.com/using-opencv-with-gazebo-in-robot-operating-system-r
 https://stackoverflow.com/questions/75987575/gazebo-ros2-need-to-prevent-tiling-of-textures
 https://github.com/gazebosim/ros_gz/tree/ros_ign_release/ros_ign_gazebo_demos
 https://automaticaddison.com/how-to-simulate-a-robot-using-gazebo-and-ros-2/
+https://github.com/arpg/Gazebo
