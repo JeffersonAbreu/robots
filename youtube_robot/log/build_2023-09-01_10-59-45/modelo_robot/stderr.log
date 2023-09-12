@@ -1,3 +1,0 @@
-warning: install_data: setup script did not provide a directory for 'share' -- installing right in '/home/ti/tcc/robots/youtube_robot/install/modelo_robot'
-
-error: can't copy 'share': doesn't exist or not a regular file
