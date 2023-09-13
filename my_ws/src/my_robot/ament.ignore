@@ -1,0 +1,2 @@
+# Informa ao ROS 2 que estamos usando Ignition Gazebo
+gazebo_ros_pkgs

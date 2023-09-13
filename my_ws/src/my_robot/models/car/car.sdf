@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="car">
+    <link name="chassis">
+      <!-- Adicione geometria e inércia do chassi aqui -->
+    </link>
+    <link name="wheel1">
+      <!-- Adicione geometria e inércia da roda 1 aqui -->
+    </link>
+    <link name="wheel2">
+      <!-- Adicione geometria e inércia da roda 2 aqui -->
+    </link>
+    <link name="castor_wheel">
+      <!-- Adicione geometria e inércia da roda castor aqui -->
+    </link>
+    <!-- Adicione juntas para conectar as rodas e a roda castor ao chassi -->
+
+    
+    <!-- Adicione o sensor LiDAR -->
+    <link name="lidar_link">
+      <!-- LiDAR -->
+      <sensor name="lidar" type="ray">
+        <pose>0 0 1 0 0 0</pose> <!-- Posição e orientação do sensor -->
+        <visualize>true</visualize>
+        <update_rate>10.0</update_rate> <!-- Taxa de atualização em Hz -->
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>360</samples> <!-- Número de amostras para 360 graus -->
+              <resolution>1</resolution> <!-- Resolução angular em graus -->
+              <min_angle>-1.5708</min_angle> <!-- Ângulo mínimo (-90 graus) -->
+              <max_angle>1.5708</max_angle> <!-- Ângulo máximo (90 graus) -->
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.01</min> <!-- Distância mínima de detecção (em metros) -->
+            <max>50.0</max> <!-- Distância máxima de detecção (em metros) -->
+            <resolution>0.01</resolution> <!-- Resolução da distância (em metros) -->
+          </range>
+        </ray>
+      </sensor>
+    </link>
+    <!-- Adicione a câmera -->
+    <link name="camera_link">
+      <visual>
+          <!-- Defina a geometria visual da câmera -->
+      </visual>
+      <camera name="camera">
+          <pose>0 0 1 0 0 0</pose> <!-- Posição e orientação da câmera -->
+          <horizontal_fov>1.047</horizontal_fov> <!-- Campo de visão horizontal em radianos (60 graus) -->
+          <image>
+              <width>640</width> <!-- Largura da imagem -->
+              <height>480</height> <!-- Altura da imagem -->
+              <format>R8G8B8</format> <!-- Formato da imagem (RGB) -->
+          </image>
+          <clip>
+              <near>0.1</near> <!-- Distância de corte próxima -->
+              <far>100</far> <!-- Distância de corte distante -->
+          </clip>
+      </camera>
+  </link>
+  </model>
+</sdf>
