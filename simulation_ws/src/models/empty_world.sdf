@@ -1,20 +1,20 @@
 <?xml version="1.0"?>
 
-<sdf version="1.5">
+<sdf version="1.9">
 	<world name="default">
 		<!-- A global light source -->
 		<include>
-			<uri>model://sun</uri>
+			<uri>sun</uri>
 		</include>
 
 		<!-- A ground plane -->
 		<include>
-			<uri>model://ground_plane</uri>
+			<uri>ground_plane</uri>
 		</include>
 
 		<!-- Our custom model -->
 		<include>
-			<uri>model://my1stmodel</uri>
+			<uri>my1stmodel</uri>
 		</include>
 	</world>
 </sdf>

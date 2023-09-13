@@ -1,0 +1,58 @@
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found ament_cmake: 1.3.5 (/opt/ros/humble/share/ament_cmake/cmake)
+-- Found Python3: /usr/bin/python3.10 (found version "3.10.12") found components: Interpreter 
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/jeff/tcc/robots/nav2_outdoor_example/build/nav2_outdoor_example
+-- Install configuration: ""
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/launch
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/launch/localization.launch.py
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/launch/navigation.launch.py
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/launch/bringup.launch.py
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/launch/simulation.launch.py
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/launch/visualization.launch.py
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/rviz
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/rviz/navigation_config.rviz
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/config
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/config/nav2_params.yaml
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/config/ukf.yaml
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/config/diff_drive_controller_velocity.yaml
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/world
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/world/turtlebot3_world.xcf
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/world/turtlebot3_world_empty.pgm
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/world/turtlebot3_world.yaml
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/world/empty.sdf
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/urdf
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/urdf/materials.xacro
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/urdf/robot.gazebo
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/urdf/meshes
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/urdf/meshes/base_link.stl
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/urdf/meshes/wheel.stl
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/urdf/wheel.xacro
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/urdf/robot.xacro.urdf
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/ament_index/resource_index/package_run_dependencies/nav2_outdoor_example
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/ament_index/resource_index/parent_prefix_path/nav2_outdoor_example
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/environment/ament_prefix_path.sh
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/environment/ament_prefix_path.dsv
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/environment/path.sh
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/environment/path.dsv
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/local_setup.bash
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/local_setup.sh
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/local_setup.zsh
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/local_setup.dsv
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/package.dsv
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/ament_index/resource_index/packages/nav2_outdoor_example
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/cmake/nav2_outdoor_exampleConfig.cmake
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/cmake/nav2_outdoor_exampleConfig-version.cmake
+-- Installing: /home/jeff/tcc/robots/nav2_outdoor_example/install/nav2_outdoor_example/share/nav2_outdoor_example/package.xml
