@@ -52,8 +52,63 @@ Certifique-se de substituir `my_package` pelo nome do seu pacote e `my_simulatio
 
 Com esses passos, você criou um pacote no ROS 2 com suporte ao Ignition Gazebo e configurou a simulação do seu modelo. Certifique-se de ajustar o arquivo SDF e o arquivo de lançamento de acordo com as especificações do seu modelo e as necessidades do seu projeto.
 
+export GAZEBO_MODEL_PATH=~/my_ws/src/my_ignition_gazebo_package/models:$GAZEBO_MODEL_PATH
+export GAZEBO_RESOURCE_PATH=~/my_ws/src/my_ignition_gazebo_package/worlds:$GAZEBO_RESOURCE_PATH
 
+ros2 pkg create --build-type ament_python my_car_control_package
 
+Para rodar o projeto completo, incluindo o Ignition Gazebo e o nó de controle do teclado, siga estas etapas:
 
+**1. Abra um terminal e navegue para o diretório do seu espaço de trabalho do ROS 2:**
 
-https://chat.openai.com/share/389f65d2-2b37-4c1a-ab0d-198e060753b3
+```bash
+cd ~/my_ws
+```
+
+**2. Compile o pacote do nó de controle do teclado:**
+
+Certifique-se de que o seu pacote `my_car_control_package` esteja compilado. Use o seguinte comando:
+
+```bash
+colcon build --packages-select my_car_control_package
+```
+
+Isso compilará apenas o pacote `my_car_control_package`.
+
+**3. Configure o ambiente do ROS 2:**
+
+Se você ainda não configurou o ambiente do ROS 2 neste terminal, execute o seguinte comando:
+
+```bash
+source /opt/ros/foxy/setup.bash
+```
+
+Substitua `/opt/ros/foxy/setup.bash` pelo caminho correto para o seu ambiente ROS 2, se necessário.
+
+**4. Execute o Ignition Gazebo com o mundo e modelo do seu carro:**
+
+Certifique-se de ter um arquivo SDF para o mundo e o modelo do seu carro, como mencionado anteriormente. Em seguida, execute o Ignition Gazebo com o seguinte comando:
+
+```bash
+ros2 launch my_ignition_gazebo_package my_simulation.launch.py
+```
+
+Substitua `my_ignition_gazebo_package` e `my_simulation.launch.py` pelos nomes do seu pacote e arquivo de lançamento.
+
+**5. Execute o nó de controle do teclado:**
+
+Abra um novo terminal e navegue para o diretório do seu espaço de trabalho do ROS 2 novamente:
+
+```bash
+cd ~/my_ws
+```
+
+Agora, execute o nó de controle do teclado com o seguinte comando:
+
+```bash
+ros2 run my_car_control_package keyboard_control_node.py
+```
+
+Isso iniciará o nó de controle do teclado, que deve estar ouvindo as teclas pressionadas e publicando comandos de velocidade no tópico `/cmd_vel`.
+
+Com esses passos, você deve ter o Ignition Gazebo rodando com seu modelo de carro e o nó de controle do teclado em execução. Você pode usar as teclas "w", "s", "a" e "d" no terminal em que você iniciou o nó de controle do teclado para controlar o movimento do carro na simulação. Certifique-se de que os nomes dos pacotes e arquivos correspondam aos nomes reais do seu projeto.
