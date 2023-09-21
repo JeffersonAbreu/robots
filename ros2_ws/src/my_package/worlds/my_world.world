@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <world name="default">
+    <!-- Um chão simples -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    <!-- Uma luz solar -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- Incluindo o robô -->
+    <include>
+      <uri>model://two_wheeled_robot</uri>
+      <pose>0 0 0.1 0 0 0</pose>
+    </include>
+    
+  </world>
+</sdf>

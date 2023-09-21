@@ -1,0 +1,68 @@
+<?xml version='1.0'?>
+<sdf version='1.7'>
+  <model name='two_wheeled_robot'>
+    <!-- Base do robô -->
+    <include>
+      <uri>model://base_link</uri>
+    </include>
+
+    <!-- Roda esquerda -->
+    <include>
+      <uri>model://left_wheel</uri>
+      <pose>0.1 0.15 0 0 0 0</pose>
+    </include>
+    <joint name="left_wheel_joint" type="revolute">
+      <parent>base_link::link</parent>
+      <child>left_wheel::link</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1e16</lower>
+          <upper>1e16</upper>
+        </limit>
+      </axis>
+    </joint>
+
+    <!-- Roda direita -->
+    <include>
+      <uri>model://right_wheel</uri>
+      <pose>-0.1 0.15 0 0 0 0</pose>
+    </include>
+    <joint name="right_wheel_joint" type="revolute">
+      <parent>base_link::link</parent>
+      <child>right_wheel::link</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1e16</lower>
+          <upper>1e16</upper>
+        </limit>
+      </axis>
+    </joint>
+
+
+    <!-- Roda de caster -->
+    <include>
+      <uri>model://caster_wheel</uri>
+      <pose>0 0 -0.2 0 0 0</pose>
+    </include>
+    <!-- Junção da roda de caster -->
+    <joint name='caster_joint' type='fixed'>
+      <parent>base_link</parent>
+      <child>caster</child>
+    </joint>
+
+
+    <!-- Plugin para controle -->
+    <plugin filename="libignition-gazebo-diff-drive-system.so"
+      name="ignition::gazebo::systems::DiffDrive">
+      <left_joint>left_wheel_joint</left_joint>
+      <right_joint>right_wheel_joint</right_joint>
+      <wheel_separation>0.5</wheel_separation>
+      <wheel_radius>0.2</wheel_radius>
+      <odom_publish_frequency>1</odom_publish_frequency>
+      <topic>/cmd_vel</topic>
+    </plugin>
+    <!-- Adicione sensores como câmera e lidar aqui, se necessário -->
+  </model>
+</sdf>
