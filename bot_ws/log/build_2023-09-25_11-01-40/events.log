@@ -1,0 +1,178 @@
+[0.000000] (-) TimerEvent: {}
+[0.000117] (harm) JobQueued: {'identifier': 'harm', 'dependencies': OrderedDict()}
+[0.000148] (my_bot) JobQueued: {'identifier': 'my_bot', 'dependencies': OrderedDict()}
+[0.000170] (my_package) JobQueued: {'identifier': 'my_package', 'dependencies': OrderedDict()}
+[0.000190] (harm) JobStarted: {'identifier': 'harm'}
+[0.031015] (my_bot) JobStarted: {'identifier': 'my_bot'}
+[0.037672] (my_package) JobStarted: {'identifier': 'my_package'}
+[0.099146] (-) TimerEvent: {}
+[0.199467] (-) TimerEvent: {}
+[0.299797] (-) TimerEvent: {}
+[0.400148] (-) TimerEvent: {}
+[0.500486] (-) TimerEvent: {}
+[0.600817] (-) TimerEvent: {}
+[0.701142] (-) TimerEvent: {}
+[0.801440] (-) TimerEvent: {}
+[0.901733] (-) TimerEvent: {}
+[1.002003] (-) TimerEvent: {}
+[1.102353] (-) TimerEvent: {}
+[1.202671] (-) TimerEvent: {}
+[1.303174] (-) TimerEvent: {}
+[1.403917] (-) TimerEvent: {}
+[1.489589] (my_package) Command: {'cmd': ['/usr/bin/python3', 'setup.py', 'egg_info', '--egg-base', '../../build/my_package', 'build', '--build-base', '/home/jeff/tcc/robots/bot_ws/build/my_package/build', 'install', '--record', '/home/jeff/tcc/robots/bot_ws/build/my_package/install.log', '--single-version-externally-managed'], 'cwd': '/home/jeff/tcc/robots/bot_ws/src/my_package', 'env': {'LESSOPEN': '| /usr/bin/lesspipe %s', 'GZ_SIM_RESOURCE_PATH': '/home/jeff/tcc/robot/ros2_ws/src/my_package/models:/home/jeff/tcc/robot/harm_ws/src/harm/models', 'USER': 'jeff', 'LC_TIME': 'pt_BR.UTF-8', 'XDG_SESSION_TYPE': 'wayland', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/opt/ros/iron/opt/rviz_ogre_vendor/lib:/opt/ros/iron/lib/x86_64-linux-gnu:/opt/ros/iron/lib', 'HOME': '/home/jeff', 'OLDPWD': '/home/jeff/tcc/robots/bot_ws/src', 'DESKTOP_SESSION': 'ubuntu', 'ROS_PYTHON_VERSION': '3', 'GNOME_SHELL_SESSION_MODE': 'ubuntu', 'GTK_MODULES': 'gail:atk-bridge', 'LC_MONETARY': 'pt_BR.UTF-8', 'LC_CTYPE': 'pt_BR.UTF-8', 'DBUS_STARTER_BUS_TYPE': 'session', 'SYSTEMD_EXEC_PID': '1987', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus,guid=307b8c1e92aa2d00745eebda6511764e', 'COLORTERM': 'truecolor', 'IM_CONFIG_PHASE': '1', 'WAYLAND_DISPLAY': 'wayland-0', 'ROS_DISTRO': 'iron', 'LOGNAME': 'jeff', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'XDG_SESSION_CLASS': 'user', 'USERNAME': 'jeff', 'TERM': 'xterm-256color', 'GNOME_DESKTOP_SESSION_ID': 'this-is-deprecated', 'PATH': '/opt/ros/iron/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin', 'SESSION_MANAGER': 'local/jeff-X510UAR:@/tmp/.ICE-unix/1987,unix/jeff-X510UAR:/tmp/.ICE-unix/1987', 'XDG_MENU_PREFIX': 'gnome-', 'LC_ADDRESS': 'pt_BR.UTF-8', 'GNOME_TERMINAL_SCREEN': '/org/gnome/Terminal/screen/d5f91c0d_6354_4eee_a802_a1f6f4a312af', 'GNOME_SETUP_DISPLAY': ':1', 'XDG_RUNTIME_DIR': '/run/user/1000', 'DISPLAY': ':0', 'LANG': 'en_US.UTF-8', 'XDG_CURRENT_DESKTOP': 'ubuntu:GNOME', 'LC_TELEPHONE': 'pt_BR.UTF-8', 'XMODIFIERS': '@im=ibus', 'XDG_SESSION_DESKTOP': 'ubuntu', 'XAUTHORITY': '/run/user/1000/.mutter-Xwaylandauth.M0W7B2', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:', 'GNOME_TERMINAL_SERVICE': ':1.308', 'SSH_AGENT_LAUNCHER': 'gnome-keyring', 'SSH_AUTH_SOCK': '/run/user/1000/keyring/ssh', 'AMENT_PREFIX_PATH': '/opt/ros/iron', 'SHELL': '/bin/bash', 'LC_NAME': 'pt_BR.UTF-8', 'QT_ACCESSIBILITY': '1', 'GDMSESSION': 'ubuntu', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'LC_MEASUREMENT': 'pt_BR.UTF-8', 'LC_IDENTIFICATION': 'pt_BR.UTF-8', 'GZ_VERSION': 'harmonic', 'ROS_AUTOMATIC_DISCOVERY_RANGE': 'SUBNET', 'QT_IM_MODULE': 'ibus', 'PWD': '/home/jeff/tcc/robots/bot_ws/build/my_package', 'LC_ALL': 'en_US.UTF-8', 'XDG_CONFIG_DIRS': '/etc/xdg/xdg-ubuntu:/etc/xdg', 'DBUS_STARTER_ADDRESS': 'unix:path=/run/user/1000/bus,guid=307b8c1e92aa2d00745eebda6511764e', 'XDG_DATA_DIRS': '/usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop', 'PYTHONPATH': '/home/jeff/tcc/robots/bot_ws/build/my_package/prefix_override:/home/jeff/tcc/robots/bot_ws/install/my_package/lib/python3.10/site-packages:/opt/ros/iron/lib/python3.10/site-packages', 'LC_NUMERIC': 'pt_BR.UTF-8', 'LC_PAPER': 'pt_BR.UTF-8', 'COLCON': '1', 'VTE_VERSION': '6800'}, 'shell': False}
+[1.495043] (harm) Command: {'cmd': ['/usr/bin/python3', 'setup.py', 'egg_info', '--egg-base', '../../build/harm', 'build', '--build-base', '/home/jeff/tcc/robots/bot_ws/build/harm/build', 'install', '--record', '/home/jeff/tcc/robots/bot_ws/build/harm/install.log', '--single-version-externally-managed'], 'cwd': '/home/jeff/tcc/robots/bot_ws/src/harm', 'env': {'LESSOPEN': '| /usr/bin/lesspipe %s', 'GZ_SIM_RESOURCE_PATH': '/home/jeff/tcc/robot/ros2_ws/src/my_package/models:/home/jeff/tcc/robot/harm_ws/src/harm/models', 'USER': 'jeff', 'LC_TIME': 'pt_BR.UTF-8', 'XDG_SESSION_TYPE': 'wayland', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/opt/ros/iron/opt/rviz_ogre_vendor/lib:/opt/ros/iron/lib/x86_64-linux-gnu:/opt/ros/iron/lib', 'HOME': '/home/jeff', 'OLDPWD': '/home/jeff/tcc/robots/bot_ws/src', 'DESKTOP_SESSION': 'ubuntu', 'ROS_PYTHON_VERSION': '3', 'GNOME_SHELL_SESSION_MODE': 'ubuntu', 'GTK_MODULES': 'gail:atk-bridge', 'LC_MONETARY': 'pt_BR.UTF-8', 'LC_CTYPE': 'pt_BR.UTF-8', 'DBUS_STARTER_BUS_TYPE': 'session', 'SYSTEMD_EXEC_PID': '1987', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus,guid=307b8c1e92aa2d00745eebda6511764e', 'COLORTERM': 'truecolor', 'IM_CONFIG_PHASE': '1', 'WAYLAND_DISPLAY': 'wayland-0', 'ROS_DISTRO': 'iron', 'LOGNAME': 'jeff', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'XDG_SESSION_CLASS': 'user', 'USERNAME': 'jeff', 'TERM': 'xterm-256color', 'GNOME_DESKTOP_SESSION_ID': 'this-is-deprecated', 'PATH': '/opt/ros/iron/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin', 'SESSION_MANAGER': 'local/jeff-X510UAR:@/tmp/.ICE-unix/1987,unix/jeff-X510UAR:/tmp/.ICE-unix/1987', 'XDG_MENU_PREFIX': 'gnome-', 'LC_ADDRESS': 'pt_BR.UTF-8', 'GNOME_TERMINAL_SCREEN': '/org/gnome/Terminal/screen/d5f91c0d_6354_4eee_a802_a1f6f4a312af', 'GNOME_SETUP_DISPLAY': ':1', 'XDG_RUNTIME_DIR': '/run/user/1000', 'DISPLAY': ':0', 'LANG': 'en_US.UTF-8', 'XDG_CURRENT_DESKTOP': 'ubuntu:GNOME', 'LC_TELEPHONE': 'pt_BR.UTF-8', 'XMODIFIERS': '@im=ibus', 'XDG_SESSION_DESKTOP': 'ubuntu', 'XAUTHORITY': '/run/user/1000/.mutter-Xwaylandauth.M0W7B2', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:', 'GNOME_TERMINAL_SERVICE': ':1.308', 'SSH_AGENT_LAUNCHER': 'gnome-keyring', 'SSH_AUTH_SOCK': '/run/user/1000/keyring/ssh', 'AMENT_PREFIX_PATH': '/opt/ros/iron', 'SHELL': '/bin/bash', 'LC_NAME': 'pt_BR.UTF-8', 'QT_ACCESSIBILITY': '1', 'GDMSESSION': 'ubuntu', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'LC_MEASUREMENT': 'pt_BR.UTF-8', 'LC_IDENTIFICATION': 'pt_BR.UTF-8', 'GZ_VERSION': 'harmonic', 'ROS_AUTOMATIC_DISCOVERY_RANGE': 'SUBNET', 'QT_IM_MODULE': 'ibus', 'PWD': '/home/jeff/tcc/robots/bot_ws/build/harm', 'LC_ALL': 'en_US.UTF-8', 'XDG_CONFIG_DIRS': '/etc/xdg/xdg-ubuntu:/etc/xdg', 'DBUS_STARTER_ADDRESS': 'unix:path=/run/user/1000/bus,guid=307b8c1e92aa2d00745eebda6511764e', 'XDG_DATA_DIRS': '/usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop', 'PYTHONPATH': '/home/jeff/tcc/robots/bot_ws/build/harm/prefix_override:/home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages:/opt/ros/iron/lib/python3.10/site-packages', 'LC_NUMERIC': 'pt_BR.UTF-8', 'LC_PAPER': 'pt_BR.UTF-8', 'COLCON': '1', 'VTE_VERSION': '6800'}, 'shell': False}
+[1.499754] (my_bot) Command: {'cmd': ['/usr/bin/python3', 'setup.py', 'egg_info', '--egg-base', '../../build/my_bot', 'build', '--build-base', '/home/jeff/tcc/robots/bot_ws/build/my_bot/build', 'install', '--record', '/home/jeff/tcc/robots/bot_ws/build/my_bot/install.log', '--single-version-externally-managed'], 'cwd': '/home/jeff/tcc/robots/bot_ws/src/my_bot', 'env': {'LESSOPEN': '| /usr/bin/lesspipe %s', 'GZ_SIM_RESOURCE_PATH': '/home/jeff/tcc/robot/ros2_ws/src/my_package/models:/home/jeff/tcc/robot/harm_ws/src/harm/models', 'USER': 'jeff', 'LC_TIME': 'pt_BR.UTF-8', 'XDG_SESSION_TYPE': 'wayland', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/opt/ros/iron/opt/rviz_ogre_vendor/lib:/opt/ros/iron/lib/x86_64-linux-gnu:/opt/ros/iron/lib', 'HOME': '/home/jeff', 'OLDPWD': '/home/jeff/tcc/robots/bot_ws/src', 'DESKTOP_SESSION': 'ubuntu', 'ROS_PYTHON_VERSION': '3', 'GNOME_SHELL_SESSION_MODE': 'ubuntu', 'GTK_MODULES': 'gail:atk-bridge', 'LC_MONETARY': 'pt_BR.UTF-8', 'LC_CTYPE': 'pt_BR.UTF-8', 'DBUS_STARTER_BUS_TYPE': 'session', 'SYSTEMD_EXEC_PID': '1987', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus,guid=307b8c1e92aa2d00745eebda6511764e', 'COLORTERM': 'truecolor', 'IM_CONFIG_PHASE': '1', 'WAYLAND_DISPLAY': 'wayland-0', 'ROS_DISTRO': 'iron', 'LOGNAME': 'jeff', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'XDG_SESSION_CLASS': 'user', 'USERNAME': 'jeff', 'TERM': 'xterm-256color', 'GNOME_DESKTOP_SESSION_ID': 'this-is-deprecated', 'PATH': '/opt/ros/iron/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin', 'SESSION_MANAGER': 'local/jeff-X510UAR:@/tmp/.ICE-unix/1987,unix/jeff-X510UAR:/tmp/.ICE-unix/1987', 'XDG_MENU_PREFIX': 'gnome-', 'LC_ADDRESS': 'pt_BR.UTF-8', 'GNOME_TERMINAL_SCREEN': '/org/gnome/Terminal/screen/d5f91c0d_6354_4eee_a802_a1f6f4a312af', 'GNOME_SETUP_DISPLAY': ':1', 'XDG_RUNTIME_DIR': '/run/user/1000', 'DISPLAY': ':0', 'LANG': 'en_US.UTF-8', 'XDG_CURRENT_DESKTOP': 'ubuntu:GNOME', 'LC_TELEPHONE': 'pt_BR.UTF-8', 'XMODIFIERS': '@im=ibus', 'XDG_SESSION_DESKTOP': 'ubuntu', 'XAUTHORITY': '/run/user/1000/.mutter-Xwaylandauth.M0W7B2', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:', 'GNOME_TERMINAL_SERVICE': ':1.308', 'SSH_AGENT_LAUNCHER': 'gnome-keyring', 'SSH_AUTH_SOCK': '/run/user/1000/keyring/ssh', 'AMENT_PREFIX_PATH': '/opt/ros/iron', 'SHELL': '/bin/bash', 'LC_NAME': 'pt_BR.UTF-8', 'QT_ACCESSIBILITY': '1', 'GDMSESSION': 'ubuntu', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'LC_MEASUREMENT': 'pt_BR.UTF-8', 'LC_IDENTIFICATION': 'pt_BR.UTF-8', 'GZ_VERSION': 'harmonic', 'ROS_AUTOMATIC_DISCOVERY_RANGE': 'SUBNET', 'QT_IM_MODULE': 'ibus', 'PWD': '/home/jeff/tcc/robots/bot_ws/build/my_bot', 'LC_ALL': 'en_US.UTF-8', 'XDG_CONFIG_DIRS': '/etc/xdg/xdg-ubuntu:/etc/xdg', 'DBUS_STARTER_ADDRESS': 'unix:path=/run/user/1000/bus,guid=307b8c1e92aa2d00745eebda6511764e', 'XDG_DATA_DIRS': '/usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop', 'PYTHONPATH': '/home/jeff/tcc/robots/bot_ws/build/my_bot/prefix_override:/home/jeff/tcc/robots/bot_ws/install/my_bot/lib/python3.10/site-packages:/opt/ros/iron/lib/python3.10/site-packages', 'LC_NUMERIC': 'pt_BR.UTF-8', 'LC_PAPER': 'pt_BR.UTF-8', 'COLCON': '1', 'VTE_VERSION': '6800'}, 'shell': False}
+[1.503983] (-) TimerEvent: {}
+[1.604327] (-) TimerEvent: {}
+[1.704641] (-) TimerEvent: {}
+[1.791255] (my_package) StdoutLine: {'line': b'running egg_info\n'}
+[1.791865] (my_package) StdoutLine: {'line': b'creating ../../build/my_package/my_package.egg-info\n'}
+[1.792074] (my_package) StdoutLine: {'line': b'writing ../../build/my_package/my_package.egg-info/PKG-INFO\n'}
+[1.792272] (my_package) StdoutLine: {'line': b'writing dependency_links to ../../build/my_package/my_package.egg-info/dependency_links.txt\n'}
+[1.792455] (my_package) StdoutLine: {'line': b'writing entry points to ../../build/my_package/my_package.egg-info/entry_points.txt\n'}
+[1.792642] (my_package) StdoutLine: {'line': b'writing requirements to ../../build/my_package/my_package.egg-info/requires.txt\n'}
+[1.792766] (my_package) StdoutLine: {'line': b'writing top-level names to ../../build/my_package/my_package.egg-info/top_level.txt\n'}
+[1.792948] (my_package) StdoutLine: {'line': b"writing manifest file '../../build/my_package/my_package.egg-info/SOURCES.txt'\n"}
+[1.793432] (harm) StdoutLine: {'line': b'running egg_info\n'}
+[1.794209] (harm) StdoutLine: {'line': b'creating ../../build/harm/harm.egg-info\n'}
+[1.794504] (harm) StdoutLine: {'line': b'writing ../../build/harm/harm.egg-info/PKG-INFO\n'}
+[1.794758] (harm) StdoutLine: {'line': b'writing dependency_links to ../../build/harm/harm.egg-info/dependency_links.txt\n'}
+[1.794951] (harm) StdoutLine: {'line': b'writing entry points to ../../build/harm/harm.egg-info/entry_points.txt\n'}
+[1.795176] (my_bot) StdoutLine: {'line': b'running egg_info\n'}
+[1.795401] (harm) StdoutLine: {'line': b'writing requirements to ../../build/harm/harm.egg-info/requires.txt\n'}
+[1.795589] (harm) StdoutLine: {'line': b'writing top-level names to ../../build/harm/harm.egg-info/top_level.txt\n'}
+[1.795724] (my_package) StdoutLine: {'line': b"reading manifest file '../../build/my_package/my_package.egg-info/SOURCES.txt'\n"}
+[1.795904] (harm) StdoutLine: {'line': b"writing manifest file '../../build/harm/harm.egg-info/SOURCES.txt'\n"}
+[1.796042] (my_bot) StdoutLine: {'line': b'creating ../../build/my_bot/my_bot.egg-info\n'}
+[1.796213] (my_bot) StdoutLine: {'line': b'writing ../../build/my_bot/my_bot.egg-info/PKG-INFO\n'}
+[1.796412] (my_bot) StdoutLine: {'line': b'writing dependency_links to ../../build/my_bot/my_bot.egg-info/dependency_links.txt\n'}
+[1.796595] (my_bot) StdoutLine: {'line': b'writing entry points to ../../build/my_bot/my_bot.egg-info/entry_points.txt\n'}
+[1.796761] (my_bot) StdoutLine: {'line': b'writing requirements to ../../build/my_bot/my_bot.egg-info/requires.txt\n'}
+[1.796893] (my_bot) StdoutLine: {'line': b'writing top-level names to ../../build/my_bot/my_bot.egg-info/top_level.txt\n'}
+[1.797044] (my_bot) StdoutLine: {'line': b"writing manifest file '../../build/my_bot/my_bot.egg-info/SOURCES.txt'\n"}
+[1.797232] (my_package) StdoutLine: {'line': b"writing manifest file '../../build/my_package/my_package.egg-info/SOURCES.txt'\n"}
+[1.797445] (my_package) StdoutLine: {'line': b'running build\n'}
+[1.797595] (my_package) StdoutLine: {'line': b'running build_py\n'}
+[1.797873] (my_package) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/build/my_package/build\n'}
+[1.798066] (my_package) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/build/my_package/build/lib\n'}
+[1.798252] (my_package) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/build/my_package/build/lib/my_package\n'}
+[1.798425] (harm) StdoutLine: {'line': b"reading manifest file '../../build/harm/harm.egg-info/SOURCES.txt'\n"}
+[1.798597] (my_package) StdoutLine: {'line': b'copying my_package/__init__.py -> /home/jeff/tcc/robots/bot_ws/build/my_package/build/lib/my_package\n'}
+[1.798734] (my_package) StdoutLine: {'line': b'copying my_package/controller.py -> /home/jeff/tcc/robots/bot_ws/build/my_package/build/lib/my_package\n'}
+[1.798874] (my_package) StdoutLine: {'line': b'running install\n'}
+[1.799036] (my_bot) StdoutLine: {'line': b"reading manifest file '../../build/my_bot/my_bot.egg-info/SOURCES.txt'\n"}
+[1.799242] (my_package) StdoutLine: {'line': b'running install_lib\n'}
+[1.799435] (harm) StdoutLine: {'line': b"writing manifest file '../../build/harm/harm.egg-info/SOURCES.txt'\n"}
+[1.799630] (harm) StdoutLine: {'line': b'running build\n'}
+[1.799812] (harm) StdoutLine: {'line': b'running build_py\n'}
+[1.799987] (harm) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/build/harm/build\n'}
+[1.800219] (harm) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/build/harm/build/lib\n'}
+[1.800471] (harm) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/build/harm/build/lib/harm\n'}
+[1.800602] (harm) StdoutLine: {'line': b'copying harm/controller copy 2.py -> /home/jeff/tcc/robots/bot_ws/build/harm/build/lib/harm\n'}
+[1.800817] (harm) StdoutLine: {'line': b'copying harm/__init__.py -> /home/jeff/tcc/robots/bot_ws/build/harm/build/lib/harm\n'}
+[1.800967] (harm) StdoutLine: {'line': b'copying harm/controller.py -> /home/jeff/tcc/robots/bot_ws/build/harm/build/lib/harm\n'}
+[1.801150] (harm) StdoutLine: {'line': b'copying harm/controller copy 3.py -> /home/jeff/tcc/robots/bot_ws/build/harm/build/lib/harm\n'}
+[1.801304] (harm) StdoutLine: {'line': b'running install\n'}
+[1.801439] (my_package) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/my_package/lib/python3.10/site-packages/my_package\n'}
+[1.801578] (my_bot) StdoutLine: {'line': b"writing manifest file '../../build/my_bot/my_bot.egg-info/SOURCES.txt'\n"}
+[1.801802] (my_bot) StdoutLine: {'line': b'running build\n'}
+[1.802019] (my_bot) StdoutLine: {'line': b'running build_py\n'}
+[1.802173] (my_package) StdoutLine: {'line': b'copying /home/jeff/tcc/robots/bot_ws/build/my_package/build/lib/my_package/__init__.py -> /home/jeff/tcc/robots/bot_ws/install/my_package/lib/python3.10/site-packages/my_package\n'}
+[1.802299] (my_package) StdoutLine: {'line': b'copying /home/jeff/tcc/robots/bot_ws/build/my_package/build/lib/my_package/controller.py -> /home/jeff/tcc/robots/bot_ws/install/my_package/lib/python3.10/site-packages/my_package\n'}
+[1.802421] (harm) StdoutLine: {'line': b'running install_lib\n'}
+[1.802543] (my_bot) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/build/my_bot/build\n'}
+[1.802774] (my_bot) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/build/my_bot/build/lib\n'}
+[1.802994] (my_bot) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/build/my_bot/build/lib/my_bot\n'}
+[1.803142] (my_bot) StdoutLine: {'line': b'copying my_bot/__init__.py -> /home/jeff/tcc/robots/bot_ws/build/my_bot/build/lib/my_bot\n'}
+[1.803263] (my_bot) StdoutLine: {'line': b'copying my_bot/controller.py -> /home/jeff/tcc/robots/bot_ws/build/my_bot/build/lib/my_bot\n'}
+[1.803466] (my_package) StdoutLine: {'line': b'byte-compiling /home/jeff/tcc/robots/bot_ws/install/my_package/lib/python3.10/site-packages/my_package/__init__.py to __init__.cpython-310.pyc\n'}
+[1.803596] (my_bot) StdoutLine: {'line': b'running install\n'}
+[1.803723] (my_package) StdoutLine: {'line': b'byte-compiling /home/jeff/tcc/robots/bot_ws/install/my_package/lib/python3.10/site-packages/my_package/controller.py to controller.cpython-310.pyc\n'}
+[1.804013] (harm) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm\n'}
+[1.804163] (my_bot) StdoutLine: {'line': b'running install_lib\n'}
+[1.804283] (harm) StdoutLine: {'line': b'copying /home/jeff/tcc/robots/bot_ws/build/harm/build/lib/harm/controller copy 2.py -> /home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm\n'}
+[1.804457] (my_package) StdoutLine: {'line': b'running install_data\n'}
+[1.804576] (harm) StdoutLine: {'line': b'copying /home/jeff/tcc/robots/bot_ws/build/harm/build/lib/harm/__init__.py -> /home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm\n'}
+[1.804692] (-) TimerEvent: {}
+[1.804836] (harm) StdoutLine: {'line': b'copying /home/jeff/tcc/robots/bot_ws/build/harm/build/lib/harm/controller.py -> /home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm\n'}
+[1.804969] (harm) StdoutLine: {'line': b'copying /home/jeff/tcc/robots/bot_ws/build/harm/build/lib/harm/controller copy 3.py -> /home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm\n'}
+[1.805090] (my_bot) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/my_bot/lib/python3.10/site-packages/my_bot\n'}
+[1.805333] (harm) StdoutLine: {'line': b'byte-compiling /home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm/controller copy 2.py to controller copy 2.cpython-310.pyc\n'}
+[1.805561] (my_bot) StdoutLine: {'line': b'copying /home/jeff/tcc/robots/bot_ws/build/my_bot/build/lib/my_bot/__init__.py -> /home/jeff/tcc/robots/bot_ws/install/my_bot/lib/python3.10/site-packages/my_bot\n'}
+[1.805849] (my_package) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/my_package/share/ament_index\n'}
+[1.806001] (my_package) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/my_package/share/ament_index/resource_index\n'}
+[1.806149] (my_package) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/my_package/share/ament_index/resource_index/packages\n'}
+[1.806320] (my_bot) StdoutLine: {'line': b'copying /home/jeff/tcc/robots/bot_ws/build/my_bot/build/lib/my_bot/controller.py -> /home/jeff/tcc/robots/bot_ws/install/my_bot/lib/python3.10/site-packages/my_bot\n'}
+[1.806486] (my_package) StdoutLine: {'line': b'copying resource/my_package -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/ament_index/resource_index/packages\n'}
+[1.806657] (my_package) StdoutLine: {'line': b'copying package.xml -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package\n'}
+[1.806801] (my_package) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/launch\n'}
+[1.806943] (my_package) StdoutLine: {'line': b'copying launch/main.launch.py -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/launch\n'}
+[1.807085] (harm) StdoutLine: {'line': b'byte-compiling /home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm/__init__.py to __init__.cpython-310.pyc\n'}
+[1.807231] (my_package) StdoutLine: {'line': b'copying launch/play.launch.py -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/launch\n'}
+[1.807378] (my_package) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/worlds\n'}
+[1.807547] (my_package) StdoutLine: {'line': b'copying worlds/my_world.world -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/worlds\n'}
+[1.807709] (harm) StdoutLine: {'line': b'byte-compiling /home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm/controller.py to controller.cpython-310.pyc\n'}
+[1.807830] (my_bot) StdoutLine: {'line': b'byte-compiling /home/jeff/tcc/robots/bot_ws/install/my_bot/lib/python3.10/site-packages/my_bot/__init__.py to __init__.cpython-310.pyc\n'}
+[1.807987] (my_bot) StdoutLine: {'line': b'byte-compiling /home/jeff/tcc/robots/bot_ws/install/my_bot/lib/python3.10/site-packages/my_bot/controller.py to controller.cpython-310.pyc\n'}
+[1.808110] (my_package) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/worlds/meshes\n'}
+[1.808226] (harm) StdoutLine: {'line': b'byte-compiling /home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm/controller copy 3.py to controller copy 3.cpython-310.pyc\n'}
+[1.808387] (my_package) StdoutLine: {'line': b'copying worlds/meshes/roda_direita_link.stl -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/worlds/meshes\n'}
+[1.808537] (my_bot) StdoutLine: {'line': b'running install_data\n'}
+[1.808657] (harm) StdoutLine: {'line': b'running install_data\n'}
+[1.808778] (harm) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/harm/share/ament_index\n'}
+[1.808929] (my_bot) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/my_bot/share/ament_index\n'}
+[1.809049] (my_bot) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/my_bot/share/ament_index/resource_index\n'}
+[1.809168] (harm) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/harm/share/ament_index/resource_index\n'}
+[1.809287] (harm) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/harm/share/ament_index/resource_index/packages\n'}
+[1.809415] (my_bot) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/my_bot/share/ament_index/resource_index/packages\n'}
+[1.809579] (harm) StdoutLine: {'line': b'copying resource/harm -> /home/jeff/tcc/robots/bot_ws/install/harm/share/ament_index/resource_index/packages\n'}
+[1.809705] (my_bot) StdoutLine: {'line': b'copying resource/my_bot -> /home/jeff/tcc/robots/bot_ws/install/my_bot/share/ament_index/resource_index/packages\n'}
+[1.809825] (harm) StdoutLine: {'line': b'copying package.xml -> /home/jeff/tcc/robots/bot_ws/install/harm/share/harm\n'}
+[1.809981] (my_bot) StdoutLine: {'line': b'copying package.xml -> /home/jeff/tcc/robots/bot_ws/install/my_bot/share/my_bot\n'}
+[1.810105] (my_package) StdoutLine: {'line': b'copying worlds/meshes/chassis_link.stl -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/worlds/meshes\n'}
+[1.810254] (my_bot) StdoutLine: {'line': b'running install_egg_info\n'}
+[1.810373] (harm) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/harm/share/harm/models\n'}
+[1.810564] (harm) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/harm/share/harm/models/room_wall_2x5m\n'}
+[1.810719] (harm) StdoutLine: {'line': b'copying models/room_wall_2x5m/model.config -> /home/jeff/tcc/robots/bot_ws/install/harm/share/harm/models/room_wall_2x5m\n'}
+[1.810840] (harm) StdoutLine: {'line': b'copying models/room_wall_2x5m/model.sdf -> /home/jeff/tcc/robots/bot_ws/install/harm/share/harm/models/room_wall_2x5m\n'}
+[1.810996] (harm) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/harm/share/harm/worlds\n'}
+[1.811115] (harm) StdoutLine: {'line': b'copying worlds/mapa.sdf -> /home/jeff/tcc/robots/bot_ws/install/harm/share/harm/worlds\n'}
+[1.811260] (harm) StdoutLine: {'line': b'copying worlds/shapes.sdf -> /home/jeff/tcc/robots/bot_ws/install/harm/share/harm/worlds\n'}
+[1.811381] (harm) StdoutLine: {'line': b'copying worlds/my_world_copy.world -> /home/jeff/tcc/robots/bot_ws/install/harm/share/harm/worlds\n'}
+[1.811496] (harm) StdoutLine: {'line': b'copying worlds/my_world.world -> /home/jeff/tcc/robots/bot_ws/install/harm/share/harm/worlds\n'}
+[1.811613] (harm) StdoutLine: {'line': b'copying worlds/mapa4.sdf -> /home/jeff/tcc/robots/bot_ws/install/harm/share/harm/worlds\n'}
+[1.811732] (harm) StdoutLine: {'line': b'copying worlds/mapa2.sdf -> /home/jeff/tcc/robots/bot_ws/install/harm/share/harm/worlds\n'}
+[1.811849] (harm) StdoutLine: {'line': b'copying worlds/mapa3.sdf -> /home/jeff/tcc/robots/bot_ws/install/harm/share/harm/worlds\n'}
+[1.811966] (harm) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/harm/share/harm/launch\n'}
+[1.812083] (harm) StdoutLine: {'line': b'copying launch/world.launch_copy.py -> /home/jeff/tcc/robots/bot_ws/install/harm/share/harm/launch\n'}
+[1.812215] (harm) StdoutLine: {'line': b'copying launch/world.launch.py -> /home/jeff/tcc/robots/bot_ws/install/harm/share/harm/launch\n'}
+[1.812332] (harm) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/harm/share/harm/launch/__pycache__\n'}
+[1.812448] (harm) StdoutLine: {'line': b'copying launch/__pycache__/world.launch.cpython-310.pyc -> /home/jeff/tcc/robots/bot_ws/install/harm/share/harm/launch/__pycache__\n'}
+[1.812566] (harm) StdoutLine: {'line': b'running install_egg_info\n'}
+[1.812681] (my_package) StdoutLine: {'line': b'copying worlds/meshes/base_castor_link.stl -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/worlds/meshes\n'}
+[1.812812] (my_package) StdoutLine: {'line': b'copying worlds/meshes/roda_castor_link.stl -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/worlds/meshes\n'}
+[1.812932] (my_bot) StdoutLine: {'line': b'Copying ../../build/my_bot/my_bot.egg-info to /home/jeff/tcc/robots/bot_ws/install/my_bot/lib/python3.10/site-packages/my_bot-0.0.0-py3.10.egg-info\n'}
+[1.813055] (my_package) StdoutLine: {'line': b'copying worlds/meshes/roda_esquerda_link.stl -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/worlds/meshes\n'}
+[1.813173] (my_bot) StdoutLine: {'line': b'running install_scripts\n'}
+[1.813288] (harm) StdoutLine: {'line': b'Copying ../../build/harm/harm.egg-info to /home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm-0.0.1-py3.10.egg-info\n'}
+[1.813425] (my_package) StdoutLine: {'line': b'creating /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/models\n'}
+[1.813549] (my_package) StdoutLine: {'line': b'copying models/caster_wheel/model.config -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/models\n'}
+[1.813669] (my_package) StdoutLine: {'line': b'copying models/caster_wheel/model.sdf -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/models\n'}
+[1.813829] (harm) StdoutLine: {'line': b'running install_scripts\n'}
+[1.813951] (my_package) StdoutLine: {'line': b'running install_egg_info\n'}
+[1.814068] (my_package) StdoutLine: {'line': b'Copying ../../build/my_package/my_package.egg-info to /home/jeff/tcc/robots/bot_ws/install/my_package/lib/python3.10/site-packages/my_package-0.0.0-py3.10.egg-info\n'}
+[1.814895] (my_package) StdoutLine: {'line': b'running install_scripts\n'}
+[1.832892] (my_bot) StdoutLine: {'line': b'Installing controller script to /home/jeff/tcc/robots/bot_ws/install/my_bot/lib/my_bot\n'}
+[1.833310] (my_bot) StdoutLine: {'line': b"writing list of installed files to '/home/jeff/tcc/robots/bot_ws/build/my_bot/install.log'\n"}
+[1.833863] (harm) StdoutLine: {'line': b'Installing controller script to /home/jeff/tcc/robots/bot_ws/install/harm/lib/harm\n'}
+[1.834409] (harm) StdoutLine: {'line': b"writing list of installed files to '/home/jeff/tcc/robots/bot_ws/build/harm/install.log'\n"}
+[1.839264] (my_package) StdoutLine: {'line': b'Installing controller script to /home/jeff/tcc/robots/bot_ws/install/my_package/lib/my_package\n'}
+[1.839673] (my_package) StdoutLine: {'line': b"writing list of installed files to '/home/jeff/tcc/robots/bot_ws/build/my_package/install.log'\n"}
+[1.875878] (my_bot) CommandEnded: {'returncode': 0}
+[1.902679] (my_bot) JobEnded: {'identifier': 'my_bot', 'rc': 0}
+[1.906993] (-) TimerEvent: {}
+[1.907174] (harm) CommandEnded: {'returncode': 0}
+[1.919819] (harm) JobEnded: {'identifier': 'harm', 'rc': 0}
+[1.920597] (my_package) CommandEnded: {'returncode': 0}
+[1.934044] (my_package) JobEnded: {'identifier': 'my_package', 'rc': 0}
+[1.934991] (-) EventReactorShutdown: {}

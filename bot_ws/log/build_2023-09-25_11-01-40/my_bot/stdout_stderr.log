@@ -1,0 +1,35 @@
+running egg_info
+creating ../../build/my_bot/my_bot.egg-info
+writing ../../build/my_bot/my_bot.egg-info/PKG-INFO
+writing dependency_links to ../../build/my_bot/my_bot.egg-info/dependency_links.txt
+writing entry points to ../../build/my_bot/my_bot.egg-info/entry_points.txt
+writing requirements to ../../build/my_bot/my_bot.egg-info/requires.txt
+writing top-level names to ../../build/my_bot/my_bot.egg-info/top_level.txt
+writing manifest file '../../build/my_bot/my_bot.egg-info/SOURCES.txt'
+reading manifest file '../../build/my_bot/my_bot.egg-info/SOURCES.txt'
+writing manifest file '../../build/my_bot/my_bot.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/jeff/tcc/robots/bot_ws/build/my_bot/build
+creating /home/jeff/tcc/robots/bot_ws/build/my_bot/build/lib
+creating /home/jeff/tcc/robots/bot_ws/build/my_bot/build/lib/my_bot
+copying my_bot/__init__.py -> /home/jeff/tcc/robots/bot_ws/build/my_bot/build/lib/my_bot
+copying my_bot/controller.py -> /home/jeff/tcc/robots/bot_ws/build/my_bot/build/lib/my_bot
+running install
+running install_lib
+creating /home/jeff/tcc/robots/bot_ws/install/my_bot/lib/python3.10/site-packages/my_bot
+copying /home/jeff/tcc/robots/bot_ws/build/my_bot/build/lib/my_bot/__init__.py -> /home/jeff/tcc/robots/bot_ws/install/my_bot/lib/python3.10/site-packages/my_bot
+copying /home/jeff/tcc/robots/bot_ws/build/my_bot/build/lib/my_bot/controller.py -> /home/jeff/tcc/robots/bot_ws/install/my_bot/lib/python3.10/site-packages/my_bot
+byte-compiling /home/jeff/tcc/robots/bot_ws/install/my_bot/lib/python3.10/site-packages/my_bot/__init__.py to __init__.cpython-310.pyc
+byte-compiling /home/jeff/tcc/robots/bot_ws/install/my_bot/lib/python3.10/site-packages/my_bot/controller.py to controller.cpython-310.pyc
+running install_data
+creating /home/jeff/tcc/robots/bot_ws/install/my_bot/share/ament_index
+creating /home/jeff/tcc/robots/bot_ws/install/my_bot/share/ament_index/resource_index
+creating /home/jeff/tcc/robots/bot_ws/install/my_bot/share/ament_index/resource_index/packages
+copying resource/my_bot -> /home/jeff/tcc/robots/bot_ws/install/my_bot/share/ament_index/resource_index/packages
+copying package.xml -> /home/jeff/tcc/robots/bot_ws/install/my_bot/share/my_bot
+running install_egg_info
+Copying ../../build/my_bot/my_bot.egg-info to /home/jeff/tcc/robots/bot_ws/install/my_bot/lib/python3.10/site-packages/my_bot-0.0.0-py3.10.egg-info
+running install_scripts
+Installing controller script to /home/jeff/tcc/robots/bot_ws/install/my_bot/lib/my_bot
+writing list of installed files to '/home/jeff/tcc/robots/bot_ws/build/my_bot/install.log'

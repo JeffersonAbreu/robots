@@ -1,0 +1,30 @@
+/home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm/controller copy 2.py
+/home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm/__init__.py
+/home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm/controller.py
+/home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm/controller copy 3.py
+/home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm/__pycache__/controller copy 2.cpython-310.pyc
+/home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm/__pycache__/__init__.cpython-310.pyc
+/home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm/__pycache__/controller.cpython-310.pyc
+/home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm/__pycache__/controller copy 3.cpython-310.pyc
+/home/jeff/tcc/robots/bot_ws/install/harm/share/ament_index/resource_index/packages/harm
+/home/jeff/tcc/robots/bot_ws/install/harm/share/harm/package.xml
+/home/jeff/tcc/robots/bot_ws/install/harm/share/harm/models/room_wall_2x5m/model.config
+/home/jeff/tcc/robots/bot_ws/install/harm/share/harm/models/room_wall_2x5m/model.sdf
+/home/jeff/tcc/robots/bot_ws/install/harm/share/harm/worlds/mapa.sdf
+/home/jeff/tcc/robots/bot_ws/install/harm/share/harm/worlds/shapes.sdf
+/home/jeff/tcc/robots/bot_ws/install/harm/share/harm/worlds/my_world_copy.world
+/home/jeff/tcc/robots/bot_ws/install/harm/share/harm/worlds/my_world.world
+/home/jeff/tcc/robots/bot_ws/install/harm/share/harm/worlds/mapa4.sdf
+/home/jeff/tcc/robots/bot_ws/install/harm/share/harm/worlds/mapa2.sdf
+/home/jeff/tcc/robots/bot_ws/install/harm/share/harm/worlds/mapa3.sdf
+/home/jeff/tcc/robots/bot_ws/install/harm/share/harm/launch/world.launch_copy.py
+/home/jeff/tcc/robots/bot_ws/install/harm/share/harm/launch/world.launch.py
+/home/jeff/tcc/robots/bot_ws/install/harm/share/harm/launch/__pycache__/world.launch.cpython-310.pyc
+/home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm-0.0.1-py3.10.egg-info/dependency_links.txt
+/home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm-0.0.1-py3.10.egg-info/entry_points.txt
+/home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm-0.0.1-py3.10.egg-info/requires.txt
+/home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm-0.0.1-py3.10.egg-info/PKG-INFO
+/home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm-0.0.1-py3.10.egg-info/zip-safe
+/home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm-0.0.1-py3.10.egg-info/top_level.txt
+/home/jeff/tcc/robots/bot_ws/install/harm/lib/python3.10/site-packages/harm-0.0.1-py3.10.egg-info/SOURCES.txt
+/home/jeff/tcc/robots/bot_ws/install/harm/lib/harm/controller

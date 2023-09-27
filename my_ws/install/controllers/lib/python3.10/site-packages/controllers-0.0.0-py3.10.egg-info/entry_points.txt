@@ -1,3 +1,0 @@
-[console_scripts]
-my_node = controllers.my_node:main
-

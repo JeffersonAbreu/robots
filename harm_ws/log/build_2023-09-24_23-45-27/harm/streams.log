@@ -1,0 +1,60 @@
+[0.726s] Invoking command in '/home/jeff/tcc/robots/harm_ws/src/harm': PYTHONPATH=/home/jeff/tcc/robots/harm_ws/build/harm/prefix_override:/home/jeff/tcc/robots/harm_ws/install/harm/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/harm build --build-base /home/jeff/tcc/robots/harm_ws/build/harm/build install --record /home/jeff/tcc/robots/harm_ws/build/harm/install.log --single-version-externally-managed
+[1.018s] running egg_info
+[1.018s] creating ../../build/harm/harm.egg-info
+[1.019s] writing ../../build/harm/harm.egg-info/PKG-INFO
+[1.019s] writing dependency_links to ../../build/harm/harm.egg-info/dependency_links.txt
+[1.019s] writing entry points to ../../build/harm/harm.egg-info/entry_points.txt
+[1.019s] writing requirements to ../../build/harm/harm.egg-info/requires.txt
+[1.019s] writing top-level names to ../../build/harm/harm.egg-info/top_level.txt
+[1.019s] writing manifest file '../../build/harm/harm.egg-info/SOURCES.txt'
+[1.024s] reading manifest file '../../build/harm/harm.egg-info/SOURCES.txt'
+[1.027s] writing manifest file '../../build/harm/harm.egg-info/SOURCES.txt'
+[1.028s] running build
+[1.028s] running build_py
+[1.029s] creating /home/jeff/tcc/robots/harm_ws/build/harm/build
+[1.029s] creating /home/jeff/tcc/robots/harm_ws/build/harm/build/lib
+[1.030s] creating /home/jeff/tcc/robots/harm_ws/build/harm/build/lib/harm
+[1.030s] copying harm/controller copy 2.py -> /home/jeff/tcc/robots/harm_ws/build/harm/build/lib/harm
+[1.030s] copying harm/__init__.py -> /home/jeff/tcc/robots/harm_ws/build/harm/build/lib/harm
+[1.031s] copying harm/controller.py -> /home/jeff/tcc/robots/harm_ws/build/harm/build/lib/harm
+[1.031s] copying harm/controller copy 3.py -> /home/jeff/tcc/robots/harm_ws/build/harm/build/lib/harm
+[1.031s] running install
+[1.032s] running install_lib
+[1.033s] creating /home/jeff/tcc/robots/harm_ws/install/harm/lib/python3.10/site-packages/harm
+[1.033s] copying /home/jeff/tcc/robots/harm_ws/build/harm/build/lib/harm/controller copy 2.py -> /home/jeff/tcc/robots/harm_ws/install/harm/lib/python3.10/site-packages/harm
+[1.034s] copying /home/jeff/tcc/robots/harm_ws/build/harm/build/lib/harm/__init__.py -> /home/jeff/tcc/robots/harm_ws/install/harm/lib/python3.10/site-packages/harm
+[1.034s] copying /home/jeff/tcc/robots/harm_ws/build/harm/build/lib/harm/controller.py -> /home/jeff/tcc/robots/harm_ws/install/harm/lib/python3.10/site-packages/harm
+[1.034s] copying /home/jeff/tcc/robots/harm_ws/build/harm/build/lib/harm/controller copy 3.py -> /home/jeff/tcc/robots/harm_ws/install/harm/lib/python3.10/site-packages/harm
+[1.034s] byte-compiling /home/jeff/tcc/robots/harm_ws/install/harm/lib/python3.10/site-packages/harm/controller copy 2.py to controller copy 2.cpython-310.pyc
+[1.035s] byte-compiling /home/jeff/tcc/robots/harm_ws/install/harm/lib/python3.10/site-packages/harm/__init__.py to __init__.cpython-310.pyc
+[1.035s] byte-compiling /home/jeff/tcc/robots/harm_ws/install/harm/lib/python3.10/site-packages/harm/controller.py to controller.cpython-310.pyc
+[1.035s] byte-compiling /home/jeff/tcc/robots/harm_ws/install/harm/lib/python3.10/site-packages/harm/controller copy 3.py to controller copy 3.cpython-310.pyc
+[1.036s] running install_data
+[1.036s] creating /home/jeff/tcc/robots/harm_ws/install/harm/share/ament_index
+[1.037s] creating /home/jeff/tcc/robots/harm_ws/install/harm/share/ament_index/resource_index
+[1.037s] creating /home/jeff/tcc/robots/harm_ws/install/harm/share/ament_index/resource_index/packages
+[1.037s] copying resource/harm -> /home/jeff/tcc/robots/harm_ws/install/harm/share/ament_index/resource_index/packages
+[1.038s] copying package.xml -> /home/jeff/tcc/robots/harm_ws/install/harm/share/harm
+[1.038s] creating /home/jeff/tcc/robots/harm_ws/install/harm/share/harm/models
+[1.038s] creating /home/jeff/tcc/robots/harm_ws/install/harm/share/harm/models/room_wall_2x5m
+[1.038s] copying models/room_wall_2x5m/model.config -> /home/jeff/tcc/robots/harm_ws/install/harm/share/harm/models/room_wall_2x5m
+[1.038s] copying models/room_wall_2x5m/model.sdf -> /home/jeff/tcc/robots/harm_ws/install/harm/share/harm/models/room_wall_2x5m
+[1.038s] creating /home/jeff/tcc/robots/harm_ws/install/harm/share/harm/worlds
+[1.038s] copying worlds/mapa.sdf -> /home/jeff/tcc/robots/harm_ws/install/harm/share/harm/worlds
+[1.039s] copying worlds/shapes.sdf -> /home/jeff/tcc/robots/harm_ws/install/harm/share/harm/worlds
+[1.039s] copying worlds/my_world_copy.world -> /home/jeff/tcc/robots/harm_ws/install/harm/share/harm/worlds
+[1.040s] copying worlds/my_world.world -> /home/jeff/tcc/robots/harm_ws/install/harm/share/harm/worlds
+[1.041s] copying worlds/mapa4.sdf -> /home/jeff/tcc/robots/harm_ws/install/harm/share/harm/worlds
+[1.042s] copying worlds/mapa2.sdf -> /home/jeff/tcc/robots/harm_ws/install/harm/share/harm/worlds
+[1.042s] copying worlds/mapa3.sdf -> /home/jeff/tcc/robots/harm_ws/install/harm/share/harm/worlds
+[1.043s] creating /home/jeff/tcc/robots/harm_ws/install/harm/share/harm/launch
+[1.043s] copying launch/world.launch_copy.py -> /home/jeff/tcc/robots/harm_ws/install/harm/share/harm/launch
+[1.043s] copying launch/world.launch.py -> /home/jeff/tcc/robots/harm_ws/install/harm/share/harm/launch
+[1.044s] creating /home/jeff/tcc/robots/harm_ws/install/harm/share/harm/launch/__pycache__
+[1.044s] copying launch/__pycache__/world.launch.cpython-310.pyc -> /home/jeff/tcc/robots/harm_ws/install/harm/share/harm/launch/__pycache__
+[1.044s] running install_egg_info
+[1.046s] Copying ../../build/harm/harm.egg-info to /home/jeff/tcc/robots/harm_ws/install/harm/lib/python3.10/site-packages/harm-0.0.1-py3.10.egg-info
+[1.047s] running install_scripts
+[1.069s] Installing controller script to /home/jeff/tcc/robots/harm_ws/install/harm/lib/harm
+[1.070s] writing list of installed files to '/home/jeff/tcc/robots/harm_ws/build/harm/install.log'
+[1.104s] Invoked command in '/home/jeff/tcc/robots/harm_ws/src/harm' returned '0': PYTHONPATH=/home/jeff/tcc/robots/harm_ws/build/harm/prefix_override:/home/jeff/tcc/robots/harm_ws/install/harm/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/harm build --build-base /home/jeff/tcc/robots/harm_ws/build/harm/build install --record /home/jeff/tcc/robots/harm_ws/build/harm/install.log --single-version-externally-managed

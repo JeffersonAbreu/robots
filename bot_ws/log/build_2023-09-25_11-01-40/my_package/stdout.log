@@ -1,0 +1,49 @@
+running egg_info
+creating ../../build/my_package/my_package.egg-info
+writing ../../build/my_package/my_package.egg-info/PKG-INFO
+writing dependency_links to ../../build/my_package/my_package.egg-info/dependency_links.txt
+writing entry points to ../../build/my_package/my_package.egg-info/entry_points.txt
+writing requirements to ../../build/my_package/my_package.egg-info/requires.txt
+writing top-level names to ../../build/my_package/my_package.egg-info/top_level.txt
+writing manifest file '../../build/my_package/my_package.egg-info/SOURCES.txt'
+reading manifest file '../../build/my_package/my_package.egg-info/SOURCES.txt'
+writing manifest file '../../build/my_package/my_package.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/jeff/tcc/robots/bot_ws/build/my_package/build
+creating /home/jeff/tcc/robots/bot_ws/build/my_package/build/lib
+creating /home/jeff/tcc/robots/bot_ws/build/my_package/build/lib/my_package
+copying my_package/__init__.py -> /home/jeff/tcc/robots/bot_ws/build/my_package/build/lib/my_package
+copying my_package/controller.py -> /home/jeff/tcc/robots/bot_ws/build/my_package/build/lib/my_package
+running install
+running install_lib
+creating /home/jeff/tcc/robots/bot_ws/install/my_package/lib/python3.10/site-packages/my_package
+copying /home/jeff/tcc/robots/bot_ws/build/my_package/build/lib/my_package/__init__.py -> /home/jeff/tcc/robots/bot_ws/install/my_package/lib/python3.10/site-packages/my_package
+copying /home/jeff/tcc/robots/bot_ws/build/my_package/build/lib/my_package/controller.py -> /home/jeff/tcc/robots/bot_ws/install/my_package/lib/python3.10/site-packages/my_package
+byte-compiling /home/jeff/tcc/robots/bot_ws/install/my_package/lib/python3.10/site-packages/my_package/__init__.py to __init__.cpython-310.pyc
+byte-compiling /home/jeff/tcc/robots/bot_ws/install/my_package/lib/python3.10/site-packages/my_package/controller.py to controller.cpython-310.pyc
+running install_data
+creating /home/jeff/tcc/robots/bot_ws/install/my_package/share/ament_index
+creating /home/jeff/tcc/robots/bot_ws/install/my_package/share/ament_index/resource_index
+creating /home/jeff/tcc/robots/bot_ws/install/my_package/share/ament_index/resource_index/packages
+copying resource/my_package -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/ament_index/resource_index/packages
+copying package.xml -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package
+creating /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/launch
+copying launch/main.launch.py -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/launch
+copying launch/play.launch.py -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/launch
+creating /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/worlds
+copying worlds/my_world.world -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/worlds
+creating /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/worlds/meshes
+copying worlds/meshes/roda_direita_link.stl -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/worlds/meshes
+copying worlds/meshes/chassis_link.stl -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/worlds/meshes
+copying worlds/meshes/base_castor_link.stl -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/worlds/meshes
+copying worlds/meshes/roda_castor_link.stl -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/worlds/meshes
+copying worlds/meshes/roda_esquerda_link.stl -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/worlds/meshes
+creating /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/models
+copying models/caster_wheel/model.config -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/models
+copying models/caster_wheel/model.sdf -> /home/jeff/tcc/robots/bot_ws/install/my_package/share/my_package/models
+running install_egg_info
+Copying ../../build/my_package/my_package.egg-info to /home/jeff/tcc/robots/bot_ws/install/my_package/lib/python3.10/site-packages/my_package-0.0.0-py3.10.egg-info
+running install_scripts
+Installing controller script to /home/jeff/tcc/robots/bot_ws/install/my_package/lib/my_package
+writing list of installed files to '/home/jeff/tcc/robots/bot_ws/build/my_package/install.log'

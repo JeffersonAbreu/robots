@@ -1,4 +1,0 @@
-Invoking command in '/home/jeff/tcc/robots/my_ws/build/my_car_simulation': /usr/bin/cmake --build /home/jeff/tcc/robots/my_ws/build/my_car_simulation -- -j8 -l8
-Invoked command in '/home/jeff/tcc/robots/my_ws/build/my_car_simulation' returned '0': /usr/bin/cmake --build /home/jeff/tcc/robots/my_ws/build/my_car_simulation -- -j8 -l8
-Invoking command in '/home/jeff/tcc/robots/my_ws/build/my_car_simulation': /usr/bin/cmake --install /home/jeff/tcc/robots/my_ws/build/my_car_simulation
-Invoked command in '/home/jeff/tcc/robots/my_ws/build/my_car_simulation' returned '0': /usr/bin/cmake --install /home/jeff/tcc/robots/my_ws/build/my_car_simulation
