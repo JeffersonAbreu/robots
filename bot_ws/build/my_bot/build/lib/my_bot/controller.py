@@ -12,6 +12,7 @@ class RobotController(Node):
     def move_robot(self):
         msg = Twist()
         msg.linear.x = 0.5  # Move forward
+        msg.angular.z = 0
         self.publisher_.publish(msg)
 
 def main(args=None):
@@ -20,7 +21,7 @@ def main(args=None):
     try:
         rclpy.spin(robot_controller)
     except KeyboardInterrupt:
-        print("CTRL + C     Cancelado o processo")
+        print("\n<Ctrl> + C     Cancelado o processo!!!\n")
     robot_controller.destroy_node()
     rclpy.shutdown()
 
