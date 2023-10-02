@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <sdf version="1.6">
-  <property name="pi">3.14159265359</property>
+  <property>
+    <name>pi</name>
+    <value>3.14159265359</value>
+  </property>
   <world name="my_world">
     <physics name="1ms" type="ignored">
       <max_step_size>0.001</max_step_size>
@@ -74,7 +77,7 @@
       </link>
     </model>
 
-    <!-- Adicionar iluminação -->
+    <!-- Adicionar iluminação 
     <scene>
       <ambient>0.4 0.4 0.4 1</ambient>
       <sky>
@@ -84,14 +87,14 @@
       </sky>
       <shadows>true</shadows>
     </scene>
-
+-->
     <model name='vehicle_blue' canonical_link='chassis_link'>
       <!-- 
               A tag <pose> e usada para definir a posicao e a orientacao do nosso modelo, e o atributo
               relative_to e usado para definir a pose do modelo em relacao a qualquer outro quadro. Se
               relative_to nao for definido, a <pose> do modelo sera relativa ao mundo.
           -->
-      <pose relative_to='world'>0 0 0 0 0 0</pose>
+      <pose relative_to='world'>0 -0.5 0 0 0 0</pose>
       <!-- 
               Os valores dentro da tag <pose> sao os seguintes: <pose>X Y Z R P Y</pose>,
               onde X, Y, Z representam a posicao do quadro e
@@ -477,114 +480,245 @@
     </model>
 
 
-    <include name="a1">
+    <include>
       <uri>model://room_wall_2x5m</uri>
-      <pose>0 -1.5 0 0 0 0</pose>
+      <pose>2.5 -1 0 0 0 0</pose>
       <name>a1</name>
     </include>
 
-
     <include>
       <uri>model://room_wall_2x5m_</uri>
-      <pose relative_to="a1">2.45 2.55 0 0 0 0</pose>
+      <pose relative_to="a1">2.5 2.5 0 0 0 0</pose>
       <name>a2</name>
     </include>
 
     <include>
       <uri>model://room_wall_2x5m_</uri>
-      <pose relative_to="a1">-2.45 -2.55 0 0 0 0</pose>
+      <pose relative_to="a1">-2.5 -2.5 0 0 0 0</pose>
       <name>a3</name>
     </include>
 
-    <include name="b1">
+    <include>
+      <uri>model://room_wall_2x5m_</uri>
+      <pose relative_to="a2">0 -4 0 0 0 0</pose>
+      <name>a4</name>
+    </include>
+
+    <include>
       <uri>model://room_wall_2x5m</uri>
-      <pose relative_to="a1">0 6.5 0 0 0 0</pose>
+      <pose relative_to="a1">0 -5 0 0 0 0</pose>
+      <name>a5</name>
+    </include>
+
+    <include>
+      <uri>model://room_wall_2x5m</uri>
+      <pose relative_to="a5">2.5 0 0 0 0 0</pose>
+      <name>a6</name>
+    </include>
+
+    <include>
+      <uri>model://room_wall_2x5m</uri>
+      <pose relative_to="a6">0 -2 0 0 0 0</pose>
+      <name>a7</name>
+    </include>
+
+    <include>
+      <uri>model://room_wall_2x5m</uri>
+      <pose relative_to="a7">-5 0 0 0 0 0</pose>
+      <name>a8</name>
+    </include>
+
+    <include>
+      <uri>model://room_wall_2x5m_</uri>
+      <pose relative_to="a3">0 -2 0 0 0 0</pose>
+      <name>a9</name>
+    </include>
+
+    <include>
+      <uri>model://room_wall_2x5m</uri>
+      <pose relative_to="a1">0 6 0 0 0 0</pose>
       <name>b1</name>
     </include>
 
     <include>
       <uri>model://room_wall_2x5m_</uri>
-      <pose relative_to="b1">2.45 2.55 0 0 0 0</pose>
+      <pose relative_to="b1">2.5 2.5 0 0 0 0</pose>
       <name>b2</name>
     </include>
 
     <include>
       <uri>model://room_wall_2x5m_</uri>
-      <pose relative_to="b1">-2.45 -2.55 0 0 0 0</pose>
+      <pose relative_to="b1">-2.5 -2.5 0 0 0 0</pose>
       <name>b3</name>
     </include>
 
-    <include name="c1">
-      <name>c1</name>
-      <pose relative_to="b1">0 5.05 0 0 0 0</pose>
+    <include>
+      <uri>model://room_wall_2x5m_</uri>
+      <pose relative_to="b2">2.5 -2 0 0 0 0</pose>
+      <name>b4</name>
+    </include>
+
+    <include>
+      <uri>model://room_wall_2x5m_</uri>
+      <pose relative_to="b4">0 -5 0 0 0 0</pose>
+      <name>b5</name>
+    </include>
+
+    <include>
+      <uri>model://room_wall_2x5m_</uri>
+      <pose relative_to="b5">0 -5 0 0 0 0</pose>
+      <name>b6</name>
+    </include>
+
+    <include>
+      <name>c0</name>
+      <pose relative_to="b1">5 5 0 0 0 0</pose>
       <uri>model://room_wall_2x5m</uri>
     </include>
 
-    <include name="c2">
+    <include>
+      <name>c1</name>
+      <pose relative_to="c0">-5 0 0 0 0 0</pose>
+      <uri>model://room_wall_2x5m</uri>
+    </include>
+
+    <include>
       <name>c2</name>
       <pose relative_to="c1">-5 0 0 0 0 0</pose>
       <uri>model://room_wall_2x5m</uri>
     </include>
 
-    <include name="c3">
+    <include>
       <name>c3</name>
-      <pose relative_to="c2">-2.5 0 0 0 0 0</pose>
+      <pose relative_to="c2">-5 0 0 0 0 0</pose>
       <uri>model://room_wall_2x5m</uri>
     </include>
 
-    <include name="c4">
+    <include>
       <name>c4</name>
       <pose relative_to="c3">-2.5 -2.5 0 0 0 0</pose>
       <uri>model://room_wall_2x5m_</uri>
     </include>
 
-    <include name="c5">
+    <include>
       <name>c5</name>
       <pose relative_to="c4">0 -5 0 0 0 0</pose>
       <uri>model://room_wall_2x5m_</uri>
     </include>
 
-    <include name="c6">
+    <include>
       <name>c6</name>
       <pose relative_to="c5">0 -5 0 0 0 0</pose>
       <uri>model://room_wall_2x5m_</uri>
     </include>
 
-    <include name="c7">
+    <include>
       <name>c7</name>
       <pose relative_to="c6">0 -5 0 0 0 0</pose>
       <uri>model://room_wall_2x5m_</uri>
     </include>
 
-    <include name="c8">
+    <include>
       <name>c8</name>
       <pose relative_to="c7">2.5 -2.5 0 0 0 0</pose>
       <uri>model://room_wall_2x5m</uri>
     </include>
 
-    <include name="c9">
+    <include>
       <name>c9</name>
       <pose relative_to="c8">5 0 0 0 0 0</pose>
       <uri>model://room_wall_2x5m</uri>
     </include>
 
-    <include name="c10">
+    <include>
       <name>c10</name>
       <pose relative_to="c9">5 0 0 0 0 0</pose>
       <uri>model://room_wall_2x5m</uri>
     </include>
 
-    <include name="c11">
+    <include>
       <name>c11</name>
-      <pose relative_to="c10">3.1 0 0 0 0 0</pose>
+      <pose relative_to="c10">5 0 0 0 0 0</pose>
       <uri>model://room_wall_2x5m</uri>
     </include>
 
-    <include name="d1">
+    <include>
+      <name>c12</name>
+      <pose relative_to="c11">2.5 2.5 0 0 0 0</pose>
+      <uri>model://room_wall_2x5m_</uri>
+    </include>
+
+    <include>
+      <name>c13</name>
+      <pose relative_to="c12">0 5 0 0 0 0</pose>
+      <uri>model://room_wall_2x5m_</uri>
+    </include>
+
+    <include>
+      <name>c14</name>
+      <pose relative_to="c13">0 5 0 0 0 0</pose>
+      <uri>model://room_wall_2x5m_</uri>
+    </include>
+
+    <include>
+      <name>c15</name>
+      <pose relative_to="c14">0 5 0 0 0 0</pose>
+      <uri>model://room_wall_2x5m_</uri>
+    </include>
+
+    <include>
       <name>d1</name>
       <pose relative_to="b1">-5 0 0 0 0 0</pose>
       <uri>model://room_wall_2x5m</uri>
     </include>
 
+    <include>
+      <name>d2</name>
+      <pose relative_to="c8">0 2 0 0 0 0</pose>
+      <uri>model://room_wall_2x5m</uri>
+    </include>
+
+    <include>
+      <name>d3</name>
+      <pose relative_to="d2">0 3.5 0 0 0 0</pose>
+      <uri>model://room_wall_2x5m</uri>
+    </include>
+
+    <include>
+      <name>d4</name>
+      <pose relative_to="d3">0 3.5 0 0 0 0</pose>
+      <uri>model://room_wall_2x5m</uri>
+    </include>
+
+    <include>
+      <name>d5</name>
+      <pose relative_to="d3">2.5 0 0 0 0 0</pose>
+      <uri>model://room_wall_2x5m_</uri>
+    </include>
+
+    <include>
+      <name>d6</name>
+      <pose relative_to="a8">-0.5 0 0 0 0 0</pose>
+      <uri>model://room_wall_2x5m</uri>
+    </include>
+
+    <include>
+      <name>d7</name>
+      <pose relative_to="a9">-3 0 0 0 0 0</pose>
+      <uri>model://room_wall_2x5m_</uri>
+    </include>
+
+    <include>
+      <name>d8</name>
+      <pose relative_to="a3">-3 0 0 0 0 0</pose>
+      <uri>model://room_wall_2x5m_</uri>
+    </include>
+
+    <include>
+      <name>d9</name>
+      <pose relative_to="a1">-2 0 0 0 0 0</pose>
+      <uri>model://room_wall_2x5m</uri>
+      <size>0.1 3.0 2</size>
+    </include>
   </world>
 </sdf>

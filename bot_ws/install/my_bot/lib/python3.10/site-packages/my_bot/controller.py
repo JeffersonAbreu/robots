@@ -12,7 +12,7 @@ class RobotController(Node):
     def move_robot(self):
         msg = Twist()
         msg.linear.x = 0.5  # Move forward
-        msg.angular.z = 0
+        msg.angular.z = 0.0
         self.publisher_.publish(msg)
 
 def main(args=None):
