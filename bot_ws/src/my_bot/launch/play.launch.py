@@ -10,12 +10,12 @@ from launch.substitutions import LaunchConfiguration
 #https://gazebosim.org/docs/harmonic/ros2_integration
 #The ROS message type is followed by an @, [, or ] symbol where:
 BIDIRECIONAL = '@'
-GAZEBO_TO_ROS2 = '['
-ROS2_TO_GAZEBO = ']'
-# Lista para armazenar os PIDs dos processos
-pids = []
+GZ_TO_ROS = '['
+ROS_TO_GZ = ']'
+
 # Settings
-GZ_WORLD = "2world_my.world"
+# GZ_WORLD = "2world_my.world"
+GZ_WORLD = "world.sdf"
 
 def ros_gz_bridge(topic, ros_type, gz_type, direction):
     param = f'{topic}@{ros_type}{direction}{gz_type}'
@@ -31,15 +31,20 @@ def ros_gz_twist_bridge(topic):
 def ros_gz_image_bridge(topic):
     ros_type = "sensor_msgs/msg/Image"
     gz_type = "gz.msgs.Image"
-    direction = GAZEBO_TO_ROS2
+    direction = GZ_TO_ROS
     return ros_gz_bridge(topic, ros_type, gz_type, direction)
 
 def ros_gz_pose_bridge(topic):
     ros_type = "geometry_msgs/msg/PoseStamped"
     gz_type = "gz.msgs.Pose"
-    direction = GAZEBO_TO_ROS2
+    direction = GZ_TO_ROS
     return ros_gz_bridge(topic, ros_type, gz_type, direction)
 
+def ros_gz_joint_state_publisher(topic):
+    ros_type = "sensor_msgs/msg/JointState"
+    gz_type = "gz.msgs.Model"
+    direction = GZ_TO_ROS
+    return ros_gz_bridge(topic, ros_type, gz_type, direction)
 
 
 def generate_launch_description():
@@ -55,7 +60,7 @@ def generate_launch_description():
     # Gazebo -> ROS2 bridges
     # cam0_bridge = ros_gz_image_bridge("/gimbal/camera0")
     twist_bridge = ros_gz_twist_bridge("/cmd_vel")
-
+    joint_states_bridge = ros_gz_joint_state_publisher("/joint_states")
     # Execute o controlador do robô
     controller_process = ExecuteProcess(
         cmd=['ros2', 'run', 'my_bot', 'controller'],
@@ -65,5 +70,6 @@ def generate_launch_description():
     return LaunchDescription([
         gazebo_process,
         twist_bridge,
+        joint_states_bridge,
         controller_process
     ])
