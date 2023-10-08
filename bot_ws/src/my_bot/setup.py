@@ -38,7 +38,7 @@ def package_files(data_files, directory_list):
 setup(
     name=package_name,
     version='0.0.0',
-    packages=[package_name],
+    packages=[package_name, 'utils'],
     data_files=package_files(data_files, ['models/', 'launch/', 'worlds/', 'my_bot/']),
     install_requires=['setuptools'],
     zip_safe=True,
@@ -49,7 +49,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'controller = my_bot.controller:main'
+            'controller = my_bot.controller:main',
+            'collision_avoidance = my_bot.collision_avoidance:main'
         ],
     },
 )

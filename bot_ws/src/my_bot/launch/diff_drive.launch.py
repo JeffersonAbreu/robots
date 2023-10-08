@@ -22,7 +22,6 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument
 
-
 def generate_launch_description():
     # Configure ROS nodes for launch
     pkg_share_dir = get_package_share_directory('my_bot')
@@ -45,7 +44,7 @@ def generate_launch_description():
     gz_sim = ExecuteProcess(cmd=['gz', 'sim', 'world.sdf'], output='screen')
 
     # Takes the description and joint angles as inputs and publishes the 3D poses of the robot links
-
+    '''
     robot_state_publisher = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -64,6 +63,7 @@ def generate_launch_description():
        arguments=['-d', os.path.join(pkg_project_description, 'config', 'diff_drive.rviz')],
        condition=IfCondition(LaunchConfiguration('rviz'))
     )
+    '''
     
     # Bridge ROS topics and Gazebo messages for establishing communication
     bridge = Node(
@@ -71,20 +71,26 @@ def generate_launch_description():
         executable='parameter_bridge',
         arguments=[
             '/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
-            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
-            '/odometry@nav_msgs/msg/Odometry[gz.msgs.Odometry',
-            '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
-            '/joint_states@sensor_msgs/msg/JointState[gz.msgs.Model',
-            '/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
-            '/tf_static@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V'
+            '/lidar/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+            '/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry'
         ],
+        parameters=[{'use_sim_time': True}],
         output='screen'
     )
-    
+
+
+    '''
+    controller_process = ExecuteProcess(
+        cmd=['ros2', 'run', 'my_bot', 'collision_avoidance'],
+        output='screen'
+    )
+    '''
+        
     return LaunchDescription([
         gz_sim,
         #DeclareLaunchArgument('rviz', default_value='true', description='Open RViz.'),
         bridge,
-        robot_state_publisher,
+        #robot_state_publisher,
         #rviz
+        #controller_process
     ])

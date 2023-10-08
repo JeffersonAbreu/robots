@@ -1,3 +1,4 @@
 [console_scripts]
+collision_avoidance = my_bot.collision_avoidance:main
 controller = my_bot.controller:main
 

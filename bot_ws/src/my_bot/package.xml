@@ -16,6 +16,8 @@
   <depend>geometry_msgs</depend>
   <depend>cv_bridge</depend>
   <depend>sensor_msgs</depend>
+  <depend>time</depend>
+  <depend>nav_msgs</depend>
   <!--depend>Opencv</depend-->
 
   <exec_depend>launch</exec_depend>
