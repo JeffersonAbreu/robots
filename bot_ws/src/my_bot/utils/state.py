@@ -4,3 +4,4 @@ class State(Enum):
     FORWARD = auto()
     STOP = auto()
     TURN = auto()
+    MOVING_FORWARD = auto()

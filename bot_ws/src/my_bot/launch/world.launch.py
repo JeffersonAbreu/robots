@@ -1,12 +1,8 @@
 import os
-import sys
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import ExecuteProcess
-
-# Adicione a pasta um nível acima ao sys.path
-#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from utils.bridge import Bridge
+from utils import Bridge
 
 def generate_launch_description():
     # Configure ROS nodes for launch
@@ -17,13 +13,19 @@ def generate_launch_description():
     os.environ['GZ_SIM_RESOURCE_PATH'] = models_path + ":" + worlds_path
 
     # Setup to launch the simulator and Gazebo world
-    gz_sim = ExecuteProcess(cmd=['gz', 'sim', 'world.sdf'], output='screen')
+    gz_sim = ExecuteProcess(cmd=['gz', 'sim', 'world.sdf', '-r'], output='screen')
+    '''
+    controller_process = ExecuteProcess(
+        cmd=['ros2', 'run', 'my_bot', 'collision_avoidance'],
+        output='screen'
+    )
+    '''
 
     # Bridge ROS topics and Gazebo messages for establishing communication
      
     bridge = Bridge()
     bridge.topic_twist('/cmd_vel')
-    bridge.topic_laser_scan('/lidar/scan')
+    bridge.topic_laser_scan('/lidar')
     bridge.topic_odometry('/odom')
     bridge.topic_imu('/imu')
 
@@ -31,5 +33,6 @@ def generate_launch_description():
         
     return LaunchDescription([
         gz_sim,
-        bridge
+        bridge,
+        #controller_process
     ])

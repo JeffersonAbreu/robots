@@ -39,5 +39,8 @@ sudo apt-get install ros-${ROS_DISTRO}-ros-gz
 sudo apt install python3-colcon-common-extensions
 sudo apt install python3-pip
 pip3 install setuptools==58.2.0
+pip install numpy==1.24.3
+pip install scipy
+
 ```
 

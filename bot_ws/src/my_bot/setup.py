@@ -38,7 +38,7 @@ def package_files(data_files, directory_list):
 setup(
     name=package_name,
     version='0.0.0',
-    packages=[package_name, 'utils'],
+    packages=[package_name, 'utils', 'model', 'controller'],
     data_files=package_files(data_files, ['models/', 'launch/', 'worlds/', 'my_bot/']),
     install_requires=['setuptools'],
     zip_safe=True,

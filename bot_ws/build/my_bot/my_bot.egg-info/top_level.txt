@@ -1,2 +1,4 @@
+controller
+model
 my_bot
 utils
