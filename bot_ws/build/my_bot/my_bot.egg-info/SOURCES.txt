@@ -10,14 +10,19 @@ setup.py
 ../../build/my_bot/my_bot.egg-info/zip-safe
 controller/__init__.py
 controller/robot_controller.py
+controller/robot_navigator.py
 launch/diff_drive.launch.py
 launch/play.launch.py
 launch/readme.md
 launch/world.launch.py
 model/__init__.py
+model/path_planner.py
+model/qrcode_detector.py
 model/robot.py
 models/car_bot/model.config
 models/car_bot/model.sdf
+models/ground_plane/model.config
+models/ground_plane/model.sdf
 models/imu/model.config
 models/imu/model.sdf
 models/lidar/model.config
@@ -29,8 +34,6 @@ models/wall_2x5m/model.sdf
 models/wall_2x5m_/model.config
 models/wall_2x5m_/model.sdf
 my_bot/__init__.py
-my_bot/collision_avoidance.py
-my_bot/collision_avoidance_bkp.py
 my_bot/controller.py
 my_bot/lanefollowing.py
 resource/my_bot
@@ -42,15 +45,10 @@ utils/__init__.py
 utils/bib.py
 utils/bridge.py
 utils/command.py
-utils/robot.py
-utils/robot4.py
-utils/robot_estimator.py
-utils/state.py
-worlds/1world_my.world
-worlds/2world_my.world
-worlds/world copy.sdf
+utils/sensor_imu.py
+utils/sensor_lidar.py
+utils/sensor_odom.py
 worlds/world.sdf
-worlds/world_my.world
 worlds/meshes/base_castor_link.stl
 worlds/meshes/chassis_link.stl
 worlds/meshes/roda_castor_link.stl

@@ -1,4 +1,4 @@
-from .path_planner import PathPlanner
+from model.path_planner import PathPlanner
 
 class RobotNavigator:
 
