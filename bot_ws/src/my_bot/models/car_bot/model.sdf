@@ -17,7 +17,7 @@
       <visual name='visual'>
         <geometry>
           <mesh>
-            <uri>model://meshes/chassis_link.stl</uri>
+            <uri>model://car_bot/meshes/chassis_link.stl</uri>
             <scale>1 1 1</scale>
           </mesh>
         </geometry>
@@ -30,7 +30,7 @@
       <collision name='collision'>
         <geometry>
           <mesh>
-            <uri>model://meshes/chassis_link.stl</uri>
+            <uri>model://car_bot/meshes/chassis_link.stl</uri>
             <scale>1 1 1</scale>
           </mesh>
         </geometry>
@@ -52,7 +52,7 @@
       <visual name='visual'>
         <geometry>
           <mesh>
-            <uri>model://meshes/roda_esquerda_link.stl</uri>
+            <uri>model://car_bot/meshes/roda_esquerda_link.stl</uri>
             <scale>1 1 1</scale>
           </mesh>
         </geometry>
@@ -65,7 +65,7 @@
       <collision name='collision'>
         <geometry>
           <mesh>
-            <uri>model://meshes/roda_esquerda_link.stl</uri>
+            <uri>model://car_bot/meshes/roda_esquerda_link.stl</uri>
             <scale>1 1 1</scale>
           </mesh>
         </geometry>
@@ -94,7 +94,7 @@
       <visual name='visual'>
         <geometry>
           <mesh>
-            <uri>model://meshes/roda_direita_link.stl</uri>
+            <uri>model://car_bot/meshes/roda_direita_link.stl</uri>
             <scale>1 1 1</scale>
           </mesh>
         </geometry>
@@ -107,7 +107,7 @@
       <collision name='collision'>
         <geometry>
           <mesh>
-            <uri>model://meshes/roda_direita_link.stl</uri>
+            <uri>model://car_bot/meshes/roda_direita_link.stl</uri>
             <scale>1 1 1</scale>
           </mesh>
         </geometry>
@@ -140,7 +140,7 @@
       <visual name='visual'>
         <geometry>
           <mesh>
-            <uri>model://meshes/base_castor_link.stl</uri>
+            <uri>model://car_bot/meshes/base_castor_link.stl</uri>
             <scale>1 1 1</scale>
           </mesh>
         </geometry>
@@ -153,7 +153,7 @@
       <collision name='collision'>
         <geometry>
           <mesh>
-            <uri>model://meshes/base_castor_link.stl</uri>
+            <uri>model://car_bot/meshes/base_castor_link.stl</uri>
             <scale>1 1 1</scale>
           </mesh>
         </geometry>
@@ -176,7 +176,7 @@
       <visual name='visual'>
         <geometry>
           <mesh>
-            <uri>model://meshes/roda_castor_link.stl</uri>
+            <uri>model://car_bot/meshes/roda_castor_link.stl</uri>
             <scale>1 1 1</scale>
           </mesh>
         </geometry>
@@ -189,7 +189,7 @@
       <collision name='collision'>
         <geometry>
           <mesh>
-            <uri>model://meshes/roda_castor_link.stl</uri>
+            <uri>model://car_bot/meshes/roda_castor_link.stl</uri>
             <scale>1 1 1</scale>
           </mesh>
         </geometry>
@@ -212,8 +212,13 @@
       </include>
     </model>
 
+    <joint name='lidar_joint' type='fixed'>
+      <parent>chassis_link</parent>
+      <child>lidar_link</child>
+    </joint>
 
-    <model name="imu">
+
+    <model name="imu_link">
       <self_collide>true</self_collide>
       <pose relative_to='chassis_link'>0 0 0 0 0 0</pose>
       <include merge="true">
@@ -221,15 +226,40 @@
       </include>
     </model>
 
-    <joint name='lidar_joint' type='fixed'>
-      <parent>chassis_link</parent>
-      <child>lidar_link</child>
-    </joint>
-
     <joint name='imu_joint' type='fixed'>
       <parent>chassis_link</parent>
-      <child>imu</child>
+      <child>imu_link</child>
     </joint>
+
+    <model name="magnetometer_link">
+      <self_collide>true</self_collide>
+      <pose relative_to='chassis_link'>0 0 0 0 0 0</pose>
+      <include merge="true">
+        <uri>model://magnetometer</uri>
+      </include>
+    </model>
+
+    <joint name='magnetometer_joint' type='fixed'>
+      <parent>chassis_link</parent>
+      <child>magnetometer_link</child>
+    </joint>
+
+    <model name="camera_link">
+      <self_collide>true</self_collide>
+      <pose relative_to='chassis_link'>-0.09805 0 0.0027 0 0 0</pose>
+      <include merge="true">
+        <uri>model://camera_v2</uri>
+      </include>
+    </model>
+
+    <joint name='camera_joint' type='fixed'>
+      <parent>chassis_link</parent>
+      <child>camera_link</child>
+    </joint>
+
+
+
+
 
     <!-- Junta da Roda Esquerda -->
     <joint name='left_wheel_joint' type='revolute'>

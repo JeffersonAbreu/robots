@@ -17,7 +17,19 @@ def transfor_quat_for_euler(orientation: Quaternion):
         z = orientation.z
         w = orientation.w
         rotation = R.from_quat([x, y, z, w])
-        return rotation.as_euler('xyz', degrees=False) # degrees or radians
+        return rotation.as_euler('xyz', degrees=True) # degrees or radians
     
 def normalize_angle(angle: float) -> float:
     return math.atan2(math.sin(angle), math.cos(angle))
+
+def normalize_angle_degrees(angle: int) -> int:
+    """Normaliza o ângulo para o intervalo [0, 360) graus."""
+    return angle % 360
+
+def normalize_angle2(angle: int) -> int:
+    """Normaliza um ângulo para o intervalo [-180º, 180º)."""
+    while angle >= 180:
+        angle -= 360
+    while angle < -180:
+        angle += 360
+    return angle

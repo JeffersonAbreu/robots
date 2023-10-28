@@ -6,6 +6,12 @@
         <pose>2.5 -1 0 0 0 0</pose>
         <name>a1</name>
       </include>
+      
+      <include>
+        <uri>model://ar_tags/tag_01</uri>
+        <pose relative_to="a1">2.5 2.5 0 0 0 0</pose>
+        <name>tag_01</name>
+      </include>
   
       <include>
         <uri>model://wall_2x5m_</uri>

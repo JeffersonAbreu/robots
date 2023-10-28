@@ -5,7 +5,6 @@ class CommandType(Enum):
     MOVE_BACKWARD = auto()
     TURN = auto()
     STOP = auto()
-    CURVE = auto()
 
 class Command:
     def __init__(self, command_type: CommandType, value=None):
@@ -36,3 +35,6 @@ class CommandQueue:
 
     def size(self):
         return len(self.queue)
+    
+    def is_next(self):
+        return self.size() > 0 

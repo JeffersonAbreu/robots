@@ -2,11 +2,11 @@
 <sdf version='1.8'>
   <model name='room_wall_2x5m_'>
     <link name="link">
-      <pose>0 0 1 0 0 0</pose>
+      <pose>0 0 0.5 0 0 0</pose>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.1 5.0 2</size>
+            <size>0.1 5.0 1</size>
           </box>
         </geometry>
         <material>
@@ -18,7 +18,7 @@
       <collision name ="collision">
         <geometry>
            <box>
-            <size>0.1 5.0 2</size>
+            <size>0.1 5.0 1</size>
           </box>
         </geometry>
       </collision>

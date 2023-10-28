@@ -19,3 +19,10 @@
 1 - [] Controlar o robo através de um código Python
 1 - [] Fazer leitura do QRCode via Python enquanto o robo navega
 1 - [] Ler dados do robo e agir de acordo
+
+
+
+Config server para camera
+`https://gazebosim.org/api/sim/8/server_config.html`
+
+ros2 run rqt_image_view rqt_image_view /rgbd_camera/image

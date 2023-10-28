@@ -18,18 +18,13 @@ class SensorLidar:
         """
         self.lidar_data = msg
         if self.obstacle_detected_callback:
-            self.obstacle_detected_callback()
+            self.obstacle_detected_callback(msg.ranges)
 
     def get_distance_to_obstacle(self) -> float:
         """
         Retorna a distância ao obstáculo mais próximo diretamente à frente do robô.
         """
-        '''
         # caso o lidar for de 360º segue um exemplo:
-        front_index = 180
-        if self.lidar_data and len(self.lidar_data.ranges) > front_index:
-            return self.lidar_data.ranges[front_index]
-        else:
-            return float('inf')
-        '''
-        return self.lidar_data.ranges[0]
+        front_index = round(len(self.lidar_data.ranges)/2)
+        return self.lidar_data.ranges[front_index]
+        

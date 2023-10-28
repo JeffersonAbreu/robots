@@ -1,0 +1,14 @@
+<?xml version="1.0" ?><sdf version="1.6">
+  <model name="tag_02">
+    <static>true</static>
+    <link name="link">
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://ar_tags/tag_02/tag.dae</uri>
+          <scale>0.5 0.5 0.5</scale></mesh>
+        </geometry>
+      </visual>
+    <pose>0 -0.05 0.25 0 0 4.71238898038469</pose></link>
+  </model>
+</sdf>

@@ -57,3 +57,9 @@ class Bridge:
       gz_type = "gz.msgs.IMU"
       direction = self.GZ_TO_ROS
       self.__add_ros_gz_bridge(topic, ros_type, direction, gz_type)
+
+    def topic_camera(self, topic):
+        ros_type = "sensor_msgs/msg/Image"
+        gz_type = "gz.msgs.Image"
+        direction = self.GZ_TO_ROS
+        self.__add_ros_gz_bridge(topic, ros_type, direction, gz_type)

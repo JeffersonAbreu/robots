@@ -18,9 +18,12 @@ def generate_launch_description():
     controller_process = ExecuteProcess(
         cmd=['ros2', 'run', 'my_bot', 'collision_avoidance'],
         output='screen'
-    )
+    )ros2 run rqt_image_view rqt_image_view /camera
     '''
-
+    rqt_image_view = ExecuteProcess(
+        cmd=['ros2', 'run', 'rqt_image_view', 'rqt_image_view', '/camera'],
+        output='screen'
+    )
     # Bridge ROS topics and Gazebo messages for establishing communication
      
     bridge = Bridge()
@@ -28,6 +31,7 @@ def generate_launch_description():
     bridge.topic_laser_scan('/lidar')
     bridge.topic_odometry('/odom')
     bridge.topic_imu('/imu')
+    bridge.topic_camera('/camera')
 
     bridge = bridge.create_node()
         
@@ -35,4 +39,5 @@ def generate_launch_description():
         gz_sim,
         bridge,
         #controller_process
+        #rqt_image_view
     ])
