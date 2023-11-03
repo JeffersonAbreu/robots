@@ -3,6 +3,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import ExecuteProcess
 from utils import Bridge
+import os
 
 def generate_launch_description():
     # Configure ROS nodes for launch
@@ -13,7 +14,7 @@ def generate_launch_description():
     os.environ['GZ_SIM_RESOURCE_PATH'] = models_path + ":" + worlds_path
 
     # Setup to launch the simulator and Gazebo world
-    gz_sim = ExecuteProcess(cmd=['gz', 'sim', 'world.sdf', '-r'], output='screen')
+    gz_sim = ExecuteProcess(cmd=['gz', 'sim', 'world.world', '-r'], output='screen')
     '''
     controller_process = ExecuteProcess(
         cmd=['ros2', 'run', 'my_bot', 'collision_avoidance'],
@@ -37,7 +38,7 @@ def generate_launch_description():
         
     return LaunchDescription([
         gz_sim,
-        bridge,
+        #bridge,
         #controller_process
         #rqt_image_view
     ])

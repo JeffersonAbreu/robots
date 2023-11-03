@@ -30,7 +30,7 @@
       <include merge="true">
         <uri>model://car_bot</uri>
       </include>
-    </model-->
+    </model
 
     <model
       name="maze">
@@ -40,6 +40,6 @@
       <include merge="true">
         <uri>model://maze</uri>
       </include>
-    </model>
+    </model>-->
   </world>
 </sdf>
