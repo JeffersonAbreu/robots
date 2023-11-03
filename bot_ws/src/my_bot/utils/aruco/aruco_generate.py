@@ -1,166 +1,149 @@
 #! /usr/bin/env python
-import argparse
 from xml.dom.minidom import parse
-import cv2
-import cv2.aruco as aruco
-from xml.dom.minidom import parse
-import sys
 import os
-import shutil
-from enum import Enum, auto
-import math
 
-#sys.setrecursionlimit(2000) 
-marker_dict = aruco.getPredefinedDictionary(aruco.DICT_5X5_250)
-MARKER_SIZE = 500
-SCALE = 0.5
+from tag_model import TagModel
+from plant_base import PlantBase
+from tag import Tag
+from aruco_ import Aruco_, Orientation
+from point import Point
 
 
-class Orientation(Enum):
-    NORTH = auto()
-    SOUTH = auto()
-    EAST = auto()
-    WEST = auto()
+def calcular_coordenadas(includes):
+    # Criar um dicionário para mapear os nomes aos objetos
+    def get_parent(nome):
+        return includes[nome]
+    
+    def get_coords(tag):
+        x, y, _, _, _, _ = tag.pose
+        return x, y
+    
 
-def name_img(num: int) -> str:
-   return 'tag_aruco_' + format_number(num) +'.png'
+    for tag_name in includes:
+        # Somar as coordenadas com as do parente, se houver
+        tag : Tag = includes[tag_name]
+        tag_x, tag_y = get_coords(tag)
+        parent = tag.parent
+        if parent != None:
+            parent = get_parent(tag.parent)
+            parent_x, parent_y = get_coords(parent)
+            tag_x += parent_x
+            tag_y += parent_y
+            includes[tag_name].pose[0] = tag_x
+            includes[tag_name].pose[1] = tag_y
 
-def format_number(num) -> str:
-    """Formata o número para ter dois dígitos, preenchendo com zero se necessário."""
-    return f"{num:02}"
+    return includes
 
-def create_diretory_ar_tags(_path):
-  if not os.path.isdir(_path):
-      print(f"O diretório '{_path}' não existe. Criando...")
-      os.makedirs(_path)
+def filtrar_tags(includes):
+    '''Filtrar apenas as tags que começam com "tag"'''
+    tags : list[Tag] = []
+    for name in includes:
+        if name.startswith('tag_'):
+            tags.append(includes[name])
 
-def remove_diretory_ar_tags(_path):
-   if os.path.isdir(_path):
-      print(f"O diretório '{_path}' existe. Removendo...")
-      shutil.rmtree(_path)
+    return tags
 
-def copy(origen, destiny):
-   # Copie a pasta e todos os seus conteúdos
-   if os.path.isdir(origen):
-        shutil.copytree(origen, destiny)
-   else:
-        print(f"'{origen}' não é um diretório válido.")
-
-def make_aruco(num:int, tamanho, destiny):
-    marker_image = aruco.generateImageMarker(marker_dict, num, tamanho)
-    #cv2.imshow("img", marker_image)
-    name_image = name_img(num)
-    path_and_file = os.path.join(destiny, name_image)
-    cv2.imwrite(path_and_file, marker_image)
-    return name_image
-
-def modify_model_config(path_destiny, name):
-    # modify model.config
-    model_config_path = os.path.join(path_destiny, "model.config")
-    dom = parse(model_config_path)
-    for node in dom.getElementsByTagName('name'):
-        node.firstChild.nodeValue = name
-        print(node.firstChild.nodeValue)
-        break
-    f = open(model_config_path, 'w+')
-    # Write the modified xml file
-    f.write(dom.toxml())
-    f.close()
-
-def modify_model_sdf(path_destiny, name, pose_values):
-    # modify model.sdf
-    model_noversion_sdf_path = os.path.join(path_destiny, "model.sdf")
-    dom = parse(model_noversion_sdf_path)
-    for node in dom.getElementsByTagName('model'):
-        node.attributes["name"].value = name
-        break
-
-    for node in dom.getElementsByTagName('link'):
-        # add pose to link
-        pose = dom.createElement("pose")
-        values = dom.createTextNode("{} {} {} {} {} {}".format(*pose_values))
-        pose.appendChild(values)
-        node.appendChild(pose)
-        break
-
-    scaleModified = False
-    for node in dom.getElementsByTagName('mesh'):
-        for child in node.childNodes:
-            if child.nodeName == "scale":
-                child.firstChild.nodeValue = \
-                    "{} {} {}".format(SCALE, SCALE, SCALE)
-                scaleModified = True
-            if child.nodeName == "uri":
-                child.firstChild.nodeValue = "model://" + os.path.join('ar_tags', name, "tag.dae")
-        if not scaleModified:
-            pose = dom.createElement("scale")
-            values = dom.createTextNode("{} {} {}".format(SCALE, SCALE, SCALE))
-            pose.appendChild(values)
-            node.appendChild(pose)
-
-    f = open(model_noversion_sdf_path, 'w+')
-    # Write the modified xml file
-    f.write(dom.toxml())
-    f.close()
-
-def modify_tag_dae(path_destiny, image_name):
-    dom = parse(os.path.join(path_destiny, "tag.dae"))
-    for node in dom.getElementsByTagName('init_from'):
-        node.firstChild.nodeValue = image_name
-        break
-
-    f = open(os.path.join(path_destiny, "tag.dae"), 'w+')
-    # Write the modified xml file
-    f.write(dom.toxml())
-    f.close()
-
-def get_pose(orientation):
-    _x = 0
-    _y = 0
-    _z = 0.25
-    _roll = 0
-    _pitch = 0
-    _yaw = 0
-
-    if orientation == Orientation.SOUTH:
-        _x = -0.05
-        _yaw = math.pi
-    elif orientation == Orientation.NORTH:
-        _x = 0.05
-    elif orientation == Orientation.WEST:
-        _y = -0.05
-        _yaw = (math.pi / 2) + math.pi
-    elif orientation == Orientation.EAST:
-        _y = 0.05
-        _yaw = math.pi / 2
+def check(arucos: list[Aruco_]) -> bool:
+    arucos.sort()
+    old = arucos.pop(0)
+    for ar in arucos:
+        if ar.key == old.key:
+            return True
+        old = ar
+    
+    return False
 
 
-    return [_x, _y, _z, _roll, _pitch, _yaw]
-def main():
-  dir_origen = os.path.dirname(os.path.realpath(__file__))
-  dir_model = os.path.join(dir_origen, 'model')
-  caminho_base = os.path.join(dir_origen, '..', '..', 'models', 'ar_tags')
-  diretorio_gazebo = os.path.relpath(caminho_base)
-  print(diretorio_gazebo)
 
-  remove_diretory_ar_tags(diretorio_gazebo)
-  create_diretory_ar_tags(diretorio_gazebo)
 
-  list = [
-      [1, Orientation.SOUTH],
-      [2, Orientation.WEST],
-      [3, Orientation.EAST],
-      [4, Orientation.NORTH]
-  ]
+def main(arucos: list[Aruco_]):
+    dir_origen = os.path.dirname(os.path.realpath(__file__))
+    dir_tag_model_origen = os.path.join(dir_origen, 'tag_model')
+    dir_base = os.path.realpath(os.path.join(dir_origen, '..', '..', 'models'))
+    maze_sdf = os.path.join(dir_base, 'maze', 'model.sdf')
+    dir_tags_model_destiny = os.path.join(dir_base, 'ar_tags')
 
-  for key, orientation in list:
-      name_dir = 'tag_'+ format_number(key)
-      path_destiny = os.path.join(diretorio_gazebo, name_dir)
-      copy(dir_model, path_destiny)
-      name_image = make_aruco(key, MARKER_SIZE, path_destiny)
-      modify_model_config(path_destiny, name_dir)
-      modify_model_sdf(path_destiny, name_dir, get_pose(orientation))
-      modify_tag_dae(path_destiny, name_image)
+    tag_model = TagModel(dir_tag_model_origen, dir_tags_model_destiny)
+    maze = PlantBase(maze_sdf)
+    maze.removeAllTagsAruco()
+    maze.removeAllTagsPoint()
+    
+    area_of_interest = {}
+    key_multiple = check(arucos.copy())
+
+
+    for ar in arucos:
+        tag = ar.create_tag()
+        tag_name = tag.name
+        if key_multiple:
+            tag.name = tag_name + '_' + ar.orientation.name
+        maze.add_tag(tag)
+        if not os.path.isdir(os.path.join(dir_tags_model_destiny, tag_name)):
+            """Cria o model somente se não exestir"""
+            tag_model.create_model(ar.key, tag_name)
+            area_of_interest[tag.name] = {'key': ar.key, 'ori': ar.orientation}
+
+    # Ler e calcular as coordenadas
+    includes = maze.ler_includes()
+    includes_com_coordenadas = calcular_coordenadas(includes)
+
+    # Filtrar as tags
+    tags = filtrar_tags(includes_com_coordenadas)
+    if key_multiple:
+        """Somente se houver tags multiplas da mesma key"""
+        tags = [t for t in tags if t.name in area_of_interest]
+    
+    list_points: list[Point] = []
+    for tag in tags:
+        x, y, _, _, _, _ = tag.pose
+        key = area_of_interest[tag.name]['key']
+        ori = area_of_interest[tag.name]['ori']
+        point = Point(key, ori, x, y)
+        list_points.append(point)
+
+    for tag in [t.create_tag() for t in list_points]:
+        maze.add_tag(tag)
+        
+
+
+     
 
 if __name__ == "__main__":
-    main()
+    main([
+      Aruco_( 1, Orientation.SOUTH,"c15",1.5),
+      Aruco_( 2, Orientation.SOUTH,"c14", -2.5),
+      #Aruco_( 1, Orientation.EAST , "c0", 1.5),
+      Aruco_( 3, Orientation.SOUTH,"c12"),
+      Aruco_( 4, Orientation.SOUTH,"c12", -1.5),
+      #Aruco_( 4, Orientation.WEST ,"c11", 1.5),
+      Aruco_( 5, Orientation.WEST , "a7", 2  ),
+      Aruco_( 6, Orientation.WEST , "c9",-1.5),
+      Aruco_( 7, Orientation.NORTH, "c7", -1.5),
+      Aruco_( 8, Orientation.SOUTH, "d7", -2  ),
+      Aruco_( 9, Orientation.WEST , "d2", 2  ),
+      Aruco_(10, Orientation.SOUTH, "d8",2  ),
+      Aruco_(11, Orientation.EAST , "d4", 2  ),
+      Aruco_(12, Orientation.EAST , "d1",-1.5),
+      Aruco_(13, Orientation.EAST , "d1"),
+      Aruco_(14, Orientation.NORTH, "d8",2  ),
+      Aruco_(15, Orientation.EAST , "d1", 2  ),
+      Aruco_(16, Orientation.WEST , "d9",-2  ),
+      Aruco_(17, Orientation.NORTH, "c5", -2.5),
+      #Aruco_(17, Orientation.WEST , "d4",-1.5),
+      Aruco_(18, Orientation.NORTH, "c4", -2.5),
+      Aruco_(19, Orientation.NORTH, "c4",1.5),
+      #Aruco_(19, Orientation.EAST , "c3",-1.5),
+      Aruco_(20, Orientation.EAST , "c2", 2  ),
+      Aruco_(21, Orientation.SOUTH, "b2",2  ),
+      Aruco_(22, Orientation.SOUTH, "b2", -2  ),
+      Aruco_(23, Orientation.WEST , "d1", 2  ),
+      Aruco_(24, Orientation.WEST , "d1",-1.5),
+      Aruco_(25, Orientation.WEST , "a1",-2  ),
+      Aruco_(26, Orientation.EAST , "b1", 2  ),
+      Aruco_(27, Orientation.SOUTH, "b4", -1  ),
+      Aruco_(28, Orientation.NORTH, "b2",1.5),
+      #Aruco_(28, Orientation.EAST , "c0",-1.5),
+      Aruco_(29, Orientation.SOUTH, "b6", -1  ),
+      Aruco_(30, Orientation.WEST , "a6",-0.5)
+    ])
+

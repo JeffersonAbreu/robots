@@ -24,13 +24,13 @@
       </include>
     </model>
 
-    <model name="car_bot">
+    <!--model name="car_bot">
       <self_collide>true</self_collide>
       <pose relative_to='world'>0 -0.5 0 0 0 0</pose>
       <include merge="true">
         <uri>model://car_bot</uri>
       </include>
-    </model>
+    </model-->
 
     <model
       name="maze">

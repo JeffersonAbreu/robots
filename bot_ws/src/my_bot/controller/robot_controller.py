@@ -39,8 +39,8 @@ class RobotController:
         tasks = [
             #Command(CommandType.MOVE_BACKWARD, 1.5), # Dar ré 1m
             #Command(CommandType.TURN, -15), 
-            Command(CommandType.MOVE_FORWARD, 1.5),  Command(CommandType.TURN, -40),
-            Command(CommandType.MOVE_FORWARD),  # Mover para frente
+            #Command(CommandType.MOVE_FORWARD, 1.5),  Command(CommandType.TURN, -40),
+            #Command(CommandType.MOVE_FORWARD),  # Mover para frente
             #Command(CommandType.STOP)                # Parar
         ]
 
@@ -56,7 +56,6 @@ class RobotController:
         """
         Lógica para lidar com a detecção de obstáculos
         """
-        os.system('clear')
         for index, range in enumerate(ranges):
             self.node.get_logger().info(f'{index}: {range}')
 
@@ -64,6 +63,15 @@ class RobotController:
             self.pause_task_queue()
             self.is_avoiding_obstacle = True
             self.avoiding_obstacle = self.node.create_timer(0.1, self.avoid_obstacle)
+        os.system('clear')
+
+    # Camera
+    def handle_aruco_detected(self, ids):
+        """
+        ids detectados
+        """
+        print(ids)
+
 
     # Comandos
 

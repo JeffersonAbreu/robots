@@ -1,5 +1,5 @@
 from geometry_msgs.msg import Twist
-from utils import CommandType, Command, SensorIMU, SensorLidar, SensorOdom
+from utils import CommandType, Command, SensorIMU, SensorLidar, SensorOdom, SensorCamera
 from utils.bib import degrees_to_radians, normalize_angle2, radians_to_degrees, normalize_angle_degrees
 from rclpy.node import Node
 
@@ -54,7 +54,7 @@ def get_angular_speed2(error: float) -> float:
 
 class Robot:
 
-    def __init__(self, node: Node, handle_obstacle_detection):
+    def __init__(self, node: Node, handle_obstacle_detection, handle_aruco_detected):
         """
         Inicializa o robô.
         """
@@ -72,6 +72,7 @@ class Robot:
         self.sensor_imu: SensorIMU = SensorIMU(node)
         self.sensor_odom: SensorOdom = SensorOdom(node)
         self.sensor_lidar: SensorLidar = SensorLidar(node, handle_obstacle_detection)
+        self.sensor_camera: SensorCamera = SensorCamera(node, handle_aruco_detected)
 
     def get_time_now(self):
         return self.node.get_clock().now().seconds_nanoseconds()[0]
@@ -81,6 +82,12 @@ class Robot:
         Retorna a distância ao obstáculo mais próximo diretamente à frente do robô.
         """
         return self.sensor_lidar.get_distance_to_obstacle()
+    
+    def get_aruco_dectected(self):
+        """
+        Retorna o que foi detectado pela camera
+        """
+        return self.sensor_camera.get_aruco_dectected()
     
     def get_orientation(self) -> float:
         """

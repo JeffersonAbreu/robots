@@ -1,10 +1,9 @@
-from model.path_planner import PathPlanner
 
 class RobotNavigator:
 
     def __init__(self, robot):
         self.robot = robot
-        self.path_planner = PathPlanner()
+
 
     def navigate(self):
         self.path_planner.plan_path()

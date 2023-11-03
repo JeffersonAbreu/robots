@@ -3,6 +3,7 @@ from .command import Command, CommandType, CommandQueue
 from .sensor_imu import SensorIMU
 from .sensor_lidar import SensorLidar
 from .sensor_odom import SensorOdom
+from .sensor_camera import SensorCamera
 
 __all__ = [
     "Bridge",
@@ -11,5 +12,6 @@ __all__ = [
     "CommandQueue",
     "SensorIMU",
     "SensorLidar",
-    "SensorOdom"
+    "SensorOdom",
+    "SensorCamera"
 ]

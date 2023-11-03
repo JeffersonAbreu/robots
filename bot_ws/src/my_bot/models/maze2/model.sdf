@@ -1,0 +1,245 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+    <model name='maze'>
+      <include>
+        <uri>model://wall_2x5m</uri>
+        <pose>2.5 -1 0 0 0 0</pose>
+        <name>a1</name>
+      </include>
+      
+      <include>
+        <uri>model://wall_2x5m_</uri>
+        <pose relative_to="a1">2.5 2.5 0 0 0 0</pose>
+        <name>a2</name>
+      </include>
+  
+      <include>
+        <uri>model://wall_2x5m_</uri>
+        <pose relative_to="a1">-2.5 -2.5 0 0 0 0</pose>
+        <name>a3</name>
+      </include>
+  
+      <include>
+        <uri>model://wall_2x5m_</uri>
+        <pose relative_to="a2">0 -4 0 0 0 0</pose>
+        <name>a4</name>
+      </include>
+  
+      <include>
+        <uri>model://wall_2x5m</uri>
+        <pose relative_to="a1">0 -5 0 0 0 0</pose>
+        <name>a5</name>
+      </include>
+  
+      <include>
+        <uri>model://wall_2x5m</uri>
+        <pose relative_to="a5">2.5 0 0 0 0 0</pose>
+        <name>a6</name>
+      </include>
+  
+      <include>
+        <uri>model://wall_2x5m</uri>
+        <pose relative_to="a6">0 -2 0 0 0 0</pose>
+        <name>a7</name>
+      </include>
+  
+      <include>
+        <uri>model://wall_2x5m</uri>
+        <pose relative_to="a7">-5 0 0 0 0 0</pose>
+        <name>a8</name>
+      </include>
+  
+      <include>
+        <uri>model://wall_2x5m_</uri>
+        <pose relative_to="a3">0 -2 0 0 0 0</pose>
+        <name>a9</name>
+      </include>
+  
+      <include>
+        <uri>model://wall_2x5m</uri>
+        <pose relative_to="a1">0 6 0 0 0 0</pose>
+        <name>b1</name>
+      </include>
+  
+      <include>
+        <uri>model://wall_2x5m_</uri>
+        <pose relative_to="b1">2.5 2.5 0 0 0 0</pose>
+        <name>b2</name>
+      </include>
+  
+      <include>
+        <uri>model://wall_2x5m_</uri>
+        <pose relative_to="b1">-2.5 -2.5 0 0 0 0</pose>
+        <name>b3</name>
+      </include>
+  
+      <include>
+        <uri>model://wall_2x5m_</uri>
+        <pose relative_to="b2">2.5 -2 0 0 0 0</pose>
+        <name>b4</name>
+      </include>
+  
+      <include>
+        <uri>model://wall_2x5m_</uri>
+        <pose relative_to="b4">0 -5 0 0 0 0</pose>
+        <name>b5</name>
+      </include>
+  
+      <include>
+        <uri>model://wall_2x5m_</uri>
+        <pose relative_to="b5">0 -5 0 0 0 0</pose>
+        <name>b6</name>
+      </include>
+  
+      <include>
+        <name>c0</name>
+        <pose relative_to="b1">5 5 0 0 0 0</pose>
+        <uri>model://wall_2x5m</uri>
+      </include>
+  
+      <include>
+        <name>c1</name>
+        <pose relative_to="c0">-5 0 0 0 0 0</pose>
+        <uri>model://wall_2x5m</uri>
+      </include>
+  
+      <include>
+        <name>c2</name>
+        <pose relative_to="c1">-5 0 0 0 0 0</pose>
+        <uri>model://wall_2x5m</uri>
+      </include>
+  
+      <include>
+        <name>c3</name>
+        <pose relative_to="c2">-5 0 0 0 0 0</pose>
+        <uri>model://wall_2x5m</uri>
+      </include>
+  
+      <include>
+        <name>c4</name>
+        <pose relative_to="c3">-2.5 -2.5 0 0 0 0</pose>
+        <uri>model://wall_2x5m_</uri>
+      </include>
+  
+      <include>
+        <name>c5</name>
+        <pose relative_to="c4">0 -5 0 0 0 0</pose>
+        <uri>model://wall_2x5m_</uri>
+      </include>
+  
+      <include>
+        <name>c6</name>
+        <pose relative_to="c5">0 -5 0 0 0 0</pose>
+        <uri>model://wall_2x5m_</uri>
+      </include>
+  
+      <include>
+        <name>c7</name>
+        <pose relative_to="c6">0 -5 0 0 0 0</pose>
+        <uri>model://wall_2x5m_</uri>
+      </include>
+  
+      <include>
+        <name>c8</name>
+        <pose relative_to="c7">2.5 -2.5 0 0 0 0</pose>
+        <uri>model://wall_2x5m</uri>
+      </include>
+  
+      <include>
+        <name>c9</name>
+        <pose relative_to="c8">5 0 0 0 0 0</pose>
+        <uri>model://wall_2x5m</uri>
+      </include>
+  
+      <include>
+        <name>c10</name>
+        <pose relative_to="c9">5 0 0 0 0 0</pose>
+        <uri>model://wall_2x5m</uri>
+      </include>
+  
+      <include>
+        <name>c11</name>
+        <pose relative_to="c10">5 0 0 0 0 0</pose>
+        <uri>model://wall_2x5m</uri>
+      </include>
+  
+      <include>
+        <name>c12</name>
+        <pose relative_to="c11">2.5 2.5 0 0 0 0</pose>
+        <uri>model://wall_2x5m_</uri>
+      </include>
+  
+      <include>
+        <name>c13</name>
+        <pose relative_to="c12">0 5 0 0 0 0</pose>
+        <uri>model://wall_2x5m_</uri>
+      </include>
+  
+      <include>
+        <name>c14</name>
+        <pose relative_to="c13">0 5 0 0 0 0</pose>
+        <uri>model://wall_2x5m_</uri>
+      </include>
+  
+      <include>
+        <name>c15</name>
+        <pose relative_to="c14">0 5 0 0 0 0</pose>
+        <uri>model://wall_2x5m_</uri>
+      </include>
+  
+      <include>
+        <name>d1</name>
+        <pose relative_to="b1">-5 0 0 0 0 0</pose>
+        <uri>model://wall_2x5m</uri>
+      </include>
+  
+      <include>
+        <name>d2</name>
+        <pose relative_to="c8">0 2 0 0 0 0</pose>
+        <uri>model://wall_2x5m</uri>
+      </include>
+  
+      <include>
+        <name>d3</name>
+        <pose relative_to="d2">0 3.5 0 0 0 0</pose>
+        <uri>model://wall_2x5m</uri>
+      </include>
+  
+      <include>
+        <name>d4</name>
+        <pose relative_to="d3">0 3.5 0 0 0 0</pose>
+        <uri>model://wall_2x5m</uri>
+      </include>
+  
+      <include>
+        <name>d5</name>
+        <pose relative_to="d3">2.5 0 0 0 0 0</pose>
+        <uri>model://wall_2x5m_</uri>
+      </include>
+  
+      <include>
+        <name>d6</name>
+        <pose relative_to="a8">-0.5 0 0 0 0 0</pose>
+        <uri>model://wall_2x5m</uri>
+      </include>
+  
+      <include>
+        <name>d7</name>
+        <pose relative_to="a9">-3 0 0 0 0 0</pose>
+        <uri>model://wall_2x5m_</uri>
+      </include>
+  
+      <include>
+        <name>d8</name>
+        <pose relative_to="a3">-3 0 0 0 0 0</pose>
+        <uri>model://wall_2x5m_</uri>
+      </include>
+  
+      <include>
+        <name>d9</name>
+        <pose relative_to="a1">-2 0 0 0 0 0</pose>
+        <uri>model://wall_2x5m</uri>
+        <size>0.1 3.0 2</size>
+      </include>
+    </model>
+</sdf>
