@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<sdf version="1.8">
+  <model name="point">
+    <static>true</static>
+    <pose>0 0 0.001 0 0 0</pose>
+    <link name="point_link">
+      <inertial>
+        <mass>0.001</mass> <!-- Ajuste a massa conforme necessário -->
+        <inertia>
+          <ixx>1.0E-06</ixx>
+          <iyy>1.0E-06</iyy>
+          <izz>1.0E-06</izz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <cylinder>
+            <radius>0.33</radius> <!-- Raio total incluindo a borda -->
+            <length>0.0009</length> <!-- Altura muito pequena -->
+          </cylinder>
+        </geometry>
+      </collision>
+      <!-- Cilindro externo (borda vermelha) -->
+      <visual name='visual_border'>
+        <geometry>
+          <cylinder>
+            <radius>0.33</radius> <!-- Raio total incluindo a borda -->
+            <length>0.0009</length> <!-- Altura muito pequena -->
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient> <!-- Cor vermelha -->
+          <diffuse>1 0 0 1</diffuse>
+          <specular>1 0 0 1</specular>
+        </material>
+      </visual>
+
+      <!-- Cilindro interno (centro branco) -->
+      <visual name='visual_center'>
+        <geometry>
+          <cylinder>
+            <radius>0.3</radius> <!-- Raio do centro branco -->
+            <length>0.001</length> <!-- Altura muito pequena -->
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>1 1 1 1</ambient> <!-- Cor branca -->
+          <diffuse>1 1 1 1</diffuse>
+          <specular>1 1 1 1</specular>
+        </material>
+      </visual>
+
+    </link>
+  </model>
+</sdf>
