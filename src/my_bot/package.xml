@@ -18,7 +18,10 @@
   <depend>sensor_msgs</depend>
   <depend>time</depend>
   <depend>nav_msgs</depend>
-  <!--depend>Opencv</depend-->
+  <depend>opencv2</depend>
+  <depend>cv2</depend>
+  <depend>numpy</depend>
+  <depend>yaml</depend>
 
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>

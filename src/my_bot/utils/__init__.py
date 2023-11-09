@@ -13,5 +13,5 @@ __all__ = [
     "SensorIMU",
     "SensorLidar",
     "SensorOdom",
-    "SensorCamera"
+    "SensorCamera",
 ]

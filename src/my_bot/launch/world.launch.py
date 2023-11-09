@@ -18,7 +18,7 @@ def generate_launch_description():
 
     gz_sim = ExecuteProcess(cmd=['gz', 'sim', 'world.sdf', '-r'], output='screen')
     '''
-    gz_sim = ExecuteProcess(cmd=['env', '-u', 'WAYLAND_DISPLAY', 'gz', 'sim', '-v', '8','world.sdf', '-r'], output='screen')
+    gz_sim = ExecuteProcess(cmd=['gz', 'sim', '-v', '8','world.sdf', '-r'], output='screen')
     gz sim <path to>/fuel_preview.sdf --gui-config <path to>saved.config
 
     controller_process = ExecuteProcess(
@@ -32,6 +32,7 @@ def generate_launch_description():
     '''
 
     # Bridge ROS topics and Gazebo messages for establishing communication
+    '''
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
@@ -45,7 +46,6 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}],
         output='both' #both
     )
-    '''
 
     bridge = Bridge()
     bridge.topic_twist('/cmd_vel')
@@ -58,7 +58,7 @@ def generate_launch_description():
     '''
     return LaunchDescription([
         gz_sim,
-        bridge,
+        #bridge,
         #controller_process
         #rqt_image_view
     ])

@@ -1,12 +1,13 @@
-<?xml version="1.0" ?><sdf version="1.6">
-  <model name="tag_99">
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="aruco_camera_calibration">
     <static>true</static>
     <link name="link">
       <visual name="visual">
         <geometry>
           <mesh>
             <uri>tag.dae</uri>
-          <scale>0.5 0.5 0.5</scale></mesh>
+          </mesh>
         </geometry>
       </visual>
     </link>

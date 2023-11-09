@@ -6,7 +6,7 @@
         <geometry>
           <mesh>
             <uri>tag.dae</uri>
-          <scale>0.5 0.5 0.5</scale></mesh>
+          </mesh>
         </geometry>
       </visual>
     </link>

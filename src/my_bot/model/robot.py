@@ -73,6 +73,8 @@ class Robot:
         self.sensor_odom: SensorOdom = SensorOdom(node)
         self.sensor_lidar: SensorLidar = SensorLidar(node, handle_obstacle_detection)
         self.sensor_camera: SensorCamera = SensorCamera(node, handle_aruco_detected)
+        # Carrega as configs de calibração
+        self.sensor_camera.load_calibration()
 
     def get_time_now(self):
         return self.node.get_clock().now().seconds_nanoseconds()[0]
