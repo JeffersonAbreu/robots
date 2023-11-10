@@ -40,9 +40,9 @@ class RobotController:
         Exemplo de lista de tarefas
         """
         tasks = [ 
-            Command(CommandType.MOVE_FORWARD, 0.5),  
+            #Command(CommandType.MOVE_FORWARD, 0.5),  
             Command(CommandType.TURN, -45),
-            #Command(CommandType.MOVE_FORWARD),  # Mover para frente
+            Command(CommandType.MOVE_FORWARD, 5),  # Mover para frente
             #Command(CommandType.STOP)                # Parar
         ]
 

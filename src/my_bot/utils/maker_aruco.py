@@ -13,7 +13,6 @@ from constants import DISTANCE_TO_WALL # Distância da area de interece da pared
 from constants import WALL_LARG # 0.05
 from constants import ARUCO_DICT # DICT_5X5_250
 from constants import MARKER_SIZE  # Tamanho do marcador em cm (20cm)
-from constants import SCALE
 
 CREATE_POINTS = False
 
@@ -80,29 +79,27 @@ def modify_model_config(path_destiny, name):
     f.close()
 
 def modify_model_sdf(path_destiny, name):
+    """
+    Modifica o arquivo SDF do modelo para incluir o marcador ArUco com a escala correta.
+
+    :param path_destiny: Caminho do diretório onde o arquivo SDF será salvo.
+    :param name: Nome do modelo.
+    """
+    # Caminho para o arquivo SDF do modelo sem a versão
     model_noversion_sdf_path = os.path.join(path_destiny, "model.sdf")
+    
+    # Carrega o arquivo SDF como um DOM XML
     dom = parse(model_noversion_sdf_path)
+
+    # Altera o nome do modelo no arquivo SDF
     for node in dom.getElementsByTagName('model'):
         node.attributes["name"].value = name
         break
 
-    for node in dom.getElementsByTagName('mesh'):
-        '''
-        for child in node.childNodes:
-            if child.nodeName == "uri":
-                child.firstChild.nodeValue = "model://" + os.path.join('ar_tags', name, "tag.dae")
-                break
-        '''
-
-        scale = dom.createElement("scale")
-        values = dom.createTextNode("{} {} {}".format(SCALE, SCALE, SCALE))
-        scale.appendChild(values)
-        node.appendChild(scale)
-    
-    f = open(model_noversion_sdf_path, 'w+')
-    # Write the modified xml file
-    f.write(dom.toxml())
-    f.close()
+    # Abre o arquivo SDF para escrita
+    with open(model_noversion_sdf_path, 'w') as f:
+        # Escreve o XML modificado no arquivo
+        f.write(dom.toxml())
 
 def modify_tag_dae(path_destiny, image_name):
     dom = parse(os.path.join(path_destiny, "tag.dae"))
@@ -228,6 +225,14 @@ class PlantBase:
 
 
 def maker(destiny, marker_id:int, name):
+    """
+    Gera um marcador ArUco e salva como uma imagem PNG.
+
+    :param destiny: Caminho do diretório onde a imagem será salva.
+    :param marker_id: ID do marcador ArUco a ser gerado.
+    :param name: Nome base para o arquivo de imagem.
+    :return: O nome do arquivo da imagem gerada.
+    """
     # Defina o tamanho do marcador em centímetros e a resolução de impressão em DPI
     tamanho_cm = MARKER_SIZE
     dpi = 300
@@ -244,7 +249,7 @@ def maker(destiny, marker_id:int, name):
     marker_image = np.zeros((tamanho_pixels, tamanho_pixels), dtype=np.uint8)
 
     # Gere o marcador ArUco
-    marker_image = cv2.aruco.generateImageMarker(aruco_dict, marker_id, tamanho_pixels, marker_image)
+    marker_image = cv2.aruco.drawMarker(aruco_dict, marker_id, tamanho_pixels, marker_image, borderBits=1)
 
     name = f"aruco_{name}.png"
     destiny = os.path.join(destiny, name)
