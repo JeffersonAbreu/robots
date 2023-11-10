@@ -50,7 +50,6 @@ setup(
     entry_points={
         'console_scripts': [
             'controller = my_bot.controller:main',
-            'calibration = my_bot.calibration:main',
         ],
     },
 )

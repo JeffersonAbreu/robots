@@ -13,6 +13,7 @@ from constants import DISTANCE_TO_WALL # Distância da area de interece da pared
 from constants import WALL_LARG # 0.05
 from constants import ARUCO_DICT # DICT_5X5_250
 from constants import MARKER_SIZE  # Tamanho do marcador em cm (20cm)
+from constants import SCALE
 
 CREATE_POINTS = False
 
@@ -85,6 +86,19 @@ def modify_model_sdf(path_destiny, name):
         node.attributes["name"].value = name
         break
 
+    for node in dom.getElementsByTagName('mesh'):
+        '''
+        for child in node.childNodes:
+            if child.nodeName == "uri":
+                child.firstChild.nodeValue = "model://" + os.path.join('ar_tags', name, "tag.dae")
+                break
+        '''
+
+        scale = dom.createElement("scale")
+        values = dom.createTextNode("{} {} {}".format(SCALE, SCALE, SCALE))
+        scale.appendChild(values)
+        node.appendChild(scale)
+    
     f = open(model_noversion_sdf_path, 'w+')
     # Write the modified xml file
     f.write(dom.toxml())

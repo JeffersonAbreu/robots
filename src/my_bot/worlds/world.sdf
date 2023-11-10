@@ -40,13 +40,13 @@
     </model>
 
 
-    <!--model name="maze">
+    <model name="maze">
       <static>true</static>
       <self_collide>true</self_collide>
       <pose>0 0 0 0 0 0</pose>
       <include merge="true">
         <uri>model://maze</uri>
       </include>
-    </model-->
+    </model>
   </world>
 </sdf>

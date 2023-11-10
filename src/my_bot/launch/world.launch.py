@@ -32,7 +32,6 @@ def generate_launch_description():
     '''
 
     # Bridge ROS topics and Gazebo messages for establishing communication
-    '''
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
@@ -44,9 +43,10 @@ def generate_launch_description():
             '/camera@sensor_msgs/msg/Image[gz.msgs.Image'
         ],
         parameters=[{'use_sim_time': True}],
-        output='both' #both
+        output='log'
     )
 
+    '''
     bridge = Bridge()
     bridge.topic_twist('/cmd_vel')
     bridge.topic_laser_scan('/lidar')
@@ -58,7 +58,7 @@ def generate_launch_description():
     '''
     return LaunchDescription([
         gz_sim,
-        #bridge,
+        bridge,
         #controller_process
         #rqt_image_view
     ])

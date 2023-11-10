@@ -6,8 +6,9 @@ DISTANCE_TO_WALL = 0.5  # Distância da area de interece da parede
 WALL_LARG = 0.05
 
 # Configurações do ArUco
-ARUCO_DICT = aruco.DICT_5X5_250
+ARUCO_DICT = aruco.DICT_4X4_100
 MARKER_SIZE = 20  # Tamanho do marcador em cm (20cm)
+SCALE = 0.5
 '''
 Tamanho está para folha de papel A4 quadrada
 '''
