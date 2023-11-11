@@ -1,4 +1,6 @@
 import numpy as np
+import yaml
+import os
 import cv2
 import cv2.aruco as aruco
 from cv_bridge import CvBridge, CvBridgeError
@@ -9,6 +11,10 @@ from .constants import ARUCO_DICT, MARKER_SIZE
 class SensorCamera:
     def __init__(self, node: Node, aruco_detected_callback):
         self.node = node
+        self.calibration_file_path = 'dados_calibracao.yaml'
+        self.camera_matrix = np.array([[1000, 0, 320], [0, 1000, 240], [0, 0, 1]], dtype=float)
+        self.dist_coeffs = np.zeros(5)  # Supondo que não há distorção
+        self.load_config_initial()
         self.aruco_detected_callback = aruco_detected_callback
         self.id_aruco_target = None
         self.lock = False
@@ -80,3 +86,31 @@ class SensorCamera:
 
     def __del__(self):
         cv2.destroyAllWindows()
+    
+    def load_config_initial(self):
+        # Verifica se o arquivo de calibração existe
+        if os.path.isfile(self.calibration_file_path):
+            try:
+                # Abre o arquivo de calibração e carrega os dados
+                with open(self.calibration_file_path, 'r') as arquivo:
+                    calib_data = yaml.safe_load(arquivo)
+                    # Verifica se as chaves esperadas existem no dicionário
+                    if 'camera_matrix' in calib_data:
+                        # Carrega os dados de calibração na matriz da câmera e nos coeficientes de distorção
+                        self.camera_matrix = np.array(calib_data['camera_matrix'], dtype=float)
+                    else:
+                        raise KeyError("As chaves 'camera_matrix' não estão presentes no arquivo de calibração.")
+                    if 'dist_coeffs' in calib_data:
+                        self.dist_coeffs = np.array(calib_data['dist_coeffs'], dtype=float)
+                    else:
+                        raise KeyError("As chaves 'dist_coeffs' não estão presentes no arquivo de calibração.")
+                    print(f"Dados de calibração carregados de {self.calibration_file_path}")
+                    
+            except yaml.YAMLError as e:
+                self.get_logger().error(f"Erro ao ler o arquivo YAML: {e}")
+            except KeyError as e:
+                self.get_logger().error(f"{e}")
+            except Exception as e:
+                self.get_logger().error(f"Erro ao carregar o arquivo de configuração da câmera: {e}")
+        else:
+            self.get_logger().error(f"Arquivo de configuração da câmera não encontrado: {self.calibration_file_path}")

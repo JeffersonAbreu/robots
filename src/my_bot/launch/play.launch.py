@@ -5,9 +5,9 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import ExecuteProcess
 
-GZ_WORLD = "world.world"
 
 def generate_launch_description():
+    GZ_WORLD = "world.world"
     # Set gazebo environment variables
     pkg_share_dir = get_package_share_directory('my_bot')
     models_path = pkg_share_dir + "/models"
