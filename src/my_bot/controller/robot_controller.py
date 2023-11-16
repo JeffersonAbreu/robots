@@ -4,8 +4,7 @@ from rclpy.node import Node
 import pdb # pdb.set_trace() # serve para debugar
 from utils.bib import degrees_to_radians, radians_to_degrees
 import os
-# acesse ->     zzzcode.ai
-MIN_DISTANCE = 0.5
+MIN_DISTANCE = 0.25
 
 class RobotController:
     '''
@@ -21,8 +20,6 @@ class RobotController:
         # self.navigator = RobotNavigator(self.robot)
         # self.qr_detector = QRCodeDetector()
 
-        self.is_paused = False
-        self.avoiding_obstacle = False
         self.lidar_data_ranges: list[float] = []
         
         self.current_orientation = 0.0
@@ -33,7 +30,8 @@ class RobotController:
         self.execute_task_list()
         self.command_timer = self.node.create_timer(0.1, self.__execute_commands)
 
-        self.robot.sensor_camera.fix_target(26)
+        alvo = 26
+        self.robot.sensor_camera.fix_target(alvo)
 
     def execute_task_list(self):
         """
@@ -41,17 +39,13 @@ class RobotController:
         """
         tasks = [ 
             #Command(CommandType.MOVE_FORWARD, 0.5),  
-            Command(CommandType.TURN, -45),
-            Command(CommandType.MOVE_FORWARD, 5),  # Mover para frente
-            #Command(CommandType.STOP)                # Parar
+            #Command(CommandType.MOVE_FORWARD, 4.5),  # Mover para frente
+            Command(CommandType.TURN, -90),
+            #Command(CommandType.STOP)               # Parar
         ]
-
-
 
         for task in tasks:
             self.commands_queue.add_command(task)
-
-        #self.node.get_logger().warning(f'tem {self.command_queue.size()} comandos')
     
     # Lidar
     def handle_obstacle_detection(self, ranges: list[float]):
@@ -59,38 +53,34 @@ class RobotController:
         Lógica para lidar com a detecção de obstáculos
         """
         self.lidar_data_ranges = ranges
-        '''
-        for index, range in enumerate(ranges):
-            self.node.get_logger().info(f'{index}: {range}')
-        os.system('clear')
-        '''
 
-        if self.robot.get_state() == CommandType.MOVE_FORWARD and self.get_distance_to_obstacle() < MIN_DISTANCE:
-            self.pause_task_queue()
-            self.is_avoiding_obstacle = True
-            self.avoiding_obstacle = self.node.create_timer(0.1, self.avoid_obstacle)
+        if self.get_distance_to_obstacle() < MIN_DISTANCE:
+            pass
 
-    def get_distance_to_obstacle(self) -> float:
+    def get_distance_to_obstacle(self, grau: int = 0) -> float:
         """
         Retorna a distância ao obstáculo mais próximo diretamente à frente do robô.
         """
-        # caso o lidar for de 360º segue um exemplo:
-        front_index = round(len(self.lidar_data_ranges)/2)
+        if grau == 0:
+            front_index = 135 # index do meio ( frente: ponto zero do robo )
+        else:
+            front_index = 135 + grau
         return self.lidar_data_ranges[front_index]
     
     # Camera
-    def handle_aruco_detected(self, error_x, error_y, distance):
+    def handle_aruco_detected(self, error):
         """
         ids detectados
         """
-        if self.robot.sensor_camera.lock is None:
-            if abs(error_y) < 1:
-                self.robot.sensor_camera.lock_target()
-                self.commands_queue.clear()
-                self.robot.stop()
-                self.robot.move_forward()
+        self.commands_queue.clear()
+        self.robot.move_forward()
+        if not self.robot.sensor_camera.id_aruco_target_lock:
+            if abs(error) < 1:
+                self.robot.sensor_camera.set_lock()
         else:
-            print(f'erro[{error_x:.2f}, {error_y}  distancia: {distance:.2f}')
+            pass
+        distance = self.get_distance_to_obstacle()
+        print(f'erro X:[ {error:.2f} ], distance: {distance}')
 
     # Comandos
 
@@ -98,58 +88,8 @@ class RobotController:
         """
         Executa os comandos na fila.
         """
-        if self.is_paused:
-            return
         if not self.robot.is_command_running(): # Se não estiver rodando um comando
             if self.commands_queue.is_next(): # existir próximo
                 command: Command = self.commands_queue.get_next_command()
                 self.current_command = command
                 self.robot.execute(command)
-
-    def pause_task_queue(self):
-        """
-        Pausa a fila de tarefas.
-        """
-        self.is_paused = True
-        self.robot.stop()
-        if self.current_command.value != None:
-            if self.current_command.type == CommandType.TURN:
-                self.current_command.value = self.current_command.value - self.robot.get_orientation()
-            if self.current_command.type == CommandType.MOVE_FORWARD or self.current_command.type == CommandType.MOVE_BACKWARD:
-                    self.current_command.value = self.current_command.value - self.robot.sensor_odom.get_travelled_distance()
-        self.commands_queue.add_command_to_init(self.current_command)
-        self.current_orientation = self.robot.get_orientation()
-        self.bkp_commands_queue = self.commands_queue
-
-    def resume_task_queue(self):
-        """
-        Retoma a fila de tarefas.
-        """
-        self.is_paused = True
-        self.avoiding_obstacle.cancel()
-        self.robot.stop()
-        self.commands_queue = self.bkp_commands_queue
-        self.bkp_commands_queue.clear()
-        self.is_paused = False
-
-    def avoid_obstacle(self):
-        """
-        contornar o obstáculo.
-        """
-        if self.commands_queue.size() == 0:
-            if self.get_distance_to_obstacle() < MIN_DISTANCE:
-                tasks = [
-                    #Command(CommandType.MOVE_BACKWARD, 0.2), # Mover para tras
-                    Command(CommandType.TURN, -45),          # Girar 90º esquerda
-                    Command(CommandType.MOVE_FORWARD, 0.4),  # Pra frente 50cm
-                ]
-                self.commands_queue.clear()
-                for task in tasks:
-                    self.commands_queue.add_command(task)
-            else:
-                # Depois de contornar o obstáculo, retome a fila de tarefas.
-                self.resume_task_queue()
-
-
-
-

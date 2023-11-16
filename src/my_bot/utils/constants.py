@@ -8,7 +8,7 @@ WALL_LARG = 0.05
 
 # Configurações do ArUco
 ARUCO_DICT = aruco.DICT_4X4_100  # Substitua pelo dicionário desejado
-MARKER_SIZE = 20  # Tamanho do marcador em centímetros
+MARKER_SIZE = 0.2  # Tamanho do marcador em centímetros
 
 '''
 Tamanho está para folha de papel A4 quadrada

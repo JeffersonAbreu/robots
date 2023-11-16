@@ -38,7 +38,7 @@
         <lidar>
           <scan>
             <horizontal>
-              <samples>13</samples> <!-- quantidade de raios -->
+              <samples>271</samples> <!-- quantidade de raios -->
               <resolution>1</resolution>
               <min_angle>-2.356194</min_angle> <!-- -135 graus em radianos -->
               <max_angle>2.356194</max_angle> <!-- 135 graus em radianos -->
@@ -47,7 +47,7 @@
           <!-- ... configurações de varredura ... -->
           <range>
             <min>0.15</min> <!-- Distância mínima em metros -->
-            <max>1.5</max>  <!-- Distância máxima em metros -->
+            <max>7.5</max>  <!-- Distância máxima em metros -->
             <resolution>0.01</resolution>
           </range>
         </lidar>

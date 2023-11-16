@@ -122,7 +122,8 @@ class Robot:
         travelled_distance = self.sensor_odom.get_travelled_distance()
         if self.distance - travelled_distance <= 0.001:
             self.node.get_logger().info(f'distance: {self.distance} | travelled: {round(travelled_distance, 3)}')
-            self.stop()
+            self.twist.linear.x = 0
+            self.twist_pub.publish(self.twist)
             self.move_timer.cancel()
 
 
@@ -174,7 +175,8 @@ class Robot:
         
         # Se a diferença for pequena o suficiente, pare o robô
         if abs(difference) <= 0.15:
-            self.stop()
+            self.twist.angular.z = 0
+            self.twist_pub.publish(self.twist)
             self.turn_timer.cancel()
         else:
             # Caso contrário, continue girando na direção mais curta para alcançar a orientação desejada

@@ -3,8 +3,8 @@
 
 ### Check list for construct project
 
-[ x ] Modelar Robo:   
-  - [ x ] Estrutura   
+[x] Modelar Robo:   
+  - [x] Estrutura :heavy_check_mark:   
     - [ ] Sensores:   
     - [ ] Camera   
     - [ ] Bússola   

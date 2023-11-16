@@ -1,185 +1,114 @@
-import rclpy
-import os
-from rclpy.node import Node
-from sensor_msgs.msg import Image
-from cv_bridge import CvBridge
 import cv2
-import cv2.aruco as aruco
-import numpy as np
+from cv2 import aruco
 import yaml
-import time
+import numpy as np
+from pathlib import Path
+from tqdm import tqdm
+import os
+import glob
 
-class CameraCalibrador(Node):
-    def __init__(self):
-        super().__init__('calibrador_camera')
-        self.bridge = CvBridge()
-        self.subscription = self.create_subscription(Image, '/camera', self.callback_imagem, 10)
-        self.marker_length_m = 0.2  # Tamanho real do marcador em metros (20cm)
-        self.distance_to_marker_m = 2.5  # Distância desejada do marcador em metros (2,5m)
-        self.aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_100)
-        self.parametros = aruco.DetectorParameters_create()
-        self.dados_calibracao = {}
+# Defina esta flag como True para calibrar a câmera e False para validar resultados em tempo real
+calibrate_camera = True
 
-        # Parâmetros de calibração fictícios iniciais
-        self.camera_matrix = np.array([[1000, 0, 320], [0, 1000, 240], [0, 0, 1]], dtype=float)
-        self.dist_coeffs = np.zeros(5)  # Supondo que não há distorção
-        self.contagem_regressiva = 20
+# Defina o caminho para as imagens
 
-        self.calibration_file_path = 'dados_calibracao.yaml'
-        self.load_config_initial()
+# Caminho atual do script
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
-    def callback_imagem(self, msg):
-        imagem_cv = self.bridge.imgmsg_to_cv2(msg, 'bgr8')
-        #imagem_cv = cv2.resize(imagem_cv, (640, 480))
+# Caminho para a pasta de imagens relativa ao script atual
+images_path = os.path.realpath(os.path.join("..", "aruco_data"))
+images = glob.glob(f'{images_path}/*.png')
 
-        if self.contagem_regressiva > 0:
-            self.print_in_imagem(imagem_cv, f"Calibrando em {self.contagem_regressiva} segundos...")
-            cv2.imshow('Calibracao da Camera', imagem_cv)
-            cv2.waitKey(1)
-            self.contagem_regressiva -= 1
-        elif self.contagem_regressiva == 0:
-            self.print_in_imagem(imagem_cv, "Initializy calibration...")
-            cv2.imshow('Calibracao da Camera', imagem_cv)
-            cv2.waitKey(1)
-            self.contagem_regressiva -= 1
-            time.sleep(1)
-        else:
-            self.processar_imagem(imagem_cv)
+# Usando glob para listar arquivos PNG
+for image_file in images:
+    print(image_file)  # Imprime o caminho de cada arquivo de imagem
 
-    def print_in_imagem(self, img, msg):
-        cv2.putText(img, msg, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2, cv2.LINE_AA)
+# Para validar os resultados, mostre o marcador aruco para a câmera.
+aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_100)
 
-    def load_config_initial(self):
-        # Verifica se o arquivo de calibração existe
-        if os.path.isfile(self.calibration_file_path):
-            try:
-                # Abre o arquivo de calibração e carrega os dados
-                with open(self.calibration_file_path, 'r') as arquivo:
-                    calib_data = yaml.safe_load(arquivo)
-                    # Verifica se as chaves esperadas existem no dicionário
-                    if 'camera_matrix' in calib_data:
-                        # Carrega os dados de calibração na matriz da câmera e nos coeficientes de distorção
-                        self.camera_matrix = np.array(calib_data['camera_matrix'], dtype=float)
-                    else:
-                        raise KeyError("As chaves 'camera_matrix' não estão presentes no arquivo de calibração.")
-                    if 'dist_coeffs' in calib_data:
-                        self.dist_coeffs = np.array(calib_data['dist_coeffs'], dtype=float)
-                    else:
-                        raise KeyError("As chaves 'dist_coeffs' não estão presentes no arquivo de calibração.")
-                    print(f"Dados de calibração carregados de {self.calibration_file_path}")
-                    
-            except yaml.YAMLError as e:
-                self.get_logger().error(f"Erro ao ler o arquivo YAML: {e}")
-            except KeyError as e:
-                self.get_logger().error(f"{e}")
-            except Exception as e:
-                self.get_logger().error(f"Erro ao carregar o arquivo de configuração da câmera: {e}")
-        else:
-            self.get_logger().error(f"Arquivo de configuração da câmera não encontrado: {self.calibration_file_path}")
-            
-    def processar_imagem(self, imagem):
-        # Converte a imagem para escala de cinza para detecção de marcadores
-        cinza = cv2.cvtColor(imagem, cv2.COLOR_BGR2GRAY)
-        cantos, ids, _ = aruco.detectMarkers(cinza, self.aruco_dict, parameters=self.parametros)
+# Forneça o comprimento do lado do marcador
+markerLength = 20  # Aqui, a unidade de medida é centímetro.
 
-        # Se algum marcador ArUco foi detectado
+# Crie um marcador ArUco para calibração
+board = aruco.GridBoard_create(1, 1, float(markerLength) / 100, 0.01, aruco_dict)
+
+# Descomente o bloco a seguir para desenhar e mostrar o marcador
+# img_board = board.draw((200*3, 200*3))
+# cv2.imwrite('aruco_board.png', img_board)
+
+arucoParams = aruco.DetectorParameters_create()
+
+if calibrate_camera:
+    gray = None
+    img_list = []
+    
+    print('Usando...', end='')
+    for idx, fn in enumerate(images):
+        print(idx, '', end='')
+        img = cv2.imread(str(fn))
+        img_list.append(img)
+    print('imagens de calibração')
+
+    corners_list, id_list, counter = [], [], []
+    for im in tqdm(img_list):
+        gray = cv2.cvtColor(im, cv2.COLOR_RGB2GRAY)
+        corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, aruco_dict, parameters=arucoParams)
         if ids is not None:
-            rvecs, tvecs, _ = aruco.estimatePoseSingleMarkers(cantos, self.marker_length_m, self.camera_matrix, self.dist_coeffs)
+            for corner in corners:
+                # Reformata cada canto para ter dimensão (1, 4, 2)
+                corners_list.append(corner.reshape((1, 4, 2)))
+            id_list.append(ids)
+            counter.append(len(ids))
 
-            for i in range(len(ids)):
-                # Desenha os contornos e os eixos dos marcadores ArUco
-                aruco.drawDetectedMarkers(imagem, cantos, ids)
-                # Exibir a pose estimada para o primeiro marcador
-                aruco.drawAxis(imagem, self.camera_matrix, self.dist_coeffs, rvecs[0], tvecs[0], self.marker_length_m)
-                distance = np.linalg.norm(tvecs[0][0])
+    counter = np.array(counter).flatten()
+    print("Calibrando câmera .... Aguarde...")
+    corners_array = np.array(corners_list, dtype=np.float32)
+    ids_array = np.array(id_list, dtype=np.float32)
+    ret, mtx, dist, rvecs, tvecs = aruco.calibrateCameraAruco(corners_array, ids_array, counter, board, gray.shape[::-1], None, None)
 
-                # Calcula o tamanho percebido do marcador
-                largura_percebida_cm, altura_percebida_cm = self.calcular_tamanho_percebido(cantos[i][0], tvecs[i])
-
-                    
-                # Exibe o tamanho estimado do marcador na imagem
-                cv2.putText(imagem, f"Tamanho estimado: {largura_percebida_cm:.2f}cm x {altura_percebida_cm:.2f}cm", (10, 30 * (i+1)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-
-                # Atualiza os parâmetros da câmera ficticiamente para aproximar a distância desejada
-                self.ajustar_parametros_camera(distance)
-
-                # Escreve na imagem a distância estimada até o marcador
-                self.print_in_imagem(imagem, f"Distancia estimada: {distance:.2f} m")
-
-                if abs(distance - self.distance_to_marker_m) < 0.001:
-                    self.salvar_dados_calibracao(imagem)
-                    return  # Sai da função para não processar mais imagens
+    print("Matriz da câmera é \n", mtx, "\n E está armazenada no arquivo calibration.yaml junto com os coeficientes de distorção : \n", dist)
+    data = {'camera_matrix': np.asarray(mtx).tolist(), 'dist_coeff': np.asarray(dist).tolist()}
+    with open("calibration.yaml", "w") as f:
+        yaml.dump(data, f)
 
 
-        # Exibe a imagem
-        cv2.imshow('Calibracao da Camera', imagem)
-        cv2.waitKey(1)
+else:
+    camera = cv2.VideoCapture(0)
+    ret, img = camera.read()
 
-    def calcular_tamanho_percebido(self, corner, tvec):
-        # Considera a distância entre os cantos superior esquerdo e superior direito para largura
-        # e os cantos superior esquerdo e inferior esquerdo para altura.
-        largura_pixel = np.linalg.norm(corner[0] - corner[1])
-        altura_pixel = np.linalg.norm(corner[0] - corner[3])
+    with open('calibration.yaml') as f:
+        loadeddict = yaml.load(f)
+    mtx = loadeddict.get('camera_matrix')
+    dist = loadeddict.get('dist_coeff')
+    mtx = np.array(mtx)
+    dist = np.array(dist)
 
-        # Convertendo pixels em metros usando a distância até o marcador (tvec) e a matriz da câmera.
-        largura_m = (largura_pixel / self.camera_matrix[0, 0]) * tvec[0, 2]
-        altura_m = (altura_pixel / self.camera_matrix[1, 1]) * tvec[0, 2]
+    ret, img = camera.read()
+    img_gray = cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
+    h,  w = img_gray.shape[:2]
+    newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
 
-        # Convertendo metros em centímetros para exibição.
-        largura_cm = largura_m * 100
-        altura_cm = altura_m * 100
-
-        return largura_cm, altura_cm
-
-    def ajustar_parametros_camera(self, distance):
-        # Simula o ajuste dos parâmetros da câmera para alinhar a distância percebida com a real
-        # Este código apenas ajusta o valor da matriz da câmera para simular uma aproximação da distância desejada
-        # Em um cenário real, isso seria feito com base em múltiplas imagens e um processo de otimização
-        if distance < self.distance_to_marker_m:
-            self.camera_matrix[0][0] += 1  # Ajusta a focal length para simular um afastamento da câmera
-            self.camera_matrix[1][1] += 1
-        elif distance > self.distance_to_marker_m:
-            self.camera_matrix[0][0] -= 1  # Ajusta a focal length para simular uma aproximação da câmera
-            self.camera_matrix[1][1] -= 1
-
-        # Atualiza os dados de calibração
-        self.dados_calibracao['camera_matrix'] = self.camera_matrix.tolist()
-
-    def salvar_dados_calibracao(self, img):
-        # Verifica se a matriz da câmera e os coeficientes de distorção foram definidos
-        if hasattr(self, 'camera_matrix') and hasattr(self, 'dist_coeffs'):
-            dados_calibracao = {
-                'camera_matrix': self.camera_matrix.tolist(),
-                'dist_coeffs': self.dist_coeffs.tolist(),
-            }
-            # Salva os dados da calibração usando o caminho do arquivo fornecido pelo parâmetro
-            try:
-                with open(self.calibration_file_path, 'w') as arquivo:
-                    yaml.dump(dados_calibracao, arquivo, default_flow_style=False)
-                self.get_logger().info(f"Dados de calibração salvos em {self.calibration_file_path}")
-                self.print_in_imagem(img, "Sucesso...")
-                cv2.imshow('Calibracao da Camera', img)
-                cv2.waitKey(1)
-                time.sleep(3)
-            except Exception as e:
-                self.get_logger().error(f"Erro ao salvar o arquivo de configuração da câmera: {e}")
+    pose_r, pose_t = [], []
+    while True:
+        ret, img = camera.read()
+        img_aruco = img
+        im_gray = cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
+        h,  w = im_gray.shape[:2]
+        dst = cv2.undistort(im_gray, mtx, dist, None, newcameramtx)
+        corners, ids, rejectedImgPoints = aruco.detectMarkers(dst, aruco_dict, parameters=arucoParams)
+        #cv2.imshow("original", img_gray)
+        if corners == None:
+            print ("pass")
         else:
-            self.get_logger().error("Matriz da câmera e coeficientes de distorção não estão definidos.")
-        
-        # Após salvar, fechar o programa
-        self.encerrar_calibracao()
 
-    def encerrar_calibracao(self):
-        self.subscription.destroy()
-        cv2.destroyAllWindows()
-        self.destroy_node()  # Destruir o nó
-        rclpy.shutdown()  # Encerrar o rclpy
+            ret, rvec, tvec = aruco.estimatePoseBoard(corners, ids, board, newcameramtx, dist) # For a board
+            print ("Rotation ", rvec, "Translation", tvec)
+            if ret != 0:
+                img_aruco = aruco.drawDetectedMarkers(img, corners, ids, (0,255,0))
+                img_aruco = aruco.drawAxis(img_aruco, newcameramtx, dist, rvec, tvec, 10)    # axis length 100 can be changed according to your requirement
 
-def main(args=None):
-    rclpy.init(args=args)
-    calibrador = CameraCalibrador()
-    while rclpy.ok():
-        rclpy.spin_once(calibrador)
+            if cv2.waitKey(0) & 0xFF == ord('q'):
+                break
+        cv2.imshow("World co-ordinate frame axes", img_aruco)
 
-if __name__ == '__main__':
-    main()
+cv2.destroyAllWindows()

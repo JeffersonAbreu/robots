@@ -49,7 +49,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'camera_calibrator = my_camera_calibration.camera_calibrator:main',
+            'move_aruco = my_camera_calibration.move_aruco:main',
+            'capture_images = my_camera_calibration.capture_images:main',
         ],
     },
 )

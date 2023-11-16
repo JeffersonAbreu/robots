@@ -28,9 +28,9 @@
       </include>
     </model>
 
-    <!-- Tags 99 ARUCO-->
+    <!-- crie movimento nessa tag ARUCO apenas na inclinação horizontal e vertivar -->
     <include>
-      <pose relative_to='plane'>2.5 0 0.3 0 0 -3.141592653589793</pose>
+      <pose relative_to='plane'>1 0 0.3 0 0.25 -3.141592653589793</pose>
       <uri>model://ar_tags/tag_01</uri>
     </include>
 
