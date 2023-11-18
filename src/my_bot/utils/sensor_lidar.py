@@ -17,3 +17,4 @@ class SensorLidar:
         """
         self.obstacle_detected_callback(msg.ranges)
         
+        

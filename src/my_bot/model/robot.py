@@ -1,5 +1,5 @@
 from geometry_msgs.msg import Twist
-from utils import CommandType, Command, SensorIMU, SensorLidar, SensorOdom, SensorCamera
+from utils import CommandType, Orientation, Command, SensorIMU, SensorLidar, SensorOdom, SensorCamera
 from utils.bib import degrees_to_radians, normalize_angle2, radians_to_degrees, normalize_angle_degrees
 from rclpy.node import Node
 
@@ -79,12 +79,6 @@ class Robot:
         return self.node.get_clock().now().seconds_nanoseconds()[0]
     
    
-    def get_aruco_dectected(self):
-        """
-        Retorna o que foi detectado pela camera
-        """
-        return self.sensor_camera.get_aruco_dectected()
-    
     def get_orientation(self) -> float:
         """
         Calcule e retorne a orientação do sensor IMU. (angle z) em graus.
@@ -122,9 +116,10 @@ class Robot:
         travelled_distance = self.sensor_odom.get_travelled_distance()
         if self.distance - travelled_distance <= 0.001:
             self.node.get_logger().info(f'distance: {self.distance} | travelled: {round(travelled_distance, 3)}')
-            self.twist.linear.x = 0
+            self.twist.linear.x = 0.0
             self.twist_pub.publish(self.twist)
             self.move_timer.cancel()
+            self.running_the_command = False
 
 
     def stop(self):
@@ -136,6 +131,15 @@ class Robot:
         self.state = CommandType.STOP
         self.running_the_command = False
         self.node.get_logger().warning(f'STOP')
+
+    def stop_turn(self):
+        if self.twist.angular.z == 0.0:
+            return
+        self.turn_timer.cancel()
+        self.twist.angular.z = 0.0
+        self.twist_pub.publish(self.twist)
+        self.node.get_logger().warning(f'STOP TURN')
+
 
     # Outros
     def get_state(self):
@@ -158,7 +162,7 @@ class Robot:
         Gira o robô por um ângulo específico em graus.
         """
         self.orientation += angle
-
+        self.running_the_command = True
         self.state = CommandType.TURN
         self.initial_orientation = round(normalize_angle_degrees(self.get_orientation()))
         self.destiny_orientation = normalize_angle2(self.orientation)
@@ -166,6 +170,28 @@ class Robot:
         self.turn_timer = self.node.create_timer(0.001, self.__turn_timer_callback)  # Verifica a cada 0.001 segundos
         
         self.log_info = False
+    
+    def turn_by_orientation(self, orientation):
+        if orientation == Orientation.NORTH:
+            orientation = 0
+        elif orientation == Orientation.EAST:
+            orientation = 90
+        elif orientation == Orientation.SOUTH:
+            orientation = 180
+        elif orientation == Orientation.WEST:
+            orientation = 270
+
+        orientation_robo = round(normalize_angle_degrees(self.get_orientation()))
+        angle = normalize_angle2(orientation_robo - orientation)
+
+        self.node.get_logger().warning(f'Orientation    Robo: {orientation_robo}')
+        self.node.get_logger().warning(f'Orientation Destiny: {orientation}')
+        self.node.get_logger().info(f'turn angle: {angle}')
+        if abs(angle) >= 90:
+            self.move_forward(speed=0.1)
+        else:
+            self.move_forward()
+        self.turn_by_angle(angle)
     
     
     def __turn_timer_callback(self):
@@ -175,9 +201,10 @@ class Robot:
         
         # Se a diferença for pequena o suficiente, pare o robô
         if abs(difference) <= 0.15:
-            self.twist.angular.z = 0
+            self.twist.angular.z = 0.0
             self.twist_pub.publish(self.twist)
             self.turn_timer.cancel()
+            self.running_the_command = False
         else:
             # Caso contrário, continue girando na direção mais curta para alcançar a orientação desejada
             angular_speed = get_angular_speed(degrees_to_radians(difference))

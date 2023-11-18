@@ -1,7 +1,6 @@
 
 import os
 import shutil
-from enum import Enum, auto
 import math
 import cv2
 import numpy as np
@@ -13,14 +12,11 @@ from constants import DISTANCE_TO_WALL # Distância da area de interece da pared
 from constants import WALL_LARG # 0.05
 from constants import ARUCO_DICT # DICT_5X5_250
 from constants import MARKER_SIZE  # Tamanho do marcador em cm (20cm)
+from orientation import Orientation
+HEIGHT_FROM_THE_FLOOR = 0.1
+CREATE_POINTS = True
 
-CREATE_POINTS = False
 
-class Orientation(Enum):
-    NORTH = auto()
-    SOUTH = auto()
-    EAST = auto()
-    WEST = auto()
 
 class Tag:
     def __init__(self, name: str, pose: list[float], parent: str = None, uri: str = None):
@@ -283,7 +279,7 @@ class Aruco_:
     def get_pose(self):
         _x = 0
         _y = 0
-        _z = 0.25
+        _z = HEIGHT_FROM_THE_FLOOR
         _roll = 0
         _pitch = 0
         _yaw = 0

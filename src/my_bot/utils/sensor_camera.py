@@ -7,101 +7,138 @@ from cv_bridge import CvBridge, CvBridgeError
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from .constants import ARUCO_DICT, MARKER_SIZE # Tamanho real do marcador em metros (20cm)
+PIXELS_TO_DEGREES = 0.1  # exemplo: 10 pixels equivalem a 1 grau
+FOV_WIDTH = 60.0  # Campo de visão horizontal de 60 graus
 
 class SensorCamera:
     def __init__(self, node: Node, aruco_detected_callback):
+        """
+        Inicializa a câmera.
+        :param marker_size: Tamanho do marcador em metros.
+        :param camera_matrix: Matriz de câmera para a calibração da câmera.
+        :param dist_coeffs: Coeficientes de distorção da câmera.
+        """
+        
+        self.camera_calibration_yaml ='dados_calibracao.yaml'
         self.node = node
-        self.calibration_file_path = 'dados_calibracao.yaml'
-        self.camera_matrix = np.array([[1000, 0, 320], [0, 1000, 240], [0, 0, 1]], dtype=float)
-        self.dist_coeffs = np.zeros(5)  # Supondo que não há distorção
-        self.load_config_initial()
         self.aruco_detected_callback = aruco_detected_callback
+        self.marker_size = MARKER_SIZE
+        self.camera_matrix = []
+        self.dist_coeffs = []
+        self.load_calibration()
         self.id_aruco_target = None
         self.id_aruco_target_lock = False
-        self.aruco_dictionary = aruco.getPredefinedDictionary(ARUCO_DICT)
+        self.aruco_dict = aruco.getPredefinedDictionary(ARUCO_DICT)
         self.parameters = aruco.DetectorParameters_create()
         self.bridge = CvBridge()
         self.image_sub = self.node.create_subscription(Image, '/camera', self.__image_callback, 10)
 
     def __image_callback(self, data):
+        """
+        Callback da imagem da camera
+        """
         try:
-            cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-            self.detect_and_decorate_arucos(cv_image)
+            cv_image = self.bridge.imgmsg_to_cv2(data, 'bgr8')
+            cv_image = self.track_aruco(cv_image)
+            # show the output frame
+            cv2.imshow("Frame", cv_image)
         except CvBridgeError as e:
-            self.node.get_logger().error(f'Could not convert image: {e}')
+            self.node.get_logger().error('Could not convert image: %s' % e)
+            return
 
     def detect_and_decorate_arucos(self, cv_image):
-        gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
-        corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, self.aruco_dictionary, parameters=self.parameters)
+        gray_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
+        #corners, ids, _ = aruco.detectMarkers(gray_image, self.aruco_dict, parameters=self.parameters)
+        corners, ids, _ = cv2.aruco.detectMarkers(gray_image, self.aruco_dict, parameters=self.parameters, cameraMatrix=self.camera_matrix, distCoeff=self.dist_coeffs)
 
-        if ids is not None:
+        if ids is not None and len(corners) > 0:
+            cv2.aruco.drawDetectedMarkers(cv_image, corners)
+            ids = ids.flatten()
             for i, corner in enumerate(corners):
-                id = ids[i][0]
-                if id == self.id_aruco_target:
-                    # Calcula o centro do marcador ArUco
-                    center_aruco_x = int(np.mean(corner[0][:, 0]))  # Média das coordenadas X
-                    center_aruco_y = int(np.mean(corner[0][:, 1]))  # Média das coordenadas Y
-                    center_aruco = (center_aruco_x, center_aruco_y)
-
-                    # Calcula o erro apenas no eixo X
-                    error_x = center_aruco_x - cv_image.shape[1] // 2
-                    # Se o ArUco estiver à esquerda do centro, a distância será negativa; se estiver à direita, será positiva
-                    error_x = -error_x if center_aruco_x < cv_image.shape[1] // 2 else error_x
-
-                    # Visualiza a informação
-                    cv2.circle(cv_image, center_aruco, 5, (0, 0, 255), -1)
-                    cv2.line(cv_image, center_aruco, (cv_image.shape[1] // 2, center_aruco_y), (0, 255, 0), 2)
-                    cv2.putText(cv_image, f"Erro X: {error_x}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-
-                    # Desenha os marcadores ArUco detectados
-                    aruco.drawDetectedMarkers(cv_image, corners, ids)
-
-                    self.aruco_detected_callback(error_x)
-
-        # Exibe a imagem
-        cv2.imshow('Visualização da Câmera', cv_image)
+                if self.is_target_marker(ids[i]):
+                    center = self.calculate_center(corner)
+                    frame_center = cv_image.shape[1] / 2.0
+                    direction, distance = self.calculate_direction_and_distance(center, frame_center)
+                    return direction, distance, cv_image
+        return None, None, cv_image
 
 
+    def is_target_marker(self, marker_id):
+        if self.id_aruco_target is None:
+            return False
+        return self.id_aruco_target == marker_id
 
+    def calculate_center(self, corners):
+        return (np.mean(corners, axis=0).astype(int).flatten())[0]
 
-    def fix_target(self, id):
-        self.id_aruco_target = id
+    def calculate_direction_and_distance(self, marker_center, frame_center):
+        # Calculates the horizontal distance and direction from the frame center to the marker center
+        distance = marker_center - frame_center
+        direction = 'left' if distance < 0 else 'right'
+        return direction, abs(distance)
+    
+    def fix_target(self, marker_id):
+        self.id_aruco_target = marker_id
         self.id_aruco_target_lock = False
-
+    
     def set_lock(self):
-        self.id_aruco_target_lock = not self.id_aruco_target_lock
+        self.id_aruco_target_lock = True
 
-    def __del__(self):
-        cv2.destroyAllWindows()
+    def load_calibration(self):
+        with open(self.camera_calibration_yaml, 'r') as infile:
+            calibration_data = yaml.safe_load(infile)
+            self.camera_matrix = np.array(calibration_data['camera_matrix'])
+            self.dist_coeffs = np.array(calibration_data['dist_coeffs'])
+            self.marker_size = calibration_data['marker_size']
     
-    def load_config_initial(self):
-        # Verifica se o arquivo de calibração existe
-        if os.path.isfile(self.calibration_file_path):
-            try:
-                # Abre o arquivo de calibração e carrega os dados
-                with open(self.calibration_file_path, 'r') as arquivo:
-                    calib_data = yaml.safe_load(arquivo)
-                    # Verifica se as chaves esperadas existem no dicionário
-                    if 'camera_matrix' in calib_data:
-                        # Carrega os dados de calibração na matriz da câmera e nos coeficientes de distorção
-                        self.camera_matrix = np.array(calib_data['camera_matrix'], dtype=float)
-                    else:
-                        raise KeyError("As chaves 'camera_matrix' não estão presentes no arquivo de calibração.")
-                    if 'dist_coeffs' in calib_data:
-                        self.dist_coeffs = np.array(calib_data['dist_coeffs'], dtype=float)
-                    else:
-                        raise KeyError("As chaves 'dist_coeffs' não estão presentes no arquivo de calibração.")
-                    print(f"Dados de calibração carregados de {self.calibration_file_path}")
-                    
-            except yaml.YAMLError as e:
-                self.get_logger().error(f"Erro ao ler o arquivo YAML: {e}")
-            except KeyError as e:
-                self.get_logger().error(f"{e}")
-            except Exception as e:
-                self.get_logger().error(f"Erro ao carregar o arquivo de configuração da câmera: {e}")
-        else:
-            self.get_logger().error(f"Arquivo de configuração da câmera não encontrado: {self.calibration_file_path}")
+    def pose_esitmation(frame, aruco_dict_type, matrix_coefficients, distortion_coefficients):
+        '''
+        frame - Frame from the video stream
+        matrix_coefficients - Intrinsic matrix of the calibrated camera
+        distortion_coefficients - Distortion coefficients associated with your camera
 
+        return:-
+        frame - The frame with the axis drawn on it
+        '''
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        cv2.aruco_dict = cv2.aruco.Dictionary_get(aruco_dict_type)
+        parameters = cv2.aruco.DetectorParameters_create()
+
+
+        corners, ids, rejected_img_points = cv2.aruco.detectMarkers(gray, cv2.aruco_dict,parameters=parameters,
+            cameraMatrix=matrix_coefficients,
+            distCoeff=distortion_coefficients)
+
+            # If markers are detected
+        if len(corners) > 0:
+            for i in range(0, len(ids)):
+                # Estimate pose of each marker and return the values rvec and tvec---(different from those of camera coefficients)
+                rvec, tvec, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.02, matrix_coefficients,
+                                                                        distortion_coefficients)
+                # Draw a square around the markers
+                cv2.aruco.drawDetectedMarkers(frame, corners) 
+
+                # Draw Axis
+                cv2.aruco.drawAxis(frame, matrix_coefficients, distortion_coefficients, rvec, tvec, 0.01)  
+
+        return frame
     
-    def print_in_imagem(self, img, msg):
-        cv2.putText(img, msg, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2, cv2.LINE_AA)
+    def track_aruco(self, cv_image):
+        """
+        Rastreia o marcador ArUco e envia comandos para o robô girar em direção a ele.
+        """
+        direction, pixel_difference, cv_image = self.detect_and_decorate_arucos(cv_image)
+
+        if pixel_difference is not None:
+            # Converte a diferença de pixels para graus
+            degrees_per_pixel = FOV_WIDTH / cv_image.shape[1]
+            angle_difference = pixel_difference * degrees_per_pixel
+            
+            # Determina o ângulo para o comando baseado na direção
+            angle = -angle_difference if direction == 'left' else angle_difference
+            
+            # Emite o comando para girar o robô em direção ao ArUco
+            self.aruco_detected_callback(angle)
+
+        return cv_image
