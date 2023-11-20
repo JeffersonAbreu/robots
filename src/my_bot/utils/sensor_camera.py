@@ -19,7 +19,7 @@ class SensorCamera:
         :param dist_coeffs: Coeficientes de distorção da câmera.
         """
         
-        self.camera_calibration_yaml ='dados_calibracao.yaml'
+        self.camera_calibration_yaml ='support/dados_calibracao.yaml'
         self.node = node
         self.aruco_detected_callback = aruco_detected_callback
         self.marker_size = MARKER_SIZE
@@ -40,8 +40,6 @@ class SensorCamera:
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data, 'bgr8')
             cv_image = self.track_aruco(cv_image)
-            # show the output frame
-            cv2.imshow("Frame", cv_image)
         except CvBridgeError as e:
             self.node.get_logger().error('Could not convert image: %s' % e)
             return
@@ -80,6 +78,7 @@ class SensorCamera:
     def fix_target(self, marker_id):
         self.id_aruco_target = marker_id
         self.id_aruco_target_lock = False
+        self.node.get_logger().error(f'Novo alvo marcado ID: {marker_id:>2}')
     
     def set_lock(self):
         self.id_aruco_target_lock = True

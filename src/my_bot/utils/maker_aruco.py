@@ -12,7 +12,7 @@ from constants import DISTANCE_TO_WALL # Distância da area de interece da pared
 from constants import WALL_LARG # 0.05
 from constants import ARUCO_DICT # DICT_5X5_250
 from constants import MARKER_SIZE  # Tamanho do marcador em cm (20cm)
-from orientation import Orientation
+from utils import Orientation
 HEIGHT_FROM_THE_FLOOR = 0.1
 CREATE_POINTS = True
 

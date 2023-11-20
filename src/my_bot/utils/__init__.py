@@ -5,7 +5,7 @@ from .sensor_lidar import SensorLidar
 from .sensor_odom import SensorOdom
 from .sensor_camera import SensorCamera
 from .orientation import Orientation
-from .graph import Graph
+from .graph import Graph, Path
 
 __all__ = [
     "Bridge",
@@ -17,5 +17,6 @@ __all__ = [
     "SensorOdom",
     "SensorCamera",
     "Orientation",
-    "Graph"
+    "Graph",
+    "Path"
 ]

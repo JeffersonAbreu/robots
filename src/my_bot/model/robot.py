@@ -182,13 +182,13 @@ class Robot:
             orientation = 270
 
         orientation_robo = round(normalize_angle_degrees(self.get_orientation()))
-        angle = normalize_angle2(orientation_robo - orientation)
+        angle = normalize_angle2(orientation - orientation_robo)
 
-        self.node.get_logger().warning(f'Orientation    Robo: {orientation_robo}')
-        self.node.get_logger().warning(f'Orientation Destiny: {orientation}')
-        self.node.get_logger().info(f'turn angle: {angle}')
-        if abs(angle) >= 90:
-            self.move_forward(speed=0.1)
+        self.node.get_logger().warning(f'Orientation    Robo: {orientation_robo:>3}')
+        self.node.get_logger().warning(f'Orientation Destiny: {orientation:>3}')
+        self.node.get_logger().warning(f'Erro to turn angle : {angle:>3}')
+        if abs(angle) >= 45:
+            self.move_forward(speed=0.15)
         else:
             self.move_forward()
         self.turn_by_angle(angle)

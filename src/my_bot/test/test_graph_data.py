@@ -1,5 +1,10 @@
 from typing import List
-from utils import Orientation
+from enum import Enum, auto
+class Orientation(Enum):
+    NORTH = auto()
+    SOUTH = auto()
+    EAST = auto()
+    WEST = auto()
 
 class Path:
     def __init__(self, id_origen: int, id_destiny: int, orientation: Orientation):
@@ -50,3 +55,40 @@ class Graph:
         # Ordena os caminhos encontrados pelo tamanho
         all_paths.sort(key=len)
         return all_paths
+
+graph = Graph()
+graph.load_from_file('/home/jeff/tcc/robots/support/graph_data.txt')  # Substitua pelo caminho do seu arquivo
+
+id_destiny = 30
+# Busca todos os caminhos do vértice 1 para o vértice 30 e os imprime
+all_paths_from_destiny = graph.load_paths_if_exist(25, id_destiny)
+'''
+for path in all_paths_from_1_to_30:
+    print(" -> ".join(f"{vertex.id_destiny} {vertex.orientation.name}" for vertex in path))
+'''
+
+target_ = None
+targets_list = []
+
+while True:
+    if len(targets_list) == 0:
+        if len(all_paths_from_destiny) == 0:
+            target_ = None
+        else:
+            targets_list = all_paths_from_destiny.pop(0)
+            target_ = targets_list.pop(0)
+    elif target_ is not None and graph.has_next(target_):
+            target_ = targets_list.pop(0)
+    if target_ is None:
+        print("Sem caminhos disponiveis")
+        break
+    else:
+        if target_.id_destiny == id_destiny:
+            print("Chegamos no destino")
+            print("robot.stop()")
+            all_paths_from_destiny.clear()
+            break
+        else:
+            print(f"robot.sensor_camera.fix_target({target_.id_destiny})")
+            print(f"robot.turn_by_orientation({target_.orientation})")
+
