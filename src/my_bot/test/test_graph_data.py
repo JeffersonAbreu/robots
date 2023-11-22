@@ -5,7 +5,30 @@ class Orientation(Enum):
     SOUTH = auto()
     EAST = auto()
     WEST = auto()
+    NE = auto() # Nordeste: Northeast (NE)
+    SE = auto() # Sudeste: Southeast (SE)
+    NW = auto() # Noroeste: Northwest (NW)
+    SW = auto() # Sudoeste: Southwest (SW)
 
+    def format_degrees(orientation):
+        if orientation == Orientation.NORTH:
+            degrees = 0
+        elif orientation == Orientation.NE:
+            degrees = 45
+        elif orientation == Orientation.EAST:
+            degrees = 90
+        elif orientation == Orientation.SE:
+            degrees = 135
+        elif orientation == Orientation.SOUTH:
+            degrees = 180
+        elif orientation == Orientation.SW:
+            degrees = 225
+        elif orientation == Orientation.WEST:
+            degrees = 270
+        elif orientation == Orientation.NW:
+            degrees = 315
+        return degrees
+    
 class Path:
     def __init__(self, id_origen: int, id_destiny: int, orientation: Orientation):
         self.id_origen: int = id_origen
@@ -59,36 +82,27 @@ class Graph:
 graph = Graph()
 graph.load_from_file('/home/jeff/tcc/robots/support/graph_data.txt')  # Substitua pelo caminho do seu arquivo
 
-id_destiny = 30
+id_destiny = 1
 # Busca todos os caminhos do vértice 1 para o vértice 30 e os imprime
 all_paths_from_destiny = graph.load_paths_if_exist(25, id_destiny)
 '''
 for path in all_paths_from_1_to_30:
     print(" -> ".join(f"{vertex.id_destiny} {vertex.orientation.name}" for vertex in path))
 '''
+#print(" -> ".join(f"{vertex.id_destiny} {vertex.orientation.name}" for vertex in all_paths_from_destiny[0]))
 
-target_ = None
-targets_list = []
+target_actual = None
+targets_list = all_paths_from_destiny.pop(0)
 
 while True:
-    if len(targets_list) == 0:
-        if len(all_paths_from_destiny) == 0:
-            target_ = None
-        else:
-            targets_list = all_paths_from_destiny.pop(0)
-            target_ = targets_list.pop(0)
-    elif target_ is not None and graph.has_next(target_):
-            target_ = targets_list.pop(0)
-    if target_ is None:
-        print("Sem caminhos disponiveis")
+    if len(targets_list) > 0:
+        target_actual = targets_list.pop(0)
+        print(target_actual)
+        id_destiny = target_actual.id_destiny
+        print(id_destiny)
+        angle = Orientation.format_degrees(target_actual.orientation)
+        print(angle)
+        print("Proximos: ", " -> ".join(f"{vertex.id_destiny} {vertex.orientation.name}" for vertex in targets_list))
+    elif id_destiny == target_actual.id_destiny:
+        print("Chegamos no destino!")
         break
-    else:
-        if target_.id_destiny == id_destiny:
-            print("Chegamos no destino")
-            print("robot.stop()")
-            all_paths_from_destiny.clear()
-            break
-        else:
-            print(f"robot.sensor_camera.fix_target({target_.id_destiny})")
-            print(f"robot.turn_by_orientation({target_.orientation})")
-

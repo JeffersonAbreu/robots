@@ -4,9 +4,14 @@ from utils.bib import degrees_to_radians, normalize_angle2, radians_to_degrees, 
 from rclpy.node import Node
 
 # Constantes de Velocidade
-MIN_SPEED = 0.001
-TOP_SPEED = 1.0
-
+MIN_SPEED_TURN = 0.001
+TOP_SPEED_TURN = 1.0
+#linear
+MAX_SPEED = 1.5
+MIN_SPEED = 0.1
+SPEED = 0
+PARE = True
+FACTOR_SPEED = 0.1
 # Funções Auxiliares
 def get_angular_speed(error: float) -> float:
     """
@@ -16,10 +21,10 @@ def get_angular_speed(error: float) -> float:
     angular_speed = Kp * error
 
     # Limitando a velocidade angular
-    if abs(angular_speed) < MIN_SPEED:
-        angular_speed = MIN_SPEED if angular_speed > 0 else -MIN_SPEED
-    elif abs(angular_speed) > TOP_SPEED:
-        angular_speed = TOP_SPEED if angular_speed > 0 else -TOP_SPEED
+    if abs(angular_speed) < MIN_SPEED_TURN:
+        angular_speed = MIN_SPEED_TURN if angular_speed > 0 else -MIN_SPEED_TURN
+    elif abs(angular_speed) > TOP_SPEED_TURN:
+        angular_speed = TOP_SPEED_TURN if angular_speed > 0 else -TOP_SPEED_TURN
 
     # Desaceleração conforme se aproxima do destino
     DECELERATION_THRESHOLD = degrees_to_radians(0.25)  # Ajuste conforme necessário. Representa a diferença de ângulo em radianos.
@@ -85,6 +90,9 @@ class Robot:
         """
         return self.sensor_imu.get_orientation()
     
+    def get_speed(self) -> float:
+        return self.twist.linear.x
+    
     # Movimentação
     def move_forward(self, speed=0.5):
         """
@@ -133,8 +141,8 @@ class Robot:
         self.node.get_logger().warning(f'STOP')
 
     def stop_turn(self):
-        if self.twist.angular.z == 0.0:
-            return
+        #if self.twist.angular.z == 0.0:
+         #   return
         self.turn_timer.cancel()
         self.twist.angular.z = 0.0
         self.twist_pub.publish(self.twist)
@@ -149,6 +157,37 @@ class Robot:
         return self.state
     
     # Rotação
+    def __speed_timer_callback(self):
+        new_speed = self.get_speed() + FACTOR_SPEED
+        if FACTOR_SPEED < 0:
+            if PARE and new_speed == MIN_SPEED:
+                self.stop()
+                self.speed_timer.cancel()
+            elif new_speed < MIN_SPEED:
+                new_speed = MIN_SPEED
+                if not PARE:
+                    self.speed_timer.cancel()
+        else:
+            if SPEED == 0 and new_speed > MAX_SPEED:
+                new_speed = MAX_SPEED
+                self.speed_timer.cancel()
+            elif SPEED > 0 and new_speed > SPEED:
+                new_speed = SPEED
+                self.speed_timer.cancel()
+        self.move_forward(new_speed)
+
+    
+    def speed_up(self, speed=0):
+        FACTOR_SPEED = 0.001
+        SPEED = speed
+        self.speed_timer = self.node.create_timer(1.5, self.__speed_timer_callback)  # Verifica a cada 0.001 segundos
+    
+    def speed_down(self, pare=False):
+        PARE = pare
+        FACTOR_SPEED = -0.0001
+        self.speed_timer = self.node.create_timer(0.1, self.__speed_timer_callback)  # Verifica a cada 0.001 segundos
+    
+
 
     def __turn(self, speed):
         """
@@ -172,26 +211,11 @@ class Robot:
         self.log_info = False
     
     def turn_by_orientation(self, orientation):
-        if orientation == Orientation.NORTH:
-            orientation = 0
-        elif orientation == Orientation.EAST:
-            orientation = 90
-        elif orientation == Orientation.SOUTH:
-            orientation = 180
-        elif orientation == Orientation.WEST:
-            orientation = 270
-
-        orientation_robo = round(normalize_angle_degrees(self.get_orientation()))
-        angle = normalize_angle2(orientation - orientation_robo)
-
-        self.node.get_logger().warning(f'Orientation    Robo: {orientation_robo:>3}')
-        self.node.get_logger().warning(f'Orientation Destiny: {orientation:>3}')
-        self.node.get_logger().warning(f'Erro to turn angle : {angle:>3}')
-        if abs(angle) >= 45:
-            self.move_forward(speed=0.15)
-        else:
-            self.move_forward()
+        orientation_target = Orientation.format_degrees(orientation)
+        orientation_actual = round(normalize_angle_degrees(self.get_orientation()))
+        angle = normalize_angle2(orientation_target - orientation_actual)
         self.turn_by_angle(angle)
+        return angle
     
     
     def __turn_timer_callback(self):

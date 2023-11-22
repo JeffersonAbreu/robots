@@ -54,11 +54,11 @@ class SensorCamera:
             ids = ids.flatten()
             for i, corner in enumerate(corners):
                 if self.is_target_marker(ids[i]):
-                    center = self.calculate_center(corner)
+                    marker_center = self.calculate_center(corner)
                     frame_center = cv_image.shape[1] / 2.0
-                    direction, distance = self.calculate_direction_and_distance(center, frame_center)
-                    return direction, distance, cv_image
-        return None, None, cv_image
+                    erro = marker_center - frame_center
+                    return erro, cv_image
+        return None, cv_image
 
 
     def is_target_marker(self, marker_id):
@@ -69,12 +69,6 @@ class SensorCamera:
     def calculate_center(self, corners):
         return (np.mean(corners, axis=0).astype(int).flatten())[0]
 
-    def calculate_direction_and_distance(self, marker_center, frame_center):
-        # Calculates the horizontal distance and direction from the frame center to the marker center
-        distance = marker_center - frame_center
-        direction = 'left' if distance < 0 else 'right'
-        return direction, abs(distance)
-    
     def fix_target(self, marker_id):
         self.id_aruco_target = marker_id
         self.id_aruco_target_lock = False
@@ -127,17 +121,14 @@ class SensorCamera:
         """
         Rastreia o marcador ArUco e envia comandos para o robô girar em direção a ele.
         """
-        direction, pixel_difference, cv_image = self.detect_and_decorate_arucos(cv_image)
+        pixel_difference, cv_image = self.detect_and_decorate_arucos(cv_image)
 
         if pixel_difference is not None:
             # Converte a diferença de pixels para graus
             degrees_per_pixel = FOV_WIDTH / cv_image.shape[1]
-            angle_difference = pixel_difference * degrees_per_pixel
-            
             # Determina o ângulo para o comando baseado na direção
-            angle = -angle_difference if direction == 'left' else angle_difference
-            
+            angle_difference = pixel_difference * degrees_per_pixel            
             # Emite o comando para girar o robô em direção ao ArUco
-            self.aruco_detected_callback(angle)
+            self.aruco_detected_callback(angle_difference)
 
         return cv_image

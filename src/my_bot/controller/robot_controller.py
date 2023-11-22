@@ -16,52 +16,39 @@ class RobotController:
 
     def __init__(self, node: Node):
         self.node = node
-        self.robot = Robot(self.node, self.handle_obstacle_detection, self.handle_aruco_detected)
-        self.lidar_data_ranges=[]
-        self.old_angle = 0
-        #self.command_timer = self.node.create_timer(0.1, self.__execute_commands)
-        self.graph = Graph()
-        self.graph.load_from_file('support/graph_data.txt')
+        graph = Graph()
+        graph.load_from_file('support/graph_data.txt')
         # Busca todos os caminhos do vértice id_origen para o vértice id_destiny
-        self.id_origen = 25
-        self.id_destiny = 1
-        self.target_:Path = None
-        self.all_paths_from_destiny = self.graph.load_paths_if_exist(self.id_origen, self.id_destiny)
-        self.targets_list:list[Path] = None
-        self.robot.move_forward(speed=1.0)
-        self.get_next_target()
-
-    def get_next_target(self):
-        if self.targets_list is None or len(self.targets_list) == 0:
-           if self.all_paths_from_destiny is None or len(self.all_paths_from_destiny) == 0:
-              self.target_ = None
-           else:
-               self.targets_list = self.all_paths_from_destiny.pop(0)
-               self.target_ = self.targets_list.pop(0)
-        elif self.target_ is not None and self.graph.has_next(self.target_):
-             self.target_ = self.targets_list.pop(0)
-        if self.target_ is None:
-           print("Sem caminhos disponiveis")
-           return
+        all_paths_from_destiny = graph.load_paths_if_exist( 25, 1 )
+        if len(all_paths_from_destiny) == 0:
+            self.node.get_logger().error(f'Não foi localizado nenhuma rota!')
         else:
-            if self.target_.id_destiny == self.id_destiny:
-               print("Chegamos no destino")
-               self.robot.stop()
-               self.all_paths_from_destiny.clear()
-               return
-            else:
-               self.robot.sensor_camera.fix_target(self.target_.id_destiny)
-               self.robot.turn_by_orientation(self.target_.orientation)
-               self.id_origen = self.target_.id_origen
+            self.lidar_data_ranges=[]
+            self.robot = Robot(self.node, self.handle_obstacle_detection, self.handle_aruco_detected)
+            self.new_angle = 0
+            self.old_angle = 0
+            self.target_actual:Path = None
+            self.targets_list:list[Path] = all_paths_from_destiny[0] # pega a rota menor / primeira rota
+            self.go_next_target()
+            self.robot.speed_up()
+            #self.command_timer = self.node.create_timer(0.001, self.__execute_commands)
 
-    def clear_task_list(self):
-        if self.commands_queue.size() > 0:
-            self.commands_queue.clear()
-        self.robot.stop_turn()
-        self.running_the_command = False
 
-    def add_task(self, comm: Command):
-        self.commands_queue.add_command(comm)
+    def go_next_target(self):
+        if len(self.targets_list) > 0:
+            self.target_actual = self.targets_list.pop(0)
+            self.robot.sensor_camera.fix_target(self.target_actual.id_destiny)
+            angle = self.robot.turn_by_orientation(self.target_actual.orientation)
+
+            self.node.get_logger().warning(f"    ID destiny: {self.target_actual.id_destiny:>2}")
+            self.node.get_logger().warning(f"ID orientation: {self.target_actual.orientation.name}")
+            print("Proximos:")
+            self.node.get_logger().warning(" -> ".join(f"{vertex.id_destiny} {vertex.orientation.name}" for vertex in self.targets_list))
+            return angle
+        elif self.robot.sensor_camera.id_aruco_target == self.target_actual.id_destiny:
+            self.node.get_logger().warning("Chegamos no destino!")
+            self.robot.stop()
+            return None
 
     # Lidar
     def handle_obstacle_detection(self, ranges):
@@ -77,64 +64,69 @@ class RobotController:
         """
         Retorna a distância ao obstáculo mais próximo diretamente à frente do robô.
         """
-        if grau == 0:
-            front_index = 135 # index do meio ( frente: ponto zero do robo )
-        else:
-            front_index = 135 + grau
-        value = self.lidar_data_ranges[front_index]
-        return float(value)
+        index = 135 + grau
+        print(index)
+        return float(self.lidar_data_ranges[index])
     
     # Camera
     def handle_aruco_detected(self, angle):
         """
         ids detectados
         """
-        angle = round(angle, 1)
+        self.new_angle = round(angle, 1)
         distance_target = round(self.get_distance_to_obstacle(), 2)
+        ref = round(abs(angle) / distance_target, 2)
 
-        print(f'direction:[ {angle:>3} ], distance target: {distance_target:>4} : ref: {abs(angle) / distance_target:>4}')
+        print(f'erro aruco:[ {self.new_angle:>3} ], distance target front: {distance_target:>4} : ref: {ref:>4}, speed: {round(self.robot.get_speed(), 4):>4}')
         
-        if self.robot.sensor_camera.id_aruco_target_lock:
-            #if abs(angle) <= 0.5:
-            #    self.robot.stop_turn()
-            if abs(angle) > self.old_angle:
-                direction = "DIREITA" if angle > 0 else "ESQUERDA"
-                self.node.get_logger().warning(f'Virando para {direction}: {abs(angle):>3}º')
-                self.robot.turn_by_angle(angle)
-                self.ajuste_speed(int(angle), round(distance_target, 1))
-            self.old_angle = abs(angle)
-            distance_target = round(self.get_distance_to_obstacle(), 2)
-            print(f"distancia: {distance_target:>4} {distance_target <= 0.20}")
-            if distance_target <= 0.20:
+        
+        if not self.robot.sensor_camera.id_aruco_target_lock:
+            if ref < 4.0:
+                self.robot.sensor_camera.set_lock()
                 self.robot.stop_turn()
-                self.robot.stop()
-                self.get_next_target()
-            
-        elif (abs(angle) // distance_target) < 5.0:
-            self.robot.sensor_camera.set_lock()
+            self.robot.speed_up(0.2)
+        elif abs(self.new_angle) > self.old_angle:
+            direction = "DIREITA" if self.new_angle > 0 else "ESQUERDA"
+            self.node.get_logger().warning(f'Virando para {direction}: {abs(self.new_angle):>3}º')
+            self.robot.turn_by_angle(self.new_angle)
+        elif self.robot.sensor_camera.id_aruco_target_lock:
+            self.ajuste_speed(ref, distance_target)
+        
+        if distance_target < 1.0 and self.robot.sensor_camera.id_aruco_target_lock:
+            self.node.get_logger().error(f'Novo alvo marcado ID: {distance_target:>2}')
+            self.robot.stop_turn()
+            self.robot.speed_down(pare=True)
+            angle = self.go_next_target()
+        self.old_angle = abs(self.new_angle)
 
-    def ajuste_speed(self, angle, dist):
-        speed = 0.5
-        if dist > 2.0:
-            if abs(angle) > 60:
-                speed = 0.6
-            elif abs(angle) > 30:
-                speed = 0.7
-            elif abs(angle) > 15:
-                speed = 0.8
+
+    def ajuste_speed(self, ref, dist):
+        if dist > 1.00:
+            if   ref < 0.1:
+                self.robot.speed_up()
+            elif ref < 0.2:
+                self.robot.speed_up(speed=1.25)
+            elif ref < 0.3:
+                self.robot.speed_up(speed=1.1)
+            elif ref < 0.4:
+                self.robot.speed_up(speed=0.9)
+            elif ref < 0.5:
+                self.robot.speed_up(speed=0.8)
+            elif ref < 0.6:
+                self.robot.speed_up(speed=0.7)
+            elif ref < 0.7:
+                self.robot.speed_up(speed=0.6)
+            elif ref < 0.8:
+                self.robot.speed_up(speed=0.5)
+            elif ref < 0.9:
+                self.robot.speed_up(speed=0.4)
             else:
-                speed = 1.2
-        elif dist > 1.0:
-            speed = 0.7
-        self.robot.move_forward(speed)
+                self.robot.speed_up(speed=0.3)
+        else:
+            self.robot.speed_down()
     # Comandos
 
     def __execute_commands(self):
         """
         Executa os comandos na fila.
         """
-        if not self.robot.is_command_running(): # Se não estiver rodando um comando
-            if self.commands_queue.is_next(): # existir próximo
-                command: Command = self.commands_queue.get_next_command()
-                self.current_command = command
-                self.robot.execute(command)
