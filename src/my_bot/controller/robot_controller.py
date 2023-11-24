@@ -25,9 +25,10 @@ class RobotController:
         else:
             self.lidar_data_ranges = [10.0 for _ in range(271)] # range lidar, preencha com 10 para não ter erro
             self.robot = Robot(self.node, self.handle_obstacle_detection, self.handle_aruco_detected)
-            self.distance_to_aruco = 0
-            self.rotation_angle = 0
-            self.old_angle = 0
+            self.new_distance_aruco = 0
+            self.old_distance_aruco = 0
+            self.new_rotation_angle = 0
+            self.old_rotation_angle = 0
             self.new_action = False
             self.target_actual:Path = None
             self.targets_list:list[Path] = all_paths_from_destiny[0] # pega a rota menor / primeira rota
@@ -35,7 +36,7 @@ class RobotController:
             self.go = False
             self.detected = False
             self.detected_count = 0
-            self.loop_timer     = self.node.create_timer(1.0, self.__loop_not_detected)
+            self.loop_timer     = None
             self.command_timer  = self.node.create_timer(0.05, self.__execute_commands)
 
 
@@ -91,14 +92,16 @@ class RobotController:
         return value
     
     # Camera
-    def handle_aruco_detected(self, distance_to_aruco=0.1, pixel_error=0.1):
+    def handle_aruco_detected(self, distance_to_aruco, pixel_error):
         """
         ids detectados
         """
-        self.rotation_angle        = pixel_error
-        self.distance_to_aruco  = distance_to_aruco
+        self.new_rotation_angle     = pixel_error
+        self.new_distance_aruco  = distance_to_aruco
         self.new_action         = True
         self.detected           = True
+        if self.robot.sensor_camera.track_aruco and self.new_rotation_angle != self.old_rotation_angle:
+            self.loop_timer = self.node.create_timer(0.1, self.__target_follow_callback)
 
     def ajuste_speed(self, alfa):
         alfa = abs(alfa)
@@ -137,42 +140,23 @@ class RobotController:
         """
         Executa os comandos na fila.
         """
-        dist_wall = f'{round(self.get_distance_to_wall(), 2):.2f}m'
-        dist_aruc = "-"
-        my_speed_ = f'{round(self.robot.get_speed(), 2):.2f}'
-        angle_err = "-"
-
-        if self.new_action:
-            dist_aruc = f'{round(self.distance_to_aruco, 2):.2f}m'
-            angle_err = self.rotation_angle
-            dist_wall = f'{round(self.get_distance_to_wall(int(angle_err)), 2):.2f}m'
         if self.detected_count <= 10:            
-            if self.new_action and self.distance_to_aruco >= 1.0:
-                if self.robot.sensor_camera.track_aruco:
-                    angle  = self.rotation_angle
-                    angle_err = angle
-                    if abs(angle) == 0.0:
-                        self.robot.stop_turn()
-                    elif abs(angle) > self.old_angle:
-                        direction = "DIREITA" if angle > 0 else "ESQUERDA"
-                        self.node.get_logger().warning(f'Virando para {direction:>8}: {abs(angle):>3}°')
-                        self.robot.turn_by_angle( angle )
-                    speed = self.ajuste_speed( angle )
+            if self.new_action and self.new_distance_aruco >= 1.0 and self.robot.sensor_camera.track_aruco:
+                if self.new_rotation_angle != self.old_rotation_angle:
+                    speed = self.ajuste_speed( self.new_rotation_angle )
                     self.robot.set_speed(speed)
-                    self.old_angle = abs(angle)
-                    if self.robot.get_speed() != speed:
-                        my_speed_ = green(my_speed_) if self.robot.get_speed() < speed else red(my_speed_)
-                self.new_action = False  
+                self.old_rotation_angle = self.new_rotation_angle
+                self.new_action = False
             elif  self.robot.sensor_camera.track_aruco:
-                if self.distance_to_aruco <= 1.0 and self.distance_to_aruco > 0.9:
+                if self.new_distance_aruco <= 1.0 and self.new_distance_aruco > 0.9:
                     print(green("Entrei aqui: "), get_current_line_number())
                     self.robot.stop_turn()
                     self.robot.set_speed(0.1)
-                    print(red("cheguei aqui: "), get_current_line_number())
-                elif self.distance_to_aruco > 0 and self.distance_to_aruco < 1.0 and self.robot.get_speed() < 0.3: # espera quase parar para ter outro comando/alvo
+                    print(red("E sai daqui: "), get_current_line_number())
+                elif self.new_distance_aruco > 0 and self.new_distance_aruco < 1.0 and self.robot.get_speed() < 0.3: # espera quase parar para ter outro comando/alvo
                     self.go = False
-                    self.distance_to_aruco = 0
-                    self.rotation_angle = 0
+                    self.new_distance_aruco = 0
+                    self.new_rotation_angle = 0
                     self.go_next_target()
                 else:
                     self.robot.set_speed(0.3)
@@ -180,29 +164,26 @@ class RobotController:
                     if not self.go:
                         self.robot.set_speed(0.5)
                         self.go = True
-                    elif self.distance_to_aruco > 0.1 and abs(self.rotation_angle // self.distance_to_aruco) <= 5:
-                        print(red(abs(self.rotation_angle // self.distance_to_aruco)))
+                    elif self.new_distance_aruco > 0.1 and abs(self.new_rotation_angle // self.new_distance_aruco) <= 5:
+                        print(red(abs(self.new_rotation_angle // self.new_distance_aruco)))
                         self.robot.sensor_camera.track_aruco = True
                         self.node.get_logger().error(f'Mira travada no aruco: {self.robot.sensor_camera.id_aruco_target}!')
                         self.robot.stop_turn()
 
-        print(f"dist_wall: {dist_wall:>6}, dist_aruc: {dist_aruc:>6}, angle: {angle_err:>9}, speed: {my_speed_:>4}m/s")
-
-    def __loop_not_detected(self):
-        if not self.detected:
-            self.detected_count += 1
-            self.detected = False
-        elif self.detected_count > 10:
-                self.command_timer.cancel()
-                print(f"Cancelado: {self.command_timer.is_canceled()}")
-                print(red("Dez repetições sem achar o aruco"))
-                self.detected_count = 0
         else:
-            self.detected_count = 0
-            if self.command_timer.is_canceled():
-                print(f"Cancelado: {self.command_timer.is_canceled()}")
-                self.command_timer  = self.node.create_timer(0.005, self.__execute_commands)
-                print(f"Cancelado: {self.command_timer.is_canceled()}")
+            print("Programar algo pq o robo não está encontrando o aruco ou está parado")
+
+    def __target_follow_callback(self):
+        angle  = self.new_rotation_angle
+        if angle == 0:
+            self.loop_timer.cancel()
+            self.robot.stop_turn()
+            return
+        direction = "DIREITA" if angle > 0 else "ESQUERDA"
+        print(f'Virando para {green(direction):>8}: {red(abs(self.new_rotation_angle)):>3}°')
+        self.robot.turn_by_angle( angle )
+        self.loop_timer.cancel()
+        
 
 def green(text):
     return f"\033[92m{text}\033[0m"
