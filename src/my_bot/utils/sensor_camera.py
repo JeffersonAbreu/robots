@@ -6,9 +6,19 @@ import cv2.aruco as aruco
 from cv_bridge import CvBridge, CvBridgeError
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from .constants import ARUCO_DICT, MARKER_SIZE # Tamanho real do marcador em metros (20cm)
-PIXELS_TO_DEGREES = 0.1  # exemplo: 10 pixels equivalem a 1 grau
-FOV_WIDTH = 60.0  # Campo de visão horizontal de 60 graus
+from .constants import CAMERA_MATRIX, DIST_COEFFS, ARUCO_DICT, MARKER_SIZE # Tamanho real do marcador em metros (20cm)
+
+# Parâmetros da câmera
+FOV_WIDTH = np.degrees(1.047)  # Campo de visão horizontal em graus, convertido de radianos
+IMAGE_WIDTH = 640  # Largura da imagem em pixels
+
+
+def calculate_rotation_angle(pixel_error, image_width, fov_width):
+    pixels_to_degrees = fov_width / image_width
+    rotation_angle = pixel_error * pixels_to_degrees
+    return rotation_angle
+
+
 
 class SensorCamera:
     def __init__(self, node: Node, aruco_detected_callback):
@@ -22,12 +32,12 @@ class SensorCamera:
         self.camera_calibration_yaml ='support/dados_calibracao.yaml'
         self.node = node
         self.aruco_detected_callback = aruco_detected_callback
-        self.marker_size = MARKER_SIZE
-        self.camera_matrix = []
-        self.dist_coeffs = []
+        self.marker_size    = MARKER_SIZE
+        self.camera_matrix  = CAMERA_MATRIX
+        self.dist_coeffs    = DIST_COEFFS
         self.load_calibration()
         self.id_aruco_target = None
-        self.id_aruco_target_lock = False
+        self.track_aruco = False
         self.aruco_dict = aruco.getPredefinedDictionary(ARUCO_DICT)
         self.parameters = aruco.DetectorParameters_create()
         self.bridge = CvBridge()
@@ -39,96 +49,126 @@ class SensorCamera:
         """
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data, 'bgr8')
-            cv_image = self.track_aruco(cv_image)
+            rotation_angle = None
+            cv_image, distance_to_aruco, pixel_error = self.detect_and_decorate_arucos2(cv_image)
+            if pixel_error is not None:
+                rotation_angle = calculate_rotation_angle(pixel_error, IMAGE_WIDTH, FOV_WIDTH)
+                self.aruco_detected_callback(distance_to_aruco, round(rotation_angle, 2))
+            else: 
+                distance_to_aruco = None
+                pixel_error = None
+            # Exibe informações na imagem
+            cv_image = self.display_info(cv_image, distance_to_aruco, pixel_error, rotation_angle)            
+            cv_image = self.draw_line_center_x(cv_image)
+            # Exibe a imagem com o ArUco detectado e a linha central
+            cv2.imshow('Aruco Detector', cv_image)
+            cv2.waitKey(1)  # Atualiza a janela de exibição
         except CvBridgeError as e:
             self.node.get_logger().error('Could not convert image: %s' % e)
-            return
 
-    def detect_and_decorate_arucos(self, cv_image):
-        gray_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
-        #corners, ids, _ = aruco.detectMarkers(gray_image, self.aruco_dict, parameters=self.parameters)
-        corners, ids, _ = cv2.aruco.detectMarkers(gray_image, self.aruco_dict, parameters=self.parameters, cameraMatrix=self.camera_matrix, distCoeff=self.dist_coeffs)
-
-        if ids is not None and len(corners) > 0:
-            cv2.aruco.drawDetectedMarkers(cv_image, corners)
-            ids = ids.flatten()
-            for i, corner in enumerate(corners):
-                if self.is_target_marker(ids[i]):
-                    marker_center = self.calculate_center(corner)
-                    frame_center = cv_image.shape[1] / 2.0
-                    erro = marker_center - frame_center
-                    return erro, cv_image
-        return None, cv_image
-
-
+    
     def is_target_marker(self, marker_id):
         if self.id_aruco_target is None:
             return False
         return self.id_aruco_target == marker_id
 
-    def calculate_center(self, corners):
-        return (np.mean(corners, axis=0).astype(int).flatten())[0]
-
     def fix_target(self, marker_id):
         self.id_aruco_target = marker_id
-        self.id_aruco_target_lock = False
+        self.track_aruco = False
         self.node.get_logger().error(f'Novo alvo marcado ID: {marker_id:>2}')
     
-    def set_lock(self):
-        self.id_aruco_target_lock = True
-
     def load_calibration(self):
         with open(self.camera_calibration_yaml, 'r') as infile:
             calibration_data = yaml.safe_load(infile)
             self.camera_matrix = np.array(calibration_data['camera_matrix'])
             self.dist_coeffs = np.array(calibration_data['dist_coeffs'])
-            self.marker_size = calibration_data['marker_size']
-    
-    def pose_esitmation(frame, aruco_dict_type, matrix_coefficients, distortion_coefficients):
-        '''
-        frame - Frame from the video stream
-        matrix_coefficients - Intrinsic matrix of the calibrated camera
-        distortion_coefficients - Distortion coefficients associated with your camera
+            self.marker_size = float(calibration_data['marker_size'][0])
 
-        return:-
-        frame - The frame with the axis drawn on it
-        '''
-
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        cv2.aruco_dict = cv2.aruco.Dictionary_get(aruco_dict_type)
-        parameters = cv2.aruco.DetectorParameters_create()
-
-
-        corners, ids, rejected_img_points = cv2.aruco.detectMarkers(gray, cv2.aruco_dict,parameters=parameters,
-            cameraMatrix=matrix_coefficients,
-            distCoeff=distortion_coefficients)
-
-            # If markers are detected
-        if len(corners) > 0:
-            for i in range(0, len(ids)):
-                # Estimate pose of each marker and return the values rvec and tvec---(different from those of camera coefficients)
-                rvec, tvec, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.02, matrix_coefficients,
-                                                                        distortion_coefficients)
-                # Draw a square around the markers
-                cv2.aruco.drawDetectedMarkers(frame, corners) 
-
-                # Draw Axis
-                cv2.aruco.drawAxis(frame, matrix_coefficients, distortion_coefficients, rvec, tvec, 0.01)  
-
-        return frame
-    
-    def track_aruco(self, cv_image):
+    def draw_line_center_x(self, cv_image):
         """
-        Rastreia o marcador ArUco e envia comandos para o robô girar em direção a ele.
+        Desenha o contorno dos marcadores ArUco detectados e uma linha vertical no centro da tela.
         """
-        pixel_difference, cv_image = self.detect_and_decorate_arucos(cv_image)
+        # Desenha uma linha vertical no centro da tela
+        image_center_x = cv_image.shape[1] // 2
+        cv2.line(cv_image, (image_center_x, 0), (image_center_x, cv_image.shape[0]), (255, 0, 0), 2)
+        return cv_image
 
-        if pixel_difference is not None:
-            # Converte a diferença de pixels para graus
-            degrees_per_pixel = FOV_WIDTH / cv_image.shape[1]
-            # Determina o ângulo para o comando baseado na direção
-            angle_difference = pixel_difference * degrees_per_pixel            
-            # Emite o comando para girar o robô em direção ao ArUco
-            self.aruco_detected_callback(angle_difference)
+    def calculate_pixel_error(self, corners, image_width):
+        """
+        Calcula a diferença em pixels entre o centro do marcador ArUco e o centro da tela.
+        """
+        marker_center_x = int(np.mean(corners[0], axis=0)[0])
+        image_center_x = image_width // 2
+        pixel_error = marker_center_x - image_center_x
+        return pixel_error
+
+    def calculate_distance(self, corners, cv_image):
+        """
+        Estima a distância da câmera até o marcador ArUco.
+        """
+        rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners, self.marker_size, self.camera_matrix, self.dist_coeffs)
+        # Desenha o eixo para o marcador ArUco
+        cv2.aruco.drawAxis(cv_image, self.camera_matrix, self.dist_coeffs, rvec[0], tvec[0], self.marker_size * 0.5)
+        distance_to_aruco = np.linalg.norm(tvec[0])
+        return distance_to_aruco
+    
+    def display_info(self, cv_image, distance_to_aruco, pixel_error, rotation_angle):
+        """
+        Escreve na tela as informações sobre a distância e o erro de pixel.
+        """
+        # Define as cores para o texto
+        _color = (255, 0, 0)  # Azul
+        alvo = self.id_aruco_target
+        if self.track_aruco:
+            cv_image = cv2.putText(cv_image, f"      ID alvo: {alvo}", (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
+        else:
+            cv_image = cv2.putText(cv_image, f"      ID alvo: {alvo}", (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.6, _color, 2)
+        
+        rotation_angle = round(rotation_angle, 2) if rotation_angle is not None else ""
+        cv_image = cv2.putText(cv_image, f"Angulo de rot: {rotation_angle}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, _color, 2)
+
+        # Escreve a distância na imagem
+        distance_to_aruco = round(distance_to_aruco, 2) if distance_to_aruco is not None else ""
+        cv_image = cv2.putText(cv_image, f"    Distancia: {distance_to_aruco}", (10, 75), cv2.FONT_HERSHEY_SIMPLEX, 0.6, _color, 2)
+
+        # Escreve o erro de pixel na imagem
+        pixel_error = round(pixel_error, 2) if pixel_error is not None else ""
+        cv_image = cv2.putText(cv_image, f"Erro de Pixel: {pixel_error}", (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.6, _color, 2)
 
         return cv_image
+    
+
+    def highlight_target_aruco(self, cv_image, corners, target_id):
+        """
+        Destaca o marcador ArUco com o ID alvo.
+        """
+        for i, corner in enumerate(corners):
+            if target_id == self.id_aruco_target:
+                # Destaca o marcador ArUco com uma borda mais espessa
+                cv2.polylines(cv_image, [np.int32(corner)], True, (0, 255, 0), 1)
+        return cv_image
+
+    
+    def detect_and_decorate_arucos2(self, cv_image):
+        """
+        Detecta marcadores ArUco, calcula a distância até eles e o erro de pixel, e desenha na imagem.
+        """
+        gray_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
+        corners, ids, _ = cv2.aruco.detectMarkers(gray_image, self.aruco_dict, parameters=self.parameters, cameraMatrix=self.camera_matrix, distCoeff=self.dist_coeffs)
+        # Isto deve ser um array 3D de cantos detectados
+        corners = np.array(corners).astype(float)
+
+        if ids is not None and len(corners) > 0:
+            ids = ids.flatten()
+            
+            for i, corner in enumerate(corners):
+                if self.is_target_marker(ids[i]):
+                    # Calcula a distância até o marcador ArUco
+                    distance_to_aruco = self.calculate_distance(corner, cv_image)
+                    # Calcula o erro em pixels
+                    image_width = cv_image.shape[1]
+                    pixel_error = self.calculate_pixel_error(corner, image_width)
+                    cv_image = self.highlight_target_aruco(cv_image, corner, ids[i])
+                    return cv_image, distance_to_aruco, pixel_error
+
+        return cv_image, None, None

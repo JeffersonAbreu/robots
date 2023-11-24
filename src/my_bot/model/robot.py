@@ -7,11 +7,7 @@ from rclpy.node import Node
 MIN_SPEED_TURN = 0.001
 TOP_SPEED_TURN = 1.0
 #linear
-MAX_SPEED = 1.5
-MIN_SPEED = 0.1
-SPEED = 0
-PARE = True
-FACTOR_SPEED = 0.1
+TOP_SPEED = 1.5
 # Funções Auxiliares
 def get_angular_speed(error: float) -> float:
     """
@@ -71,6 +67,8 @@ class Robot:
         self.destiny_orientation = 0.0
         self.distance = 0.0
         self.running_the_command = False
+        self.turnning_the_command = False
+        self.speed_ = 0.0
         self.twist = Twist()
         # Publicadores e Subscritores
         self.twist_pub = self.node.create_publisher(Twist, '/cmd_vel', 10)
@@ -138,15 +136,15 @@ class Robot:
         self.twist_pub.publish(self.twist)
         self.state = CommandType.STOP
         self.running_the_command = False
+        self.turnning_the_command = False
         self.node.get_logger().warning(f'STOP')
 
     def stop_turn(self):
-        #if self.twist.angular.z == 0.0:
-         #   return
-        self.turn_timer.cancel()
-        self.twist.angular.z = 0.0
-        self.twist_pub.publish(self.twist)
-        self.node.get_logger().warning(f'STOP TURN')
+        if self.is_turnning:
+            self.turn_timer.cancel()
+            self.twist.angular.z = 0.0
+            self.twist_pub.publish(self.twist)
+            self.turnning_the_command = False
 
 
     # Outros
@@ -158,35 +156,35 @@ class Robot:
     
     # Rotação
     def __speed_timer_callback(self):
-        new_speed = self.get_speed() + FACTOR_SPEED
-        if FACTOR_SPEED < 0:
-            if PARE and new_speed == MIN_SPEED:
-                self.stop()
-                self.speed_timer.cancel()
-            elif new_speed < MIN_SPEED:
-                new_speed = MIN_SPEED
-                if not PARE:
-                    self.speed_timer.cancel()
-        else:
-            if SPEED == 0 and new_speed > MAX_SPEED:
-                new_speed = MAX_SPEED
-                self.speed_timer.cancel()
-            elif SPEED > 0 and new_speed > SPEED:
-                new_speed = SPEED
-                self.speed_timer.cancel()
+        factor = 0.001
+        acceleration = 'UP'
+        if self.speed_ < self.get_speed():
+            factor = -factor
+            acceleration = 'DOWN'
+        new_speed = self.get_speed() + factor
+
+        if acceleration == 'UP':
+            if new_speed > self.speed_:
+                new_speed = self.speed_
+            elif new_speed > TOP_SPEED:
+                new_speed = TOP_SPEED
+        elif acceleration == 'DOWN':
+            if new_speed < self.speed_:
+                new_speed = self.speed_
+
+        if new_speed == self.speed_ or new_speed == TOP_SPEED:
+            self.speed_timer.cancel()
         self.move_forward(new_speed)
 
     
-    def speed_up(self, speed=0):
-        FACTOR_SPEED = 0.001
-        SPEED = speed
-        self.speed_timer = self.node.create_timer(1.5, self.__speed_timer_callback)  # Verifica a cada 0.001 segundos
-    
-    def speed_down(self, pare=False):
-        PARE = pare
-        FACTOR_SPEED = -0.0001
+    def set_speed(self, speed=0.0):
+        if speed < 0.0:
+            speed = 0.0
+        elif speed > TOP_SPEED:
+            speed = TOP_SPEED
+        self.speed_ = speed
         self.speed_timer = self.node.create_timer(0.1, self.__speed_timer_callback)  # Verifica a cada 0.001 segundos
-    
+
 
 
     def __turn(self, speed):
@@ -205,12 +203,11 @@ class Robot:
         self.state = CommandType.TURN
         self.initial_orientation = round(normalize_angle_degrees(self.get_orientation()))
         self.destiny_orientation = normalize_angle2(self.orientation)
-        #self.destiny_orientation = normalize_angle2(self.initial_orientation + angle)
         self.turn_timer = self.node.create_timer(0.001, self.__turn_timer_callback)  # Verifica a cada 0.001 segundos
-        
+        self.turnning_the_command = True
         self.log_info = False
     
-    def turn_by_orientation(self, orientation):
+    def turn_by_orientation(self, orientation) -> float:
         orientation_target = Orientation.format_degrees(orientation)
         orientation_actual = round(normalize_angle_degrees(self.get_orientation()))
         angle = normalize_angle2(orientation_target - orientation_actual)
@@ -228,6 +225,7 @@ class Robot:
             self.twist.angular.z = 0.0
             self.twist_pub.publish(self.twist)
             self.turn_timer.cancel()
+            self.turnning_the_command = False
             self.running_the_command = False
         else:
             # Caso contrário, continue girando na direção mais curta para alcançar a orientação desejada
@@ -253,5 +251,8 @@ class Robot:
         
         self.node.get_logger().info(f'Command: {command.type}')
     
-    def is_command_running(self) -> bool:
+    def is_running(self) -> bool:
         return self.running_the_command
+    
+    def is_turnning(self) -> bool:
+        return self.turnning_the_command
