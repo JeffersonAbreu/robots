@@ -8,6 +8,8 @@ MIN_SPEED_TURN = 0.001
 TOP_SPEED_TURN = 1.0
 #linear
 TOP_SPEED = 1.5
+MAX_SPEED = 1.0
+MIN_SPEED = 0.1
 # Funções Auxiliares
 def get_angular_speed(error: float) -> float:
     """
@@ -61,10 +63,12 @@ class Robot:
         """
         self.node = node
         self.state = None
+        self.turn_diff = 0.0
         self.orientation:int = 0
         self.initial_orientation = 0.0
         self.current_orientation = 0.0
         self.destiny_orientation = 0.0
+        self.old_speed          = 0
         self.distance = 0.0
         self.running_the_command = False
         self.turnning_the_command = False
@@ -78,6 +82,12 @@ class Robot:
         self.sensor_camera: SensorCamera = SensorCamera(node, handle_aruco_detected)
 
 
+    def get_distance_to_wall(self, grau = 0):
+        """
+        Retorna a distância ao obstáculo mais próximo diretamente à frente do robô.
+        """
+        return self.sensor_lidar.get_data_range(grau)
+
     def get_time_now(self):
         return self.node.get_clock().now().seconds_nanoseconds()[0]
     
@@ -88,6 +98,13 @@ class Robot:
         """
         return self.sensor_imu.get_orientation()
     
+    def get_acceleration(self):
+        new = self.get_speed()
+        old = self.old_speed
+        if round(new, 2) == round(old, 2):
+            return 0
+        return 1 if new > old else -1
+    
     def get_speed(self) -> float:
         return self.twist.linear.x
     
@@ -96,6 +113,7 @@ class Robot:
         """
         Move o robô para frente. Se a velocidade não for especificada, use 0.3 como padrão.
         """
+        self.old_speed      = self.twist.linear.x
         self.twist.linear.x = speed
         self.twist_pub.publish(self.twist)
         self.state = CommandType.MOVE_FORWARD
@@ -114,6 +132,7 @@ class Robot:
         self.sensor_odom.reset_odom()
         self.distance = distance #if speed > 0 else -distance
         self.state = CommandType.MOVE_FORWARD if speed > 0 else CommandType.MOVE_BACKWARD
+        self.old_speed      = self.twist.linear.x
         self.twist.linear.x = speed
         self.twist_pub.publish(self.twist)
         self.move_timer = self.node.create_timer(0.01, self.__move_timer_callback)
@@ -122,6 +141,7 @@ class Robot:
         travelled_distance = self.sensor_odom.get_travelled_distance()
         if self.distance - travelled_distance <= 0.001:
             self.node.get_logger().info(f'distance: {self.distance} | travelled: {round(travelled_distance, 3)}')
+            self.old_speed      = self.twist.linear.x
             self.twist.linear.x = 0.0
             self.twist_pub.publish(self.twist)
             self.move_timer.cancel()
@@ -132,6 +152,7 @@ class Robot:
         """
         Para o robô.
         """
+        self.old_speed      = self.twist.linear.x
         self.twist = Twist()
         self.twist_pub.publish(self.twist)
         self.state = CommandType.STOP
@@ -156,34 +177,18 @@ class Robot:
     
     # Rotação
     def __speed_timer_callback(self):
-        factor = 0.001
-        acceleration = 'UP'
-        if self.speed_ < self.get_speed():
-            factor = -factor
-            acceleration = 'DOWN'
-        new_speed = self.get_speed() + factor
-
-        if acceleration == 'UP':
-            if new_speed > self.speed_:
-                new_speed = self.speed_
-            elif new_speed > TOP_SPEED:
-                new_speed = TOP_SPEED
-        elif acceleration == 'DOWN':
-            if new_speed < self.speed_:
-                new_speed = self.speed_
-
-        if new_speed == self.speed_ or new_speed == TOP_SPEED:
+        factor = 0.001 if self.speed_ >= self.get_speed() else -0.02
+        speed = round(self.get_speed() + factor, 3)
+        speed = max(MIN_SPEED, min(speed, MAX_SPEED))
+        if speed == self.speed_ or speed == TOP_SPEED:
             self.speed_timer.cancel()
-        self.move_forward(new_speed)
+        else:
+            self.move_forward(speed)
 
     
-    def set_speed(self, speed=0.0):
-        if speed < 0.0:
-            speed = 0.0
-        elif speed > TOP_SPEED:
-            speed = TOP_SPEED
-        self.speed_ = speed
-        self.speed_timer = self.node.create_timer(0.1, self.__speed_timer_callback)  # Verifica a cada 0.001 segundos
+    def set_speed(self, speed):
+        self.speed_ = round(max(MIN_SPEED, min(speed, MAX_SPEED)), 3)
+        self.speed_timer = self.node.create_timer(0.25, self.__speed_timer_callback)  # Verifica a cada 0.001 segundos
 
 
 
@@ -219,6 +224,7 @@ class Robot:
         self.current_orientation = normalize_angle2(self.get_orientation())
         # Calcula a diferença entre a orientação atual e a desejada
         difference = normalize_angle2(self.destiny_orientation - self.current_orientation)
+        self.turn_diff = difference
         
         # Se a diferença for pequena o suficiente, pare o robô
         if abs(difference) <= 0.15:

@@ -12,10 +12,37 @@ from constants import DISTANCE_TO_WALL # Distância da area de interece da pared
 from constants import WALL_LARG # 0.05
 from constants import ARUCO_DICT # DICT_5X5_250
 from constants import MARKER_SIZE  # Tamanho do marcador em cm (20cm)
-from utils import Orientation
 HEIGHT_FROM_THE_FLOOR = 0.1
 CREATE_POINTS = True
+from enum import Enum, auto
+class Orientation(Enum):
+    NORTH = auto()
+    SOUTH = auto()
+    EAST = auto()
+    WEST = auto()
+    NE = auto() # Nordeste: Northeast (NE)
+    SE = auto() # Sudeste: Southeast (SE)
+    NW = auto() # Noroeste: Northwest (NW)
+    SW = auto() # Sudoeste: Southwest (SW)
 
+    def format_degrees(orientation):
+        if orientation == Orientation.NORTH:
+            degrees = 0
+        elif orientation == Orientation.NE:
+            degrees = 45
+        elif orientation == Orientation.EAST:
+            degrees = 90
+        elif orientation == Orientation.SE:
+            degrees = 135
+        elif orientation == Orientation.SOUTH:
+            degrees = 180
+        elif orientation == Orientation.SW:
+            degrees = 225
+        elif orientation == Orientation.WEST:
+            degrees = 270
+        elif orientation == Orientation.NW:
+            degrees = 315
+        return degrees
 
 
 class Tag:
@@ -411,10 +438,10 @@ if __name__ == "__main__":
     main([
       Aruco_( 1, Orientation.SOUTH,"c15",1.5),
       Aruco_( 2, Orientation.SOUTH,"c14", -2.5),
-      #Aruco_( 1, Orientation.EAST , "c0", 1.5),
+      Aruco_( 1, Orientation.EAST , "c0", 1.5),
       Aruco_( 3, Orientation.SOUTH,"c12"),
       Aruco_( 4, Orientation.SOUTH,"c12", -1.5),
-      #Aruco_( 4, Orientation.WEST ,"c11", 1.5),
+      Aruco_( 4, Orientation.WEST ,"c11", 1.5),
       Aruco_( 5, Orientation.WEST , "a7", 2  ),
       Aruco_( 6, Orientation.WEST , "c9",-1.5),
       Aruco_( 7, Orientation.NORTH, "c7", -1.5),
@@ -428,10 +455,10 @@ if __name__ == "__main__":
       Aruco_(15, Orientation.EAST , "d1", 2  ),
       Aruco_(16, Orientation.WEST , "d9",-2  ),
       Aruco_(17, Orientation.NORTH, "c5", -2.5),
-      #Aruco_(17, Orientation.WEST , "d4",-1.5),
+      Aruco_(17, Orientation.WEST , "d4",-1.5),
       Aruco_(18, Orientation.NORTH, "c4", -2.5),
       Aruco_(19, Orientation.NORTH, "c4",1.5),
-      #Aruco_(19, Orientation.EAST , "c3",-1.5),
+      Aruco_(19, Orientation.EAST , "c3",-1.5),
       Aruco_(20, Orientation.EAST , "c2", 2  ),
       Aruco_(21, Orientation.SOUTH, "b2",2  ),
       Aruco_(22, Orientation.SOUTH, "b2", -2  ),
@@ -441,7 +468,7 @@ if __name__ == "__main__":
       Aruco_(26, Orientation.EAST , "b1", 2  ),
       Aruco_(27, Orientation.SOUTH, "b4", -1  ),
       Aruco_(28, Orientation.NORTH, "b2",1.5),
-      #Aruco_(28, Orientation.EAST , "c0",-1.5),
+      Aruco_(28, Orientation.EAST , "c0",-1.5),
       Aruco_(29, Orientation.SOUTH, "b6", -1  ),
       Aruco_(30, Orientation.WEST , "a6",-0.5)
     ])

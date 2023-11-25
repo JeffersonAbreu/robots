@@ -28,7 +28,6 @@ class SensorCamera:
         :param camera_matrix: Matriz de câmera para a calibração da câmera.
         :param dist_coeffs: Coeficientes de distorção da câmera.
         """
-        
         self.camera_calibration_yaml ='support/dados_calibracao.yaml'
         self.node = node
         self.aruco_detected_callback = aruco_detected_callback
@@ -49,16 +48,11 @@ class SensorCamera:
         """
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data, 'bgr8')
-            rotation_angle = None
-            cv_image, distance_to_aruco, pixel_error = self.detect_and_decorate_arucos2(cv_image)
-            if pixel_error is not None:
-                rotation_angle = calculate_rotation_angle(pixel_error, IMAGE_WIDTH, FOV_WIDTH)
+            cv_image, distance_to_aruco, rotation_angle = self.detect_and_decorate_arucos2(cv_image)
+            if rotation_angle is not None:
                 self.aruco_detected_callback(distance_to_aruco, round(rotation_angle, 2))
-            else: 
-                distance_to_aruco = None
-                pixel_error = None
             # Exibe informações na imagem
-            cv_image = self.display_info(cv_image, distance_to_aruco, pixel_error, rotation_angle)            
+            cv_image = self.display_info(cv_image, distance_to_aruco, rotation_angle)            
             cv_image = self.draw_line_center_x(cv_image)
             # Exibe a imagem com o ArUco detectado e a linha central
             cv2.imshow('Aruco Detector', cv_image)
@@ -90,7 +84,7 @@ class SensorCamera:
         """
         # Desenha uma linha vertical no centro da tela
         image_center_x = cv_image.shape[1] // 2
-        cv2.line(cv_image, (image_center_x, 0), (image_center_x, cv_image.shape[0]), (255, 0, 0), 2)
+        cv2.line(cv_image, (image_center_x, 0), (image_center_x, cv_image.shape[0]), (255, 0, 0), 1)
         return cv_image
 
     def calculate_pixel_error(self, corners, image_width):
@@ -112,31 +106,32 @@ class SensorCamera:
         distance_to_aruco = np.linalg.norm(tvec[0])
         return distance_to_aruco
     
-    def display_info(self, cv_image, distance_to_aruco, pixel_error, rotation_angle):
+    def display_info(self, cv_image, distance_to_aruco, rotation_angle):
         """
-        Escreve na tela as informações sobre a distância e o erro de pixel.
+        Escreve na tela as informações sobre a distância, o erro de pixel e o ângulo de rotação.
         """
-        # Define as cores para o texto
-        _color = (255, 0, 0)  # Azul
-        alvo = self.id_aruco_target
-        if self.track_aruco:
-            cv_image = cv2.putText(cv_image, f"      ID alvo: {alvo}", (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
-        else:
-            cv_image = cv2.putText(cv_image, f"      ID alvo: {alvo}", (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.6, _color, 2)
-        
-        rotation_angle = round(rotation_angle, 2) if rotation_angle is not None else ""
-        cv_image = cv2.putText(cv_image, f"Angulo de rot: {rotation_angle}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, _color, 2)
+        text_color = (0, 0, 0)  # Preto para texto
+        blue_color = (255, 0, 0)  # Azul para resultados positivos
+        red_color = (0, 0, 255)  # Vermelho para resultados negativos
 
-        # Escreve a distância na imagem
-        distance_to_aruco = round(distance_to_aruco, 2) if distance_to_aruco is not None else ""
-        cv_image = cv2.putText(cv_image, f"    Distancia: {distance_to_aruco}", (10, 75), cv2.FONT_HERSHEY_SIMPLEX, 0.6, _color, 2)
+        # Textos
+        cv_image = cv2.putText(cv_image, f"{'ID: ':>8}", (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 2)
+        cv_image = cv2.putText(cv_image, f"{'Angulo: ':>8}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 2)
+        cv_image = cv2.putText(cv_image, f"{'Distan: ':>8}", (10, 75), cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 2)
+        cv_image = cv2.putText(cv_image, f"{'Direct: ':>8}", (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 2)
 
-        # Escreve o erro de pixel na imagem
-        pixel_error = round(pixel_error, 2) if pixel_error is not None else ""
-        cv_image = cv2.putText(cv_image, f"Erro de Pixel: {pixel_error}", (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.6, _color, 2)
+        # Resultados
+        if self.id_aruco_target is not None:
+            cv_image = cv2.putText(cv_image, f"{str(self.id_aruco_target):>2}", (180, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.6, blue_color, 2)
+            if rotation_angle is not None:
+                color = blue_color if rotation_angle >= 0 else red_color
+                cv_image = cv2.putText(cv_image, f"{rotation_angle:>8.2f}", (180, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+                cv_image = cv2.putText(cv_image, f"{distance_to_aruco:>8.2f}", (180, 75), cv2.FONT_HERSHEY_SIMPLEX, 0.6, blue_color, 2)
+                direction = "DIREITA" if rotation_angle > 0 else "ESQUERDA"
+                cv_image = cv2.putText(cv_image, f"{direction:>8}", (180, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
 
         return cv_image
-    
+
 
     def highlight_target_aruco(self, cv_image, corners, target_id):
         """
@@ -168,6 +163,7 @@ class SensorCamera:
                     # Calcula o erro em pixels
                     image_width = cv_image.shape[1]
                     pixel_error = self.calculate_pixel_error(corner, image_width)
+                    calculate_rotation_angle(pixel_error, IMAGE_WIDTH, FOV_WIDTH)
                     cv_image = self.highlight_target_aruco(cv_image, corner, ids[i])
                     return cv_image, distance_to_aruco, pixel_error
 

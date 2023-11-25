@@ -22,3 +22,7 @@ distance_to_aruco = 4.8  # Exemplo de distância em metros
 
 new_angle = calculate_new_angle(pixel_error, distance_to_aruco, image_width, fov_width)
 print(f"O robô deve girar {new_angle:.2f} graus para alinhar com o ArUco.")
+
+index = 361
+index = max(0, min(index, 270))
+print(f"index: {index}")
