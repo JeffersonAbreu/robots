@@ -192,17 +192,17 @@ class RobotController:
         dy, dx = self.robo.sensor_lidar.find_closest_wall_angle()
         dx = cor.cyan(f'{dx:>5.2f}')
         dy = cor.magenta(f'{dy:>3}')
-        print(f"ANGLE: {a}, DISTANCIA: {b}, SPEED: {t}, WALL: {x}, dist min[ Wall: {dx}, angle: {dy} ]")
+        print(f"ANGLE: {a}, DISTANCIA: {b}, SPEED: {t}, WALL: {x}, [ Wall: {dx},  angle: {dy} ]")
 
         id = f'{self.robo.sensor_camera.id_aruco_target}'
-        r  = f"{cor.green('YES') if self.robo.sensor_camera.track_aruco else cor.red(' NO')}, ID: {cor.cyan(f'{id:>2}')}"
+        r  = f"{cor.green('YES') if self.robo.sensor_camera.track_aruco else cor.red('NO')}, ID:  {cor.cyan(f'{id:>2}')}"
         turn = cor.red("OFF") if self._timer_turn is None or self._timer_turn.is_canceled() else cor.green(" ON")
         target = cor.red("OFF") if self._timer_target is None or self._timer_target.is_canceled() else cor.green(" ON")
         move = cor.red("OFF") if self._timer_move is None or self._timer_move.is_canceled() else cor.green(" ON")
         contr = cor.red("OFF") if self._timer_controll is None or self._timer_controll.is_canceled() else cor.green(" ON")
         walker = cor.red("OFF") if self._timer_walker is None or self._timer_walker.is_canceled() else cor.green(" ON")
-        print(f'TURN: {turn}, TARGET: {target}, MOVE: {move}, CONTROLL: {contr}, WALKER: {walker}, FIXED_ALVO: {r}')
-        print("")
+        print(f' TURN: {turn}, TARGET: {target}, MOVE: {move}, CONTROLL: {contr}, WALKER: {walker}, FIXED_ALVO: {r}')
+        print(f"ERRO TURN: {self.robo.turn_diff:>4}")
     # Lidar
     def handle_obstacle_detection(self):
         """
