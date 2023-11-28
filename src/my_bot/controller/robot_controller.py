@@ -1,5 +1,6 @@
-from model import Robot
+from model import Robot, Navigation, Tracking
 from utils import Command, CommandQueue, CommandType, Graph, Path
+from utils.bib import normalize_angle2
 from utils.bib import Color as cor
 from rclpy.node import Node
 import pdb # pdb.set_trace() # serve para debugar
@@ -16,30 +17,29 @@ class RobotController:
 
     def __init__(self, node: Node):
         self.node = node
-        graph = Graph()
-        graph.load_from_file('support/graph_data.txt')
-        # Busca todos os caminhos do vértice id_origen para o vértice id_destiny
-        all_paths_from_destiny = graph.load_paths_if_exist( 25, 1 )
-        if len(all_paths_from_destiny) == 0:
-            self.node.get_logger().error(f'Não foi localizado nenhuma rota!')
-        else:
+        self.nav = Navigation(25, 1)
+        if self.nav.is_exist_rote():
             self.robo = Robot(self.node, self.handle_obstacle_detection, self.handle_aruco_detected)
+            #self.tracking = Tracking(self.robo)
             self.new_distance_aruco = 0
             self.old_distance_aruco = 0
             self.new_rotation_angle = 0
             self.old_rotation_angle = 0
-            self.new_action         = False
-            self.area_of_interest   = True
+            self.direction_angle_zero = None
+            self.tracking           = False
             self.count_not_detected = 0
-            self.target_actual:Path = None
-            self.targets_list:list[Path] = all_paths_from_destiny[0] # pega a rota menor / primeira rota
-
             self._timer_turn     = None
             self._timer_target   = None
             self._timer_move     = None
-            self._timer_controll = self.node.create_timer(0.0001, self.__execute_controll)
+            self._timer_controll = None
             self._timer_walker   = None
+            self._timers = [self._timer_turn, self._timer_target, self._timer_move, self._timer_controll, self._timer_walker]
+            
+            self.nav.select_a_route()
+            self.go_next()
             self._timer_show_inf = self.node.create_timer(0.0001, self.show_infos)
+        else:
+            self.node.get_logger().error(f'Não foi localizado nenhuma rota!')
 
     def start_turn(self, timer=0.0001):
         self._timer_turn    = self.node.create_timer(timer, self.__turn__callback)
@@ -47,48 +47,68 @@ class RobotController:
         self._timer_target  = self.node.create_timer(timer, self.__next_target_callback)
     def start_move(self, timer=0.0001):
         self._timer_move    = self.node.create_timer(timer, self.__move__callback)
+    def start_walker(self, timer=0.001):
+        self.old_rotation_angle  = 0
+        self.old_distance_aruco  = 0
+        self.new_rotation_angle  = 0
+        self.new_distance_aruco  = 0
+        self._timer_walker       = self.node.create_timer(timer, self.__walker__callback)
+
+    def stop_all_timers(self):
+        self.tracking = False
+        for _timer in self._timers:
+            if is_ON(_timer):
+                _timer.cancel()
+
+    def area_of_interest(self):
+        if self.robo.get_distance_to_wall() < 0.3:
+            self.robo.stop()
+        elif (self.robo.get_distance_to_wall() < 0.8 and self.robo.get_distance_to_wall() > 0.5 ) or ( self.new_distance_aruco > 0.5 and self.new_distance_aruco < 0.8 ):
+            self.robo.set_speed(0.2)
+        elif self.robo.get_speed() > 0.1 and (self.robo.get_distance_to_wall() < 0.5 or (self.new_distance_aruco > 0 and self.new_distance_aruco < 0.5)):
+            self.robo.set_speed(0.1)
+        elif self.new_distance_aruco > 0.8:
+            self.robo.set_speed(0.3)
+        if self._timer_show_inf.is_ready():
+            self._timer_show_inf.cancel()
+        print(cor.red("area_of_interest!!!"), get_current_line_number())
+        self._timer_area_of_interest    = self.node.create_timer(0.1, self.__area_of_interest__callback)
+
+    def __area_of_interest__callback(self):
+        if self.robo.get_distance_to_wall() > 0.6 and self.new_distance_aruco > 0.6:
+            print(cor.red("__area_of_interest__callback!!!"), get_current_line_number())
+            self.show_infos()
+            return
+        elif self.robo.get_speed() > 0.3:
+            print(cor.red("__area_of_interest__callback!!!"), get_current_line_number())
+            self.show_infos()
+            return
+        if self.new_distance_aruco < 0.3 or self.robo.get_distance_to_wall() < 0.3:
+            print(cor.red("__area_of_interest__callback!!!"), get_current_line_number())
+            self.show_infos()
+            self.robo.stop()
+        
+        self._timer_area_of_interest.cancel()
+        if self._timer_show_inf.is_canceled():
+            self._timer_show_inf.reset()
+        self.go_next()
+
     
     def __execute_controll(self):
-        if not self.robo.sensor_camera.track_aruco:
-            if self.robo.sensor_camera.id_aruco_target == None:
-                if self.robo.get_speed() <= 0.2:
-                    self._timer_controll.cancel()
-                    self.robo.set_speed(0.2)
-                    while self.robo.get_speed() > 0.2:
-                        time.sleep(0.5)
-                        print(cor.green(f"Aguardando a velocidade diminuir <= 2: {self.robo.get_speed()}"), get_current_line_number())
-                    self.new_action = True
-                    if self.area_of_interest:
-                        self.start_target()
-                    time.sleep(2)
-                    return
-        else:
-            if self.new_distance_aruco < 1 and not self.robo.sensor_camera.track_aruco:
-                self.robo.sensor_camera.track_aruco = False
-                self.robo.sensor_camera.id_aruco_target = None
-            else:
-                if self.is_update_info():
-                    if self._timer_turn is None or self._timer_turn.is_canceled():
-                        self.start_turn()
-                    if self._timer_move is None or self._timer_move.is_canceled():
-                        self.start_move()
-                elif self.robo.sensor_camera.track_aruco:
-                    self.count_not_detected  += 1
-                    print(cor.red(f"Contando as vezes que não detectou o aruco! {self.count_not_detected} vezes."))
-                    if(self.count_not_detected > 20):
-                        self._timer_controll.cancel()
-                        self.robo.set_speed(0)
-                        self._timer_walker   = self.node.create_timer(0.01, self.__walker__callback)
-        min_wall, _ = self.robo.sensor_lidar.find_closest_wall_angle()
-        if min_wall == float('-inf'):
-            self.robo.stop()
-            self._timer_controll.cancel()
-            if not self._timer_turn.is_canceled():
-                self._timer_turn.cancel()
-            if not self._timer_move.is_canceled():
-                self._timer_move.cancel()
-            self._timer_walker   = self.node.create_timer(0.01, self.__walker__callback)
-                        
+        if self.robo.sensor_camera.track_aruco_target and self.tracking:
+            if self.new_distance_aruco < 1 and self.robo.get_distance_to_wall() < 1:
+                self.stop_all_timers()
+                self.area_of_interest()
+            elif not self.is_update_info():
+                min_wall, _ = self.robo.sensor_lidar.find_closest_wall_angle()
+                self.count_not_detected  += 1
+                print(cor.red(f"Contando as vezes que não detectou o aruco! {self.count_not_detected} vezes."))
+                if (self.count_not_detected > 100 and not self.is_update_info()) or min_wall == float('-inf'):
+                    print(cor.red("PARAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!"), get_current_line_number())
+                    self.stop_all_timers()
+                    self.robo.set_speed(0)
+                    self.start_walker()
+                           
                     
                 
     def __walker__callback(self):
@@ -99,79 +119,79 @@ class RobotController:
             self.robo.move_backward(0.6)
             angle = abs(dir) - abs(esq)
             self.robo.turn_by_angle(angle)
+
         if self.is_update_info():
             self.robo.stop()
-            self._timer_controll.reset()
             self._timer_walker.cancel()
+            time.sleep(1.5)
+            self._timer_controll.reset()
+            return
         else:
             # se chegou aqui está predido
             self.robo.turn_by_angle(self.old_rotation_angle)
 
 
-
-    
     def __move__callback(self):
         """
         Executa os comandos na fila.
         """
-        if self.is_update_info():
-            speed = ajuste_speed( self.new_distance_aruco, self.new_rotation_angle, 0.3 ) # SPEED_Z
-            self.robo.set_speed(speed)
-            self.old_rotation_angle = self.new_rotation_angle
+        if self.is_update_info_direction():
+            if abs(self.new_rotation_angle) > abs(self.old_rotation_angle):
+                speed = 0.2
+            else:
+                speed = ajuste_speed( self.new_distance_aruco, self.new_rotation_angle, 0.3 ) # SPEED_Z
+            self.robo.set_speed(speed)            
             #self._timer_move.cancel()
-        
-
+     
 
     def __turn__callback(self):
-        if self.is_update_info():
-            if abs(self.new_rotation_angle) < abs(self.old_rotation_angle):
-                if abs(self.robo.turn_diff) < 5:
-                    self.robo.turn_by_angle( self.new_rotation_angle / 2 )    
-                else:
-                    self.robo.turn_by_angle( self.new_rotation_angle )
-        elif abs(self.new_rotation_angle) <= 0.1:
-                self.robo.stop_turn()
-                self._timer_turn.cancel()
+        if self.robo.sensor_camera.track_aruco_target:
+            if not self.robo.is_turnning() or ( self.new_distance_aruco < 3 and abs(self.robo.turn_diff) < 3 ):
+                self.robo.turn_by_angle( self.new_rotation_angle )
+            self._timer_turn.cancel()
+        else:
+            self._timer_turn.cancel()
                 
 
     def __next_target_callback(self):
-        if len(self.targets_list) > 0: 
-            if self.new_action:
-                self.new_action = False
-                self.area_of_interest = False
-                self.target_actual = self.targets_list.pop(0)
-                self.robo.sensor_camera.fix_target(self.target_actual.id_destiny)
-                angle_new_orientation = self.robo.turn_by_orientation(self.target_actual.orientation)
-                speed = 0.5
-                if angle_new_orientation > 90 :
-                    if self.robo.get_distance_to_wall() < 0.50:
-                        speed = 0.1
-                    else:
-                        speed = 0.2
-                elif angle_new_orientation > 60 :
-                    if self.robo.get_distance_to_wall() < 0.50:
-                        speed = 0.2
-                    else:
-                        speed = 0.3
-                elif angle_new_orientation > 45 :
-                    speed = 0.4
-                self.robo.set_speed(speed)
-
-            elif not self.robo.is_turnning(): # or (abs(self.robo.turn_diff) <= 5 and abs(self.robo.turn_diff) > 0.0):
-                '''
-                g = round(self.robo.turn_diff, 2)
-                g = cor.green(g) if g > 0 else cor.red(g)
-                print(cor.green("Agora já pode ir!!!!"), f'diferença de {g}°')
-                '''
-                self._timer_target.cancel()
-                self._timer_controll.reset()
-                self.robo.sensor_camera.track_aruco = True
-                self.robo.set_speed(0.5)
-
-        else:
+        '''
+        Aguarda o alinhamento para o alvo ou quase
+        '''
+        def go():
             self._timer_target.cancel()
-            self.node.get_logger().warning("Chegamos no destino!")
-            self.robo.stop()
+            self.robo.set_speed(0.6)
+            if self._timer_controll is None:
+                self._timer_controll = self.node.create_timer(0.5, self.__execute_controll)
+            else:
+                self._timer_controll.reset()
+            self.tracking = True
+            return
+            
+        if not self.robo.is_turnning():
+            print(cor.red("__next_target_callback CANSELADO!!!"), get_current_line_number())
+            go()
+        elif self.is_update_info_direction():
+            dist = self.new_distance_aruco
+            diff = abs(self.robo.turn_diff)
+            if diff <= 0.5:
+                print(cor.red("__next_target_callback CANSELADO!!!"), get_current_line_number())
+                go()
+            elif dist < 5.00:
+                if dist >= 4.50 and diff <= 1:
+                    print(cor.red("__next_target_callback CANSELADO!!!"), get_current_line_number())
+                    go()
+                elif dist >= 4.00 and diff <= 2:
+                    print(cor.red("__next_target_callback CANSELADO!!!"), get_current_line_number())
+                    go()
+                elif dist >= 3.00 and diff <= 6:
+                    print(cor.red("__next_target_callback CANSELADO!!!"), get_current_line_number())
+                    go()
+                elif dist >= 2.00 and diff <= 10:
+                    print(cor.red("__next_target_callback CANSELADO!!!"), get_current_line_number())
+                    go()
+                elif dist < 2.00 and diff <= 15:
+                    print(cor.red("__next_target_callback CANSELADO!!!"), get_current_line_number())
+                    go()
         
 
     def show_infos(self):
@@ -195,15 +215,16 @@ class RobotController:
         print(f"ANGLE: {a}, DISTANCIA: {b}, SPEED: {t}, WALL: {x}, [ Wall: {dx},  angle: {dy} ]")
 
         id = f'{self.robo.sensor_camera.id_aruco_target}'
-        r  = f"{cor.green('YES') if self.robo.sensor_camera.track_aruco else cor.red('NO')}, ID:  {cor.cyan(f'{id:>2}')}"
-        turn = cor.red("OFF") if self._timer_turn is None or self._timer_turn.is_canceled() else cor.green(" ON")
-        target = cor.red("OFF") if self._timer_target is None or self._timer_target.is_canceled() else cor.green(" ON")
-        move = cor.red("OFF") if self._timer_move is None or self._timer_move.is_canceled() else cor.green(" ON")
-        contr = cor.red("OFF") if self._timer_controll is None or self._timer_controll.is_canceled() else cor.green(" ON")
-        walker = cor.red("OFF") if self._timer_walker is None or self._timer_walker.is_canceled() else cor.green(" ON")
+        r  = f"{cor.green('YES') if self.robo.sensor_camera.track_aruco_target else cor.red('NO')}, ID:  {cor.cyan(f'{id:>2}')}"
+        turn = cor.red("OFF") if not is_ON( self._timer_turn ) else cor.green(" ON")
+        target = cor.red("OFF") if not is_ON( self._timer_target ) else cor.green(" ON")
+        move = cor.red("OFF") if not is_ON( self._timer_move ) else cor.green(" ON")
+        contr = cor.red("OFF") if not is_ON( self._timer_controll ) else cor.green(" ON")
+        walker = cor.red("OFF") if not is_ON( self._timer_walker ) else cor.green(" ON")
         print(f' TURN: {turn}, TARGET: {target}, MOVE: {move}, CONTROLL: {contr}, WALKER: {walker}, FIXED_ALVO: {r}')
-        print(f"ERRO TURN: {self.robo.turn_diff:>4}")
-    # Lidar
+        print(f" ERRO TURN: {round(self.robo.turn_diff, 3):>4}°")
+    
+    # handle Lidar
     def handle_obstacle_detection(self):
         """
         Lógica para lidar com a detecção de obstáculos
@@ -211,20 +232,59 @@ class RobotController:
         pass
         #print("Algo detectado!")
 
-    # Camera
-    def handle_aruco_detected(self, distance_to_aruco, pixel_error):
+    # handle Camera
+    def handle_aruco_detected(self, distance_to_aruco, angle_error):
         """
         ids detectados
         """
+        self.count_not_detected  = 0
         self.old_rotation_angle  = self.new_rotation_angle
         self.old_distance_aruco  = self.new_distance_aruco
-        self.new_rotation_angle  = pixel_error
+        self.new_rotation_angle  = angle_error
         self.new_distance_aruco  = distance_to_aruco
-        self.count_not_detected  = 0
+        if self.tracking and not is_ON(self._timer_turn):
+            self.start_turn()
+
 
     def is_update_info(self):
-        return self.old_rotation_angle  == self.new_rotation_angle and self.old_distance_aruco  == self.new_distance_aruco
-    
+        return self.old_rotation_angle  != self.new_rotation_angle and self.old_distance_aruco  != self.new_distance_aruco
+    def is_update_info_direction(self):
+        return self.old_rotation_angle  != self.new_rotation_angle
+
+
+    def go_next(self):
+        if self.nav.is_next():
+            target = self.nav.get_next()
+            self.tracking = False
+            self.robo.sensor_camera.fix_target(target.id_destiny)
+            angle_new_orientation = abs(self.robo.turn_by_orientation(target.orientation))
+            speed = 0.5
+            if angle_new_orientation > 90 :
+                    if self.robo.get_distance_to_wall() < 0.50:
+                        speed = 0.1
+                    else:
+                        speed = 0.2
+            elif angle_new_orientation > 60 :
+                    if self.robo.get_distance_to_wall() < 0.50:
+                        speed = 0.2
+                    else:
+                        speed = 0.3
+            elif angle_new_orientation > 45 :
+                    speed = 0.4
+            self.robo.set_speed(speed)
+            self.start_target()
+        else:
+            self.node.get_logger().warning("Chegamos no destino!")
+            self.robo.stop()
+
+
+def is_ON(thread):
+    return False if thread is None or thread.is_canceled() else True
+
+def is_OFF(thread):
+    return not ( is_ON(thread) )
+
+
 def ajuste_speed(distance, angle_rotation, speed_z):
     # Defina os limites de velocidade
     MAX_SPEED = 1.0
@@ -255,6 +315,8 @@ def ajuste_speed(distance, angle_rotation, speed_z):
     return max(MIN_SPEED, min(speed, MAX_SPEED))  # Garante que a velocidade esteja dentro dos limites
         
 
-# Função para obter o número da linha atual
 def get_current_line_number():
+    '''
+    Função para obter o número da linha atual de onde ela é chamada
+    '''
     return inspect.currentframe().f_back.f_lineno

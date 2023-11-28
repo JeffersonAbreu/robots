@@ -69,6 +69,7 @@ class Robot:
         self.current_orientation = 0.0
         self.destiny_orientation = 0.0
         self.old_speed          = 0
+        self.get_old_turn_direction = 0
         self.distance = 0.0
         self.running_the_command = False
         self.turnning_the_command = False
@@ -87,7 +88,7 @@ class Robot:
         Retorna a distância ao obstáculo mais próximo diretamente à frente do robô.
         """
         return self.sensor_lidar.get_data_range(grau)
-
+    
     def get_time_now(self):
         return self.node.get_clock().now().seconds_nanoseconds()[0]
     
@@ -140,7 +141,6 @@ class Robot:
     def __move_timer_callback(self):
         travelled_distance = self.sensor_odom.get_travelled_distance()
         if self.distance - travelled_distance <= 0.001:
-            self.node.get_logger().info(f'distance: {self.distance} | travelled: {round(travelled_distance, 3)}')
             self.old_speed      = self.twist.linear.x
             self.twist.linear.x = 0.0
             self.twist_pub.publish(self.twist)
@@ -161,7 +161,7 @@ class Robot:
         self.node.get_logger().warning(f'STOP')
 
     def stop_turn(self):
-        if self.is_turnning:
+        if self.is_turnning():
             self.turn_timer.cancel()
             self.twist.angular.z = 0.0
             self.twist_pub.publish(self.twist)
@@ -188,7 +188,7 @@ class Robot:
     
     def set_speed(self, speed):
         self.speed_ = round(max(MIN_SPEED, min(speed, MAX_SPEED)), 3)
-        self.speed_timer = self.node.create_timer(0.25, self.__speed_timer_callback)  # Verifica a cada 0.001 segundos
+        self.speed_timer = self.node.create_timer(0.2, self.__speed_timer_callback)  # Verifica a cada 0.001 segundos
 
 
 
@@ -196,6 +196,7 @@ class Robot:
         """
         Define a velocidade de rotação.
         """
+        self.get_old_turn_direction = 1 if speed > 0 else -1
         self.twist.angular.z = speed
         self.twist_pub.publish(self.twist)
 

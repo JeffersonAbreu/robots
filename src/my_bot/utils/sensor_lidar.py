@@ -44,7 +44,7 @@ class SensorLidar:
         angles_range:[int] = range(len(self.lidar_data_ranges))
         if direction != 0:
             # Define o intervalo de ângulos para a esquerda ou direita 
-            angles_range:[int] = range(136, 270) if direction > 0 else range(0, 134)
+            angles_range:[int] = range(134, 0) if direction > 0 else range(136, 270)
 
         # Percorre todos os ângulos e distâncias
         for angle in angles_range:
@@ -52,5 +52,8 @@ class SensorLidar:
             if distance < min_distance:
                 min_distance = distance
                 angle_of_min_distance = angle
+            else:
+                break
 
         return angle_of_min_distance, min_distance
+
