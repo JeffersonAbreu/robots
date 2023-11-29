@@ -147,7 +147,7 @@ class SensorCamera:
         for i, corner in enumerate(corners):
             if target_id == self.id_aruco_target:
                 # Destaca o marcador ArUco com uma borda mais espessa
-                cv2.polylines(cv_image, [np.int32(corner)], False, (0, 255, 0), 1)
+                cv2.polylines(cv_image, [np.int32(corner)], True, (0, 255, 0), 1)
         return cv_image
 
     
