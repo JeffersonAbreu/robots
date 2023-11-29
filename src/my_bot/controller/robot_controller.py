@@ -1,5 +1,6 @@
 from model import Robot, Navigation, Tracking
 from utils import Command, CommandQueue, CommandType, Graph, Path
+from utils.constants import CALLBACK_INTERVAL
 from utils.bib import normalize_angle2
 from utils.bib import Color as cor
 from rclpy.node import Node
@@ -21,7 +22,7 @@ class RobotController:
         if self.nav.is_exist_rote():
             self.robo = Robot(self.node, self.handle_obstacle_detection, self.handle_aruco_detected)
             self.tracking = Tracking(node, self.robo)
-            self.is_ja_peguei_id = False
+            self._not_get_id = True
             self.count_not_detected = 0
             self._timer_target   = None
             self._timer_move     = None
@@ -32,15 +33,15 @@ class RobotController:
             
             self.nav.select_a_route()
             self.go_next()
-            self._timer_show_inf = self.node.create_timer(0.1, self.show_infos)
+            self._timer_show_inf = self.node.create_timer(CALLBACK_INTERVAL, self.show_infos)
         else:
             self.node.get_logger().error(f'Não foi localizado nenhuma rota!')
 
-    def start_target(self, timer=0.0001):
+    def start_target(self, timer=CALLBACK_INTERVAL):
         self._timer_target  = self.node.create_timer(timer, self.__next_target_callback)
-    def start_move(self, timer=0.0001):
+    def start_move(self, timer=CALLBACK_INTERVAL):
         self._timer_move    = self.node.create_timer(timer, self.__move__callback)
-    def start_walker(self, timer=0.001):
+    def start_walker(self, timer=CALLBACK_INTERVAL):
         self._timer_walker       = self.node.create_timer(timer, self.__walker__callback)
 
     def stop_all_timers(self):
@@ -60,9 +61,10 @@ class RobotController:
         if self._timer_show_inf.is_ready():
             self._timer_show_inf.cancel()
         print(cor.red("area_of_interest!!!"), get_current_line_number())
-        self.tracking.stop_tracking()
-        self.robo.stop_turn()
-        self._timer_area_of_interest    = self.node.create_timer(0.1, self.__area_of_interest__callback)
+        #self.tracking.stop_tracking()
+        #self.robo.stop_turn()
+        self._not_get_id = True
+        self._timer_area_of_interest    = self.node.create_timer(CALLBACK_INTERVAL, self.__area_of_interest__callback)
 
     def __area_of_interest__callback(self):
         print(cor.blue(f"ACELERAÇÂO: {self.robo.get_acceleration()}"), get_current_line_number())
@@ -80,15 +82,14 @@ class RobotController:
             self.robo.stop()
         
         self._timer_area_of_interest.cancel()
-        while is_ON(self._timer_area_of_interest):
-            i += 1
-            print(cor.cyan(f"while: {i}"), get_current_line_number())
+        
         print(cor.blue(f"timer_area_of_interest.cancel()"), get_current_line_number())
         if self._timer_show_inf.is_canceled():
             self._timer_show_inf.reset()
             print(cor.blue(f"self._timer_show_inf.reset()"), get_current_line_number())
         print(cor.blue(f"self._timer_show_inf.reset()"), get_current_line_number())
-        self.go_next()
+        if self._not_get_id:
+            self.go_next()
 
     
     def __execute_controll(self):
@@ -166,7 +167,7 @@ class RobotController:
             self._timer_target.cancel()
             self.robo.set_speed(0.7)
             if self._timer_controll is None:
-                self._timer_controll = self.node.create_timer(0.5, self.__execute_controll)
+                self._timer_controll = self.node.create_timer(CALLBACK_INTERVAL, self.__execute_controll)
             else:
                 self._timer_controll.reset()
             self.tracking.start_tracking()
@@ -259,7 +260,8 @@ class RobotController:
 
     def go_next(self):
         print(cor.blue(f"def go_next(self):"), get_current_line_number())
-        if self.nav.is_next() and is_OFF(self._timer_target):
+        if self.nav.is_next() and self._not_get_id:
+            self._not_get_id = False
             print(cor.blue(f"Debug: "), get_current_line_number())
             target = self.nav.get_next()
             self.tracking.fix_target(target.id_destiny)

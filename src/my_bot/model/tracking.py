@@ -1,6 +1,7 @@
 from model import Robot
 import math
 import time
+from utils.constants import CALLBACK_INTERVAL, FACTOR_CORRECTION
 def calc_side_and_angle(hypotenuse, side_a):
     """
     Calcula o lado e o ângulo em um triângulo retângulo dado a hipotenusa e o outro lado.
@@ -42,18 +43,20 @@ class Tracking:
         self._timer_turn = None
         self.old_diff = 0
     
-    def start_turn(self, timer=0.0001): #0.0001
+    def start_turn(self, timer=CALLBACK_INTERVAL): #0.0001
         def __turn__callback():
             if self.robo.sensor_camera.track_aruco_target:  
+                '''
                 if abs(self.robo.turn_diff) > abs(self.old_diff):
                     self.robo.stop_turn()
-                if not self.robo.is_turnning() or ( self.new_distance_aruco < 2 and abs(self.robo.turn_diff) < 5 ):
-                    if abs(self.new_rotation_angle) < abs(self.old_rotation_angle):
-                        self.robo.turn_by_angle( self.new_rotation_angle )
-                        self.robo.set_speed( self.robo.get_speed() + 0.05 )
-                    else:
-                        self.robo.turn_by_angle( self.old_rotation_angle )
-                        self.robo.set_speed( self.robo.get_speed() - 0.1 )
+                '''
+                #if not self.robo.is_turnning() or ( self.new_distance_aruco < 2 and abs(self.robo.turn_diff) < 5 ):
+                   # if abs(self.new_rotation_angle) < abs(self.old_rotation_angle):
+                self.robo.turn_by_angle( self.new_rotation_angle * FACTOR_CORRECTION)
+                       # self.robo.set_speed( self.robo.get_speed() + 0.05 )
+                    #else:
+                       # self.robo.turn_by_angle( self.old_rotation_angle )
+                        #self.robo.set_speed( self.robo.get_speed() - 0.1 )
                 self.old_diff = self.robo.turn_diff
                 self._timer_turn.cancel()
             else:

@@ -19,3 +19,7 @@ CAMERA_MATRIX = np.array([[1000, 0, 320],
                           [0, 1000, 240],
                           [0, 0, 1]], dtype=float)
 DIST_COEFFS = np.zeros((5, 1))  # Coeficientes de distorção da câmera
+
+CALLBACK_INTERVAL = 0.5
+
+FACTOR_CORRECTION = 0.1

@@ -54,11 +54,13 @@ class SensorCamera:
             if rotation_angle is not None:
                 self.aruco_detected_callback(distance_to_aruco, round(rotation_angle, 2))
             # Exibe informações na imagem
+            '''
             cv_image = self.display_info(img=cv_image, distance=distance_to_aruco, rotation=rotation_angle, full_info=False)       
             cv_image = self.draw_line_center_x(cv_image)
             # Exibe a imagem com o ArUco detectado e a linha central
             cv2.imshow('Aruco Detector', cv_image)
             cv2.waitKey(1)  # Atualiza a janela de exibição
+            '''
         except CvBridgeError as e:
             self.node.get_logger().error('Could not convert image: %s' % e)
 

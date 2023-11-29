@@ -2,6 +2,7 @@ from geometry_msgs.msg import Twist
 from utils import CommandType, Orientation, Command, SensorIMU, SensorLidar, SensorOdom, SensorCamera
 from utils.bib import degrees_to_radians, normalize_angle2, radians_to_degrees, normalize_angle_degrees
 from rclpy.node import Node
+from utils.constants import CALLBACK_INTERVAL
 
 # Constantes de Velocidade
 MIN_SPEED_TURN = 0.001
@@ -209,7 +210,7 @@ class Robot:
         self.state = CommandType.TURN
         self.initial_orientation = round(normalize_angle_degrees(self.get_orientation()))
         self.destiny_orientation = normalize_angle2(self.orientation)
-        self.turn_timer = self.node.create_timer(0.001, self.__turn_timer_callback)  # Verifica a cada 0.001 segundos
+        self.turn_timer = self.node.create_timer(CALLBACK_INTERVAL, self.__turn_timer_callback)  # Verifica a cada 0.001 segundos
         self.turnning_the_command = True
         self.log_info = False
     
