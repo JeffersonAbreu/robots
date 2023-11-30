@@ -1,16 +1,11 @@
 from geometry_msgs.msg import Twist
 from utils import CommandType, Orientation, Command, SensorIMU, SensorLidar, SensorOdom, SensorCamera
-from utils.bib import degrees_to_radians, normalize_angle2, radians_to_degrees, normalize_angle_degrees
+from utils.bib import degrees_to_radians, normalize_angle2, normalize_angle_degrees, is_ON
 from rclpy.node import Node
-from utils.constants import CALLBACK_INTERVAL
+from utils.constants import CALLBACK_INTERVAL_TURN, CALLBACK_INTERVAL_ACCELERATION
+from utils.constants import MIN_SPEED_TURN, TOP_SPEED_TURN, TOP_SPEED
+from utils.constants import FACTOR_ACCELERATION, FACTOR_BRAKING
 
-# Constantes de Velocidade
-MIN_SPEED_TURN = 0.001
-TOP_SPEED_TURN = 1.0
-#linear
-TOP_SPEED = 1.5
-MAX_SPEED = 1.0
-MIN_SPEED = 0.1
 # Funções Auxiliares
 def get_angular_speed(error: float) -> float:
     """
@@ -72,10 +67,11 @@ class Robot:
         self.old_speed          = 0
         self.get_old_turn_direction = 0
         self.distance = 0.0
-        self.running_the_command = False
-        self.turnning_the_command = False
         self.speed_ = 0.0
         self.twist = Twist()
+        # callbacks
+        self.turn_timer = None
+        self.speed_timer =  None
         # Publicadores e Subscritores
         self.twist_pub = self.node.create_publisher(Twist, '/cmd_vel', 10)
         self.sensor_imu: SensorIMU = SensorIMU(node)
@@ -101,9 +97,16 @@ class Robot:
         return self.sensor_imu.get_orientation()
     
     def get_acceleration(self):
+        '''
+        Retorna a ostado da aceleracao
+         0 : estável
+        -1 : desacelerando
+         1 : acelerando
+        '''
         new = self.get_speed()
         old = self.old_speed
-        if round(new, 2) == round(old, 2):
+        self.old_speed = self.get_speed()
+        if round(new, 2) == round(old, 2) or self.state == CommandType.STOP:
             return 0
         return 1 if new > old else -1
     
@@ -137,7 +140,7 @@ class Robot:
         self.old_speed      = self.twist.linear.x
         self.twist.linear.x = speed
         self.twist_pub.publish(self.twist)
-        self.move_timer = self.node.create_timer(0.01, self.__move_timer_callback)
+        self.move_timer = self.node.create_timer(CALLBACK_INTERVAL_ACCELERATION, self.__move_timer_callback)
 
     def __move_timer_callback(self):
         travelled_distance = self.sensor_odom.get_travelled_distance()
@@ -153,12 +156,14 @@ class Robot:
         """
         Para o robô.
         """
-        self.old_speed      = self.twist.linear.x
+        if is_ON(self.turn_timer):
+            self.turn_timer.cancel()
+        if is_ON(self.speed_timer):
+            self.speed_timer.cancel()
+
         self.twist = Twist()
         self.twist_pub.publish(self.twist)
         self.state = CommandType.STOP
-        self.running_the_command = False
-        self.turnning_the_command = False
         self.node.get_logger().warning(f'STOP')
 
     def stop_turn(self):
@@ -166,7 +171,6 @@ class Robot:
             self.turn_timer.cancel()
             self.twist.angular.z = 0.0
             self.twist_pub.publish(self.twist)
-            self.turnning_the_command = False
 
 
     # Outros
@@ -178,18 +182,27 @@ class Robot:
     
     # Rotação
     def __speed_timer_callback(self):
-        factor = 0.001 if self.speed_ >= self.get_speed() else -0.02
+        factor = FACTOR_ACCELERATION if self.speed_ >= self.get_speed() else FACTOR_BRAKING
+        print(f"   FACTOR: {factor}")
         speed = round(self.get_speed() + factor, 3)
-        speed = max(MIN_SPEED, min(speed, MAX_SPEED))
-        if speed == self.speed_ or speed == TOP_SPEED:
+        print(f"new speed: {speed}")
+        speed = max(self.speed_, min(speed, self.speed_))
+        print(f"   Ajuste: {speed} : ajustado com min e max" )
+        if speed == self.speed_:
             self.speed_timer.cancel()
+            self.node.destroy_node()
         else:
             self.move_forward(speed)
+        self.old_speed = self.get_speed()
 
     
     def set_speed(self, speed):
-        self.speed_ = round(max(MIN_SPEED, min(speed, MAX_SPEED)), 3)
-        self.speed_timer = self.node.create_timer(0.2, self.__speed_timer_callback)  # Verifica a cada 0.001 segundos
+        self.speed_ = round(max(0, min(speed, TOP_SPEED)), 3)
+        print(f"SET_SPEED: {self.speed_}")
+        if self.speed_timer is None:
+            self.speed_timer = self.node.create_timer(CALLBACK_INTERVAL_ACCELERATION, self.__speed_timer_callback)  # Verifica a cada 0.001 segundos
+        else:
+            self.speed_timer.reset()
 
 
 
@@ -210,8 +223,10 @@ class Robot:
         self.state = CommandType.TURN
         self.initial_orientation = round(normalize_angle_degrees(self.get_orientation()))
         self.destiny_orientation = normalize_angle2(self.orientation)
-        self.turn_timer = self.node.create_timer(CALLBACK_INTERVAL, self.__turn_timer_callback)  # Verifica a cada 0.001 segundos
-        self.turnning_the_command = True
+        if self.turn_timer is None:
+            self.turn_timer = self.node.create_timer(CALLBACK_INTERVAL_TURN, self.__turn_timer_callback) 
+        else:
+            self.turn_timer.reset()
         self.log_info = False
     
     def turn_by_orientation(self, orientation) -> float:
@@ -230,11 +245,9 @@ class Robot:
         
         # Se a diferença for pequena o suficiente, pare o robô
         if abs(difference) <= 0.15:
+            self.turn_timer.cancel()
             self.twist.angular.z = 0.0
             self.twist_pub.publish(self.twist)
-            self.turn_timer.cancel()
-            self.turnning_the_command = False
-            self.running_the_command = False
         else:
             # Caso contrário, continue girando na direção mais curta para alcançar a orientação desejada
             angular_speed = get_angular_speed(degrees_to_radians(difference))
@@ -242,25 +255,5 @@ class Robot:
             if abs(difference) <= 5.0 and self.log_info:
                 self.node.get_logger().info(f'Current: {round(self.current_orientation, 3)} | Distance: {round(abs(difference), 3)} | Destiny: {self.destiny_orientation}')
 
-   
-    def execute(self, command: Command) -> None:
-        self.running_the_command = True
-        if command.type == CommandType.MOVE_FORWARD:
-            if command.value == None:
-                self.move_forward()
-            else:
-                self.move_distance(distance=command.value)
-        elif command.type == CommandType.MOVE_BACKWARD:
-            self.move_backward(command.value)
-        elif command.type == CommandType.TURN:
-            self.turn_by_angle(command.value)
-        elif command.type == CommandType.STOP:
-            self.stop()
-        
-        self.node.get_logger().info(f'Command: {command.type}')
-    
-    def is_running(self) -> bool:
-        return self.running_the_command
-    
     def is_turnning(self) -> bool:
-        return self.turnning_the_command
+        return is_ON(self.turn_timer)

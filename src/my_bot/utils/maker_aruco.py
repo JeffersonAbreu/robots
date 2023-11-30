@@ -10,10 +10,10 @@ import xml.etree.ElementTree as ET
 # Configurações do ArUco
 from constants import DISTANCE_TO_WALL # Distância da area de interece da parede
 from constants import WALL_LARG # 0.05
-from constants import ARUCO_DICT # DICT_5X5_250
+from constants import ARUCO_DICT
 from constants import MARKER_SIZE  # Tamanho do marcador em cm (20cm)
 HEIGHT_FROM_THE_FLOOR = 0.1
-CREATE_POINTS = True
+CREATE_POINTS = True # criar a placa no chão a frente da area do aruco
 from enum import Enum, auto
 class Orientation(Enum):
     NORTH = auto()

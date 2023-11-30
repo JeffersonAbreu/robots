@@ -73,7 +73,6 @@ class SensorCamera:
     def fix_target(self, marker_id):
         self.id_aruco_target = marker_id
         self.track_aruco_target = True
-        self.node.get_logger().error(f'Novo alvo marcado ID: {marker_id:>2}')
     
     def load_calibration(self):
         with open(self.camera_calibration_yaml, 'r') as infile:
