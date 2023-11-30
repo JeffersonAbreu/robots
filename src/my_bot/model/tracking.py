@@ -14,7 +14,8 @@ class Tracking:
         self.new_distance_aruco  = 0
         self.old_rotation_angle  = self.new_rotation_angle
         self.old_distance_aruco  = self.new_distance_aruco
-        self.tracking = False
+        self.tracking            = False
+        self.update              = False
         self._timer_turn = None
         self._timer_move = None
         self.old_diff = 0
@@ -69,6 +70,7 @@ class Tracking:
         self.old_distance_aruco  = 0
         self.old_diff            = 0
         self.tracking            = False
+        self.update              = False
         self._id                 = None
         if is_ON(self._timer_turn):
             self._timer_turn.cancel()
@@ -93,12 +95,16 @@ class Tracking:
         """
         detectado
         """
-        self.old_rotation_angle  = self.new_rotation_angle
-        self.old_distance_aruco  = self.new_distance_aruco
-        self.new_rotation_angle  = angle_error
-        self.new_distance_aruco  = distance
-        if self.tracking and is_OFF(self._timer_turn):
-           self.start_turn()
+        if distance == 0 and angle_error == 0:
+            self.update = False
+        else:
+            self.update = True
+            self.old_rotation_angle  = self.new_rotation_angle
+            self.old_distance_aruco  = self.new_distance_aruco
+            self.new_rotation_angle  = angle_error
+            self.new_distance_aruco  = distance
+            if self.tracking and is_OFF(self._timer_turn):
+                self.start_turn()
         
 
     
@@ -133,8 +139,8 @@ class Tracking:
         return side_b, angle
     
     def is_update_info(self):
-        return self.is_update_info_direction() and round(self.old_distance_aruco, 2)  != round(self.new_distance_aruco, 2)
+        return self.update
     
     def is_update_info_direction(self):
-        return round(self.old_rotation_angle, 2)  != round(self.new_rotation_angle, 2)
+        return self.update and round(self.old_rotation_angle, 2)  != round(self.new_rotation_angle, 2)
 

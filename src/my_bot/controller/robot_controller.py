@@ -152,7 +152,7 @@ class RobotController:
             self._timer_target.cancel()
             self.robo.set_speed(TOP_SPEED)
             self.tracking.start_tracking()
-            #self.start_show()
+            self.start_show()
             return
         
         def should_follow_aruco():
@@ -177,9 +177,9 @@ class RobotController:
             scale_factor = round( (distance - _MIN_DISTANCE) / (_MAX_DISTANCE - _MIN_DISTANCE), 5 )
 
             # Calcula o limite de ângulo com base no fator de escala
-            angle_limit = round( _MIN_ANGLE + (_MAX_ANGLE - _MIN_ANGLE) * (1 - scale_factor), 2 )
+            angle_limit = _MIN_ANGLE + (_MAX_ANGLE - _MIN_ANGLE) * (1 - scale_factor)
 
-            print("scale_factor: ", cor.yellow(scale_factor), f" angle[ {cor.cyan(angle)} ] <= angle_limit[ {cor.blue(angle_limit)} ] = ", on_or_off(angle <= angle_limit))
+            print("scale_factor: ", cor.yellow(scale_factor), f" angle[ {cor.cyan(angle)} ] <= angle_limit[ {cor.blue(round(angle_limit, 2))} ] = ", on_or_off(angle <= angle_limit))
             # Verifica se o ângulo atual está dentro do limite calculado
             return angle <= angle_limit
 
@@ -229,38 +229,35 @@ class RobotController:
             a  = f'{self.tracking.new_rotation_angle:>7.2f}'
             a  = cor.green(a) if abs(self.tracking.new_rotation_angle) < abs(self.tracking.old_rotation_angle) else cor.red(a)
 
-            b  = f'{self.tracking.new_distance_aruco:>7.2f}'
-            b  = cor.green(a) if self.tracking.new_distance_aruco < self.tracking.old_distance_aruco else cor.blue(a)
+            b  = f'{self.tracking.new_distance_aruco:>6.2f}'
+            b  = cor.green(b) if self.tracking.new_distance_aruco < self.tracking.old_distance_aruco else cor.blue(b)
         else:
             a  = cor.yellow(f'{a:>7}')
-            b  = cor.yellow(f'{b:>7}')
+            b  = cor.yellow(f'{b:>6}')
         t  = f'{self.robo.get_speed():>7.2f}'
         x = self.robo.get_acceleration()
-        if x == 0 :
-            t = cor.blue(t)
-        else:
-            t = cor.green(t) if x > 0 else cor.red(t)
+        t = cor.blue(t) if x == 0 else (cor.green(t) if x > 0 else cor.red(t))
         x  = self.robo.get_distance_to_wall()
         x = cor.yellow(f'{x:>7.2f}') if x > 1 else cor.red(f'{x:>7.2f}')
         dy, dx = self.robo.sensor_lidar.find_closest_wall_angle()
         dx = cor.cyan(f'{dx:>5.2f}')
         dy = cor.magenta(f'{dy:>3}')
 
-        i = f'{self.robo.sensor_camera.id_aruco_target}'
-        i = cor.cyan(f'{i}')
+        id = f"{cor.black('[')} {cor.cyan(f'{self.robo.sensor_camera.id_aruco_target:>7}')} {cor.black(']')}"
         r  = f"{on_or_off(self.robo.sensor_camera.track_aruco_target)}"
-        turn____ = on_or_off( is_ON( self.tracking._timer_turn ))
-        target__ = on_or_off( is_ON( self._timer_target ))
-        move____ = on_or_off( is_ON( self.tracking._timer_move ))
+        turn     = on_or_off( is_ON( self.tracking._timer_turn ))
+        target   = on_or_off( is_ON( self._timer_target ))
+        move     = on_or_off( is_ON( self.tracking._timer_move ))
         controll = on_or_off( is_ON( self._timer_controll ))
-        walker__ = on_or_off( is_ON( self._timer_walker ))
-        z = f'{self.robo.turn_diff:>6.2f}'
+        walker   = on_or_off( is_ON( self._timer_walker ))
+        z = cor.yellow(f'{self.robo.turn_diff:>6.2f}°')
         w = f"{cor.green('YES') if self.tracking.is_tracking() else cor.red(' NO')}"
-        print(f" CONTROLL: {controll}    ID: {i:>7} FIXED_ALVO: {r} TRACKING ALVO? {w}")
-        print(f"     TURN: {turn____} ANGLE: {a}  ERRO TURN: {cor.yellow(z)}°")
-        print(f"     MOVE: {move____} SPEED: {t}   DISTANCE: {b}")
-        print(f"   WALKER: {walker__}  WALL: {x}   MIN Wall: {dx},  angle: {dy} ]")
-        print(f"   TARGET: {target__}")
+        
+        print(f" CONTROLL: {controll}    ID: {id} FIXED_ALVO: {r } TRACKING ALVO? {w}")
+        print(f"     TURN: {turn    } ANGLE: {a }  ERRO TURN: {z }")
+        print(f"     MOVE: {move    } SPEED: {t }   DISTANCE: {b }")
+        print(f"   WALKER: {walker  }  WALL: {x }   MIN Wall: {dx}  angle: {dy} ]")
+        print(f"   TARGET: {target  }")
         
 
         

@@ -51,7 +51,9 @@ class SensorCamera:
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data, 'bgr8')
             cv_image, distance_to_aruco, rotation_angle = self.detect_and_decorate_arucos2(cv_image)
-            if rotation_angle is not None:
+            if rotation_angle is None:
+                self.aruco_detected_callback(0, 0)
+            else:
                 self.aruco_detected_callback(distance_to_aruco, round(rotation_angle, 2))
             # Exibe informações na imagem
             '''

@@ -1,9 +1,9 @@
 from geometry_msgs.msg import Twist
 from utils import CommandType, Orientation, Command, SensorIMU, SensorLidar, SensorOdom, SensorCamera
-from utils.bib import degrees_to_radians, normalize_angle2, normalize_angle_degrees, is_ON
+from utils.bib import degrees_to_radians, normalize_angle2, normalize_angle_degrees, is_ON, get_current_line_number as gcln, on_or_off
 from rclpy.node import Node
 from utils.constants import CALLBACK_INTERVAL_TURN, CALLBACK_INTERVAL_ACCELERATION
-from utils.constants import MIN_SPEED_TURN, TOP_SPEED_TURN, TOP_SPEED
+from utils.constants import MIN_SPEED_TURN, TOP_SPEED_TURN, TOP_SPEED, MIN_SPEED, ZERO
 from utils.constants import FACTOR_ACCELERATION, FACTOR_BRAKING
 
 # Funções Auxiliares
@@ -122,7 +122,6 @@ class Robot:
         self.twist.linear.x = speed
         self.twist_pub.publish(self.twist)
         self.state = CommandType.MOVE_FORWARD
-        self.running_the_command = False
 
     def move_backward(self, distance: float):
         """
@@ -149,7 +148,6 @@ class Robot:
             self.twist.linear.x = 0.0
             self.twist_pub.publish(self.twist)
             self.move_timer.cancel()
-            self.running_the_command = False
 
 
     def stop(self):
@@ -183,22 +181,26 @@ class Robot:
     # Rotação
     def __speed_timer_callback(self):
         factor = FACTOR_ACCELERATION if self.speed_ >= self.get_speed() else FACTOR_BRAKING
-        print(f"   FACTOR: {factor}")
         speed = round(self.get_speed() + factor, 3)
-        print(f"new speed: {speed}")
-        speed = max(self.speed_, min(speed, self.speed_))
-        print(f"   Ajuste: {speed} : ajustado com min e max" )
-        if speed == self.speed_:
-            self.speed_timer.cancel()
-            self.node.destroy_node()
-        else:
-            self.move_forward(speed)
+        speed = max(MIN_SPEED, min(speed, TOP_SPEED))
         self.old_speed = self.get_speed()
-
+        self.move_forward(speed)
+        if speed == self.speed_ or speed == TOP_SPEED or speed == MIN_SPEED:
+            if speed == MIN_SPEED and self.STOP:
+                self.move_forward(ZERO)
+            self.speed_timer.cancel()
     
     def set_speed(self, speed):
-        self.speed_ = round(max(0, min(speed, TOP_SPEED)), 3)
-        print(f"SET_SPEED: {self.speed_}")
+        if speed < MIN_SPEED:
+            speed = ZERO
+        if self.get_speed() < MIN_SPEED and speed >= MIN_SPEED:
+            self.move_forward(MIN_SPEED)
+        if self.get_speed() == speed:
+            return        
+        self.STOP = False
+        if speed == ZERO:
+            self.STOP = True
+        self.speed_ = round(max(MIN_SPEED, min(speed, TOP_SPEED)), 3)
         if self.speed_timer is None:
             self.speed_timer = self.node.create_timer(CALLBACK_INTERVAL_ACCELERATION, self.__speed_timer_callback)  # Verifica a cada 0.001 segundos
         else:
@@ -219,7 +221,6 @@ class Robot:
         Gira o robô por um ângulo específico em graus.
         """
         self.orientation += angle
-        self.running_the_command = True
         self.state = CommandType.TURN
         self.initial_orientation = round(normalize_angle_degrees(self.get_orientation()))
         self.destiny_orientation = normalize_angle2(self.orientation)
