@@ -9,7 +9,10 @@ from sensor_msgs.msg import Image
 from .constants import CAMERA_MATRIX, DIST_COEFFS, ARUCO_DICT, MARKER_SIZE # Tamanho real do marcador em metros (20cm)
 
 # Parâmetros da câmera
-FOV_WIDTH = np.degrees(1.047)  # Campo de visão horizontal em graus, convertido de radianos
+#FOV_WIDTH = np.degrees(1.047)  # Campo de visão horizontal em graus, convertido de radianos
+RAD_90 = 1.5708
+RAD_60 = 1.047
+FOV_WIDTH = np.degrees(1.5708)
 IMAGE_WIDTH = 640  # Largura da imagem em pixels
 text_color = (0, 0, 0)  # Preto para texto
 blue_color = (255, 0, 0)  # Azul para resultados positivos
@@ -54,7 +57,7 @@ class SensorCamera:
             if rotation_angle is None:
                 self.aruco_detected_callback(0, 0)
             else:
-                self.aruco_detected_callback(distance_to_aruco, round(rotation_angle, 2))
+                self.aruco_detected_callback(distance_to_aruco/2, round(rotation_angle, 2))
             # Exibe informações na imagem
             '''
             cv_image = self.display_info(img=cv_image, distance=distance_to_aruco, rotation=rotation_angle, full_info=False)       

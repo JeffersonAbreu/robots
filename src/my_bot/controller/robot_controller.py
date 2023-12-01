@@ -1,7 +1,7 @@
 from model import Robot, Navigation, Tracking
 from utils import Command, CommandQueue, CommandType, Graph, Path
 from utils.constants import CALLBACK_INTERVAL, CALLBACK_INTERVAL_TARGET, MIN_SPEED, TOP_SPEED
-from utils.bib import normalize_angle2, get_current_line_number, is_ON, is_OFF, on_or_off
+from utils.bib import normalize_angle2, get_current_line_number, is_ON, is_OFF, on_or_off, yes_or_no
 from utils.bib import Color as cor
 from rclpy.node import Node
 import pdb # pdb.set_trace() # serve para debugar
@@ -17,7 +17,7 @@ class RobotController:
 
     def __init__(self, node: Node):
         self.node = node
-        self.nav = Navigation(25, 30)
+        self.nav = Navigation(25, 17)
         if self.nav.is_exist_rote():
             self.robo = Robot(self.node, self.handle_obstacle_detection, self.handle_aruco_detected)
             self.tracking = Tracking(node, self.robo)
@@ -26,13 +26,13 @@ class RobotController:
             self._timer_target   = None
             self._timer_controll = None
             self._timer_walker   = None
+            self._timer_show_inf = None
             self._timer_area_of_interest = None
             self._timers = [self._timer_target, self._timer_controll, self._timer_walker]
             
             self.nav.select_a_route()
-            self.go_next()
-            self._timer_show_inf = None
             self.robo.set_speed(MIN_SPEED)
+            self.go_next()
         else:
             self.node.get_logger().error(f'Não foi localizado nenhuma rota!')
 
@@ -104,7 +104,7 @@ class RobotController:
                            
 
     def area_of_interest(self):
-        self.robo.set_speed(MIN_SPEED*2)
+        self.robo.set_speed(MIN_SPEED)
         if is_ON(self._timer_show_inf):
             self._timer_show_inf.cancel()
         print(cor.red("area_of_interest!!!"), get_current_line_number())
@@ -135,6 +135,7 @@ class RobotController:
             target = self.nav.get_next()
             self.tracking.fix_target(target.id_destiny)
             self.robo.turn_by_orientation(target.orientation)
+            self.start_show()
             self.start_target()
         else:
             self.node.get_logger().warning("Chegamos no destino!")
@@ -148,11 +149,10 @@ class RobotController:
         Aguarda o alinhamento para o alvo ou quase
         '''
         def go():
-            self.robo.stop_turn()
             self._timer_target.cancel()
-            self.robo.set_speed(TOP_SPEED)
+            self.robo.stop_turn()
+            self.robo.set_speed( TOP_SPEED / 2 ) # velocidade média
             self.tracking.start_tracking()
-            self.start_show()
             return
         
         def should_follow_aruco():
@@ -188,8 +188,7 @@ class RobotController:
             print(cor.red("__next_target_callback CANSELADO!!!"), get_current_line_number(-1))
             go()
 
-        elif self.is_update_info_direction():
-            if should_follow_aruco():
+        elif self.is_update_info_direction() and should_follow_aruco():
                 print(cor.red("__next_target_callback CANSELADO!!!"), get_current_line_number(-1))
                 go()
     
@@ -240,24 +239,25 @@ class RobotController:
         x  = self.robo.get_distance_to_wall()
         x = cor.yellow(f'{x:>7.2f}') if x > 1 else cor.red(f'{x:>7.2f}')
         dy, dx = self.robo.sensor_lidar.find_closest_wall_angle()
-        dx = cor.cyan(f'{dx:>5.2f}')
-        dy = cor.magenta(f'{dy:>3}')
+        dx = cor.cyan(f'{dx:>6.2f}')
+        dy = cor.magenta(f'{dy:>5}')
 
-        id = f"{cor.black('[')} {cor.cyan(f'{self.robo.sensor_camera.id_aruco_target:>7}')} {cor.black(']')}"
-        r  = f"{on_or_off(self.robo.sensor_camera.track_aruco_target)}"
+        id = f"{cor.black('[')} {cor.cyan(f'{self.robo.sensor_camera.id_aruco_target:>3}')} {cor.black(']')}"
+        r  = f"{yes_or_no(self.robo.sensor_camera.track_aruco_target)}"
+        r = f"{r:>6}"
         turn     = on_or_off( is_ON( self.tracking._timer_turn ))
         target   = on_or_off( is_ON( self._timer_target ))
         move     = on_or_off( is_ON( self.tracking._timer_move ))
         controll = on_or_off( is_ON( self._timer_controll ))
         walker   = on_or_off( is_ON( self._timer_walker ))
         z = cor.yellow(f'{self.robo.turn_diff:>6.2f}°')
-        w = f"{cor.green('YES') if self.tracking.is_tracking() else cor.red(' NO')}"
+        w = f"{yes_or_no(self.tracking.is_tracking()):>7}"
         
-        print(f" CONTROLL: {controll}    ID: {id} FIXED_ALVO: {r } TRACKING ALVO? {w}")
+        print(f" CONTROLL: {controll}    ID: {id} FIXED_ALVO: {r }")
         print(f"     TURN: {turn    } ANGLE: {a }  ERRO TURN: {z }")
         print(f"     MOVE: {move    } SPEED: {t }   DISTANCE: {b }")
         print(f"   WALKER: {walker  }  WALL: {x }   MIN Wall: {dx}  angle: {dy} ]")
-        print(f"   TARGET: {target  }")
+        print(f"   TARGET: {target  } TRACK? {w }")
         
 
         

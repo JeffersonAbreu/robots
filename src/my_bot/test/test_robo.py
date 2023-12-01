@@ -29,7 +29,7 @@ ZERO = 0.0
 
 class Robot:
     def __init__(self):
-        self.__speed = 0
+        self.__speed = MIN_SPEED*2
         self.speed_ = 0
         self.speed_timer = False
 
@@ -76,4 +76,4 @@ class Robot:
 
 # Exemplo de uso
 robot = Robot()
-robot.set_speed(0.12)  # Define a velocidade inicial
+robot.set_speed(TOP_SPEED/2)  # Define a velocidade inicial

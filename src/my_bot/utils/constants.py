@@ -12,7 +12,7 @@ Configurações do ArUco
 '''
 # Tamanho está para folha de papel A4 quadrada
 MARKER_SIZE = 0.2  # Tamanho do marcador em centímetros
-ARUCO_DICT = aruco.DICT_4X4_50
+ARUCO_DICT = aruco.DICT_4X4_100
 '''
 Dicionário: DICT_4X4_50, onde ?x? é a matriz e o numero apos é a quantidade de arucos que são possiveis de gerar
 '''
@@ -30,7 +30,7 @@ CALLBACK_INTERVAL = 0.5
 CALLBACK_INTERVAL_TARGET = CALLBACK_INTERVAL / 2
 CALLBACK_INTERVAL_TURN = 0.001
 '''Verifica a cada 0.001 segundos'''
-CALLBACK_INTERVAL_ACCELERATION = 0.1
+CALLBACK_INTERVAL_ACCELERATION = 0.2
 
 # ROBO
 # Curva
@@ -47,5 +47,5 @@ TRACKING
 '''
 FACTOR_CORRECTION_TURN = 0.1
 '''Usado para ajustar a velocidade da rotação'''
-FACTOR_ACCELERATION = 0.01
+FACTOR_ACCELERATION = 0.001
 FACTOR_BRAKING = -0.03

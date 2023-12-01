@@ -79,6 +79,8 @@ def get_current_line_number(ajust_line:int=0):
     return f"Line: {Color.yellow(inspect.currentframe().f_back.f_lineno + ajust_line)}"
 
 def on_or_off(condition:bool):
+    return Color.green(' ON') if condition else Color.red('OFF')
+def yes_or_no(condition:bool):
     return Color.green('YES') if condition else Color.red(' NO')
 
 class Color:
