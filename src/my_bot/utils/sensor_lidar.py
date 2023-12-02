@@ -10,8 +10,6 @@ class SensorLidar:
         self.node = node
         self.lidar_sub = self.node.create_subscription(LaserScan, '/lidar', self.__lidar_callback, 10)
         self.obstacle_detected_callback = obstacle_detected_callback
-<<<<<<< Updated upstream
-=======
         self.lidar_data__front = 0.0
         self.lidar_data__left  = [0.0] * 6
         self.lidar_data__right = [0.0] * 6
@@ -46,7 +44,6 @@ class SensorLidar:
         if direction <= 0:
             return any(distance < threshold for distance, threshold in zip(self.lidar_data__left, collision_thresholds))
         return False
->>>>>>> Stashed changes
 
     
     def __lidar_callback(self, msg: LaserScan):
@@ -54,10 +51,6 @@ class SensorLidar:
         Callback para dados do LiDAR.
         Atualiza as variáveis com dados do LiDAR para direita, esquerda e frente.
         """
-<<<<<<< Updated upstream
-        self.obstacle_detected_callback(msg.ranges)
-        
-=======
         # Atualizando dados do LiDAR para a direita
         for i in range(6):
             self.lidar_data__right[i] = msg.ranges[5 - i]
@@ -72,11 +65,6 @@ class SensorLidar:
         self.obstacle_detected_callback()
 
         
-
-    def get_data_range(self, grau:int = 0):
-
-        
-
     def get_data_range(self, grau:int = 0):
         """
         Retorna a distância ao obstáculo mais próximo diretamente à frente do robô.
@@ -171,4 +159,3 @@ def my_print(i, value):
 
 
 
->>>>>>> Stashed changes

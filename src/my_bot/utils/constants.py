@@ -18,9 +18,6 @@ Tamanho está para folha de papel A4 quadrada
 CAMERA_MATRIX = np.array([[1000, 0, 320],
                           [0, 1000, 240],
                           [0, 0, 1]], dtype=float)
-<<<<<<< Updated upstream
-DIST_COEFFS = np.zeros((5, 1))  # Coeficientes de distorção da câmera
-=======
 DIST_COEFFS = np.zeros((5, 1))  # Coeficientes de distorção da câmera
 
 CALLBACK_INTERVAL = 0.5
@@ -53,4 +50,3 @@ FACTOR_CORRECTION_TURN = 0.1
 '''Usado para ajustar a velocidade da rotação'''
 FACTOR_ACCELERATION = 0.001
 FACTOR_BRAKING = -0.03
->>>>>>> Stashed changes
