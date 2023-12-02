@@ -114,27 +114,43 @@ class Robot:
         self.sensor_odom.reset_odom()
         self.distance = distance #if speed > 0 else -distance
         self.state = CommandType.MOVE_FORWARD if speed > 0 else CommandType.MOVE_BACKWARD
-        self.twist.linear.x = speed
-        self.twist_pub.publish(self.twist)
-        self.move_timer = self.node.create_timer(0.01, self.__move_timer_callback)
+        self.move_forward(speed)
+        self.move_timer = self.node.create_timer(CALLBACK_INTERVAL_ACCELERATION, self.__move_timer_callback)
+>>>>>>> Stashed changes
 
     def __move_timer_callback(self):
         travelled_distance = self.sensor_odom.get_travelled_distance()
         if self.distance - travelled_distance <= 0.001:
-            self.node.get_logger().info(f'distance: {self.distance} | travelled: {round(travelled_distance, 3)}')
-            self.stop()
-            self.move_timer.cancel()
+            self.stop_move()
 
 
     def stop(self):
         """
         Para o robô.
         """
-        self.twist = Twist()
-        self.twist_pub.publish(self.twist)
+        self.stop_turn()
+        self.stop_move()
         self.state = CommandType.STOP
         self.running_the_command = False
         self.node.get_logger().warning(f'STOP')
+
+<<<<<<< Updated upstream
+=======
+    def stop_turn(self):
+        if self.is_turnning():
+            self.turn_timer.cancel()
+            self.twist.angular.z = 0.0
+            self.twist_pub.publish(self.twist)
+            self.turn_diff = 0
+
+    def stop_move(self):
+        if is_ON(self.speed_timer):
+            self.speed_timer.cancel()
+        self.old_speed      = 0.0
+        self.twist.linear.x = 0.0
+        self.twist_pub.publish(self.twist)
+
+
 
     # Outros
     def get_state(self):
@@ -174,8 +190,7 @@ class Robot:
         
         # Se a diferença for pequena o suficiente, pare o robô
         if abs(difference) <= 0.15:
-            self.stop()
-            self.turn_timer.cancel()
+            self.stop_turn()
         else:
             # Caso contrário, continue girando na direção mais curta para alcançar a orientação desejada
             angular_speed = get_angular_speed(degrees_to_radians(difference))
