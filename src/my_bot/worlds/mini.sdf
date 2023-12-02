@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<sdf version="1.8">
+  <world name="demo">
+    <gui>
+      <camera name="user_camera">
+        <pose>-0.1 -0.5 0.02 0 1.2 0</pose>
+      </camera>
+    </gui>
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics" />
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster" />
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands" />
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu" />
+    <plugin filename="gz-sim-magnetometer-system" name="gz::sim::systems::Magnetometer" />
+
+
+    <!-- A global light source -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- Um chão simples -->
+    <model name="plane">
+      <static>true</static>
+      <self_collide>true</self_collide>
+      <pose relative_to='world'>0 0 0 0 0 0</pose>
+      <include merge="true">
+        <uri>model://ground_plane</uri>
+      </include>
+    </model>
+
+    <model name="car_bot">
+      <self_collide>true</self_collide>
+      <pose relative_to='world'>-2.5 0.55 0 0 0 0.261799</pose>
+      <include merge="true">
+        <uri>model://car_bot</uri>
+      </include>
+    </model>
+    <include>
+      <uri>model://wall_2x5m_</uri>
+      <pose>2.5 0 -0.8 0 0 0</pose>
+      <name>front</name>
+    </include>
+
+    <include>
+      <uri>model://wall_2x5m</uri>
+      <pose relative_to="front">-3 0.75 0 0 0 0</pose>
+      <name>a1</name>
+    </include>
+    
+    <include>
+      <uri>model://wall_2x5m</uri>
+      <pose relative_to="front">-3 -0.75 0 0 0 0</pose>
+      <name>a2</name>
+    </include>
+
+    <include>
+      <uri>model://wall_2x5m</uri>
+      <pose relative_to="front">-2.5 1.75 0 0 0 0</pose>
+      <name>a3</name>
+    </include>
+    
+    <include>
+      <uri>model://wall_2x5m</uri>
+      <pose relative_to="front">-2.5 -1.75 0 0 0 0</pose>
+      <name>a4</name>
+    </include>
+
+    <include>
+      <uri>model://wall_2x5m_</uri>
+      <pose relative_to="a1">-3 0 0 0 0 0</pose>
+      <name>a5</name>
+    </include>
+    
+    <include>
+      <uri>model://wall_2x5m_</uri>
+      <!-- A pose é definida como x y z roll pitch yaw -->
+      <!-- Yaw (guinada) é o último valor, definido aqui como 45 graus (em radianos) -->
+      <pose relative_to="a2">-3 0 0 0 0 0.7853981634</pose>
+      <name>a6</name>
+    </include>
+    <include>
+      <uri>model://wall_2x5m_</uri>
+      <!-- A pose é definida como x y z roll pitch yaw -->
+      <!-- Yaw (guinada) é o último valor, definido aqui como 45 graus (em radianos) -->
+      <pose relative_to="a1">-3 0 0 0 0 -0.7853981634</pose>
+      <name>a7</name>
+    </include>
+    
+    
+
+
+
+  </world>
+</sdf>
