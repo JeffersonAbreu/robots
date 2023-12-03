@@ -8,10 +8,8 @@ from xml.dom.minidom import parse
 import xml.etree.ElementTree as ET
 
 # Configurações do ArUco
-from constants import DISTANCE_TO_WALL # Distância da area de interece da parede
-from constants import WALL_LARG # 0.05
-from constants import ARUCO_DICT
-from constants import MARKER_SIZE  # Tamanho do marcador em cm (20cm)
+from constants import DISTANCE_TO_WALL, WALL_LARG, ARUCO_DICT, MARKER_SIZE, TAG_WIDTH, ANGLE_TAG_DOBLE
+
 HEIGHT_FROM_THE_FLOOR = 0.1
 CREATE_POINTS = True # criar a placa no chão a frente da area do aruco
 from enum import Enum, auto
@@ -57,6 +55,9 @@ class Tag:
     
     def getKey(self):
         return int(self.name.split('_')[1]) if self.name.startswith('tag_') else None
+    
+    def copy(self):
+        return Tag(self.name, self.pose.copy(), self.parent, self.uri)
     
 class TagModel:
     def __init__(self, origen, destiny) -> None:
@@ -293,11 +294,12 @@ class Aruco_:
     relative_to : É a parede onde a tag será fixada\n
     xy : deslocamento da tag em relação a parede
     """
-    def __init__(self, key: int, orientation: Orientation, relative_to: str, xy: float = 0.0):
+    def __init__(self, key: int, orientation: Orientation, relative_to: str, xy: float = 0.0, doble: bool = False):
         self.key = key 
         self.orientation = orientation
         self.relative_to = relative_to
         self.xy = xy
+        self.doble = doble
     
     def __lt__(self, other):
         """Defina aqui como você quer comparar os objetos Aruco_"""
@@ -380,6 +382,61 @@ def check(arucos: list[Aruco_]) -> bool:
     
     return False
 
+def calc_side_triangle_retangle(hipotenusa, angulo_graus):
+    # Converte o ângulo de graus para radianos
+    angulo_radianos = math.radians(angulo_graus)
+
+    # Calcula o lado oposto usando seno
+    lado_oposto = hipotenusa * math.sin(angulo_radianos)
+
+    # Calcula o lado adjacente usando cosseno
+    lado_adjacente = hipotenusa * math.cos(angulo_radianos)
+
+    return lado_oposto, lado_adjacente
+
+
+def create_doble_arucos_(tag: Tag, orientation: Orientation):
+    opposite_side, lado_adjacente = calc_side_triangle_retangle(TAG_WIDTH, ANGLE_TAG_DOBLE)
+    print("Lado oposto:", opposite_side)
+    print("Lado adjacente:", lado_adjacente)
+    INCLINATION_ANGLE = math.radians(ANGLE_TAG_DOBLE)#Angulo de inclinação em radianos
+    # Calcula o lado oposto (wall_offset) usando a fórmula para um triângulo retângulo
+    WALL_OFFSET = opposite_side / 2  # Lado oposto calculado
+    SLIDE_TO_SIDE = lado_adjacente
+
+    def tag_duplicate(is_tag_left):
+        _tag = tag.copy()
+        _tag.name = tag.name + '_LEFT' if is_tag_left else tag.name + '_RIGHT'
+        _x, _y, _z, _roll, _pitch, _yaw = _tag.pose
+        if orientation == Orientation.SOUTH:
+            _x   -= WALL_OFFSET
+            #_y = _y + SLIDE_TO_SIDE if is_tag_left else _y - SLIDE_TO_SIDE
+            _y   += SLIDE_TO_SIDE if is_tag_left else -SLIDE_TO_SIDE
+            _yaw += -INCLINATION_ANGLE if is_tag_left else INCLINATION_ANGLE
+        elif orientation == Orientation.NORTH:
+            _x   += WALL_OFFSET
+            #_y = _y - SLIDE_TO_SIDE if is_tag_left else _y + SLIDE_TO_SIDE
+            _y   += -SLIDE_TO_SIDE if is_tag_left else SLIDE_TO_SIDE
+            _yaw += -INCLINATION_ANGLE if is_tag_left else INCLINATION_ANGLE
+        elif orientation == Orientation.WEST:
+            #_x = _x + SLIDE_TO_SIDE if is_tag_left else _x - SLIDE_TO_SIDE
+            _x   += SLIDE_TO_SIDE if is_tag_left else -SLIDE_TO_SIDE
+            _y   += WALL_OFFSET
+            _yaw += -INCLINATION_ANGLE if is_tag_left else INCLINATION_ANGLE
+        elif orientation == Orientation.EAST:
+            #_x = _x - SLIDE_TO_SIDE if is_tag_left else _x + SLIDE_TO_SIDE
+            _x   += -SLIDE_TO_SIDE if is_tag_left else SLIDE_TO_SIDE
+            _y   -= WALL_OFFSET
+            _yaw += -INCLINATION_ANGLE if is_tag_left else INCLINATION_ANGLE
+
+        _tag.pose = [_x, _y, _z, _roll, _pitch, _yaw]
+        return _tag
+
+    tag_left = tag_duplicate(True)
+    tag_right = tag_duplicate(False)
+
+    return tag_left, tag_right
+
 
 
 
@@ -404,7 +461,13 @@ def main(arucos: list[Aruco_]):
         tag_name = tag.name
         if key_multiple:
             tag.name = tag_name + '_' + ar.orientation.name
-        maze.add_tag(tag)
+        if ar.doble:
+            tag_left, tag_right = create_doble_arucos_(tag, ar.orientation)
+            maze.add_tag(tag_left)
+            maze.add_tag(tag)
+        else:
+            maze.add_tag(tag)
+        
         if not os.path.isdir(os.path.join(dir_tags_model_destiny, tag_name)):
             """Cria o model somente se não exestir"""
             tag_model.create_model(ar.key, tag_name)
@@ -436,39 +499,43 @@ def main(arucos: list[Aruco_]):
 
 if __name__ == "__main__":
     main([
-      Aruco_( 1, Orientation.SOUTH,"c15",1.5),
-      Aruco_( 2, Orientation.SOUTH,"c14", -2.5),
+      Aruco_( 1, Orientation.SOUTH,"c15", 1.5),
+      Aruco_( 2, Orientation.SOUTH,"c14",-2.5, doble=True),
       Aruco_( 1, Orientation.EAST , "c0", 1.5),
-      Aruco_( 3, Orientation.SOUTH,"c12"),
-      Aruco_( 4, Orientation.SOUTH,"c12", -1.5),
+      Aruco_( 3, Orientation.SOUTH,"c12", 0.0, doble=True),
+      Aruco_( 4, Orientation.SOUTH,"c12",-1.5),
       Aruco_( 4, Orientation.WEST ,"c11", 1.5),
-      Aruco_( 5, Orientation.WEST , "a7", 2  ),
-      Aruco_( 6, Orientation.WEST , "c9",-1.5),
-      Aruco_( 7, Orientation.NORTH, "c7", -1.5),
-      Aruco_( 8, Orientation.SOUTH, "d7", -2  ),
-      Aruco_( 9, Orientation.WEST , "d2", 2  ),
-      Aruco_(10, Orientation.SOUTH, "d8",2  ),
-      Aruco_(11, Orientation.EAST , "d4", 2  ),
-      Aruco_(12, Orientation.EAST , "d1",-1.5),
-      Aruco_(13, Orientation.EAST , "d1"),
-      Aruco_(14, Orientation.NORTH, "d8",2  ),
-      Aruco_(15, Orientation.EAST , "d1", 2  ),
-      Aruco_(16, Orientation.WEST , "d9",-2  ),
-      Aruco_(17, Orientation.NORTH, "c5", -2.5),
+      Aruco_( 5, Orientation.WEST , "a7", 2.0, doble=True),
+      Aruco_( 6, Orientation.WEST , "c9",-1.5, doble=True),
+      Aruco_( 7, Orientation.NORTH, "c7",-1.5),
+      Aruco_( 8, Orientation.SOUTH, "d7",-2.0, doble=True),
+      Aruco_( 9, Orientation.WEST , "d2", 2.0, doble=True),
+      Aruco_(10, Orientation.SOUTH, "d8", 2.0, doble=True),
+      Aruco_(11, Orientation.EAST , "d4", 2.0, doble=True),
+      Aruco_(12, Orientation.EAST , "d1",-1.5, doble=True),
+      Aruco_(13, Orientation.EAST , "d1", 0.0, doble=True),
+      Aruco_(14, Orientation.NORTH, "d8", 2.0, doble=True),
+      Aruco_(15, Orientation.EAST , "d1", 2.0),
+      Aruco_(15, Orientation.SOUTH, "b3", 2.0),
+      Aruco_(16, Orientation.WEST , "d9",-2.0, doble=True),
+      Aruco_(17, Orientation.NORTH, "c5",-2.5),
       Aruco_(17, Orientation.WEST , "d4",-1.5),
-      Aruco_(18, Orientation.NORTH, "c4", -2.5),
-      Aruco_(19, Orientation.NORTH, "c4",1.5),
+      Aruco_(18, Orientation.NORTH, "c4",-2.5, doble=True),
+      Aruco_(19, Orientation.NORTH, "c4", 1.5),
       Aruco_(19, Orientation.EAST , "c3",-1.5),
-      Aruco_(20, Orientation.EAST , "c2", 2  ),
-      Aruco_(21, Orientation.SOUTH, "b2",2  ),
-      Aruco_(22, Orientation.SOUTH, "b2", -2  ),
-      Aruco_(23, Orientation.WEST , "d1", 2  ),
-      Aruco_(24, Orientation.WEST , "d1",-1.5),
-      Aruco_(25, Orientation.WEST , "a1",-2  ),
-      Aruco_(26, Orientation.EAST , "b1", 2  ),
-      Aruco_(27, Orientation.SOUTH, "b4", -1  ),
-      Aruco_(28, Orientation.NORTH, "b2",1.5),
+      Aruco_(20, Orientation.EAST , "c2", 2.0, doble=True),
+      Aruco_(21, Orientation.SOUTH, "b2", 2.0),
+      Aruco_(21, Orientation.EAST,  "c1", 2.0),
+      Aruco_(22, Orientation.SOUTH, "b2",-2.0),
+      Aruco_(22, Orientation.WEST,  "b1", 2.0),
+      Aruco_(23, Orientation.WEST , "d1", 2.0, doble=True),
+      Aruco_(24, Orientation.WEST , "d1",-1.5, doble=True),
+      Aruco_(25, Orientation.WEST , "a1",-2.0, doble=True),
+      Aruco_(26, Orientation.EAST , "b1", 2.0, doble=True),
+      Aruco_(27, Orientation.SOUTH, "b4",-1.0, doble=True),
+      Aruco_(28, Orientation.NORTH, "b2", 1.5),
       Aruco_(28, Orientation.EAST , "c0",-1.5),
-      Aruco_(29, Orientation.SOUTH, "b6", -1  ),
-      Aruco_(30, Orientation.WEST , "a6",-0.5)
+      Aruco_(29, Orientation.SOUTH, "b6",-1.0),
+      Aruco_(29, Orientation.WEST,  "a6", 2.0),
+      Aruco_(30, Orientation.WEST , "a6",-0.5, doble=True)
     ])

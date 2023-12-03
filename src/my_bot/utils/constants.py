@@ -1,17 +1,21 @@
 import numpy as np
 import cv2.aruco as aruco
 
-'''
-Wall
-'''
-DISTANCE_TO_WALL = 0.5  # Distância da area de interece da parede
+DISTANCE_TO_WALL = 0.5  
+'''Distância da area de interece da parede'''
 WALL_LARG = 0.05
+'''Metade da largura da parede'''
+TAG_WIDTH = 0.2
+'''Largura da tag em metros'''
+ANGLE_TAG_DOBLE = 30
+'''Inclinação das TAGs que serão feitas dobradas'''
+
 
 '''
 Configurações do ArUco
 '''
 # Tamanho está para folha de papel A4 quadrada
-MARKER_SIZE = 0.2  # Tamanho do marcador em centímetros
+MARKER_SIZE = TAG_WIDTH  # Tamanho do marcador em centímetros
 ARUCO_DICT = aruco.DICT_4X4_100
 '''
 Dicionário: DICT_4X4_50, onde ?x? é a matriz e o numero apos é a quantidade de arucos que são possiveis de gerar
