@@ -78,24 +78,8 @@ class SensorLidar:
         if grau > 0:
             return self.lidar_data__right[index]
         return self.lidar_data__left[index]
-        if abs(grau) == 0:
-            return self.lidar_data__front
+          
 
-        index = abs(grau) - 1
-        index = max(0, min(index, 5))
-
-        if grau > 0:
-            return self.lidar_data__right[index]
-        return self.lidar_data__left[index]
-        
-    def find_closest_wall_angle(self, direction: int = 0):
-        """
-        Retorna a menor distância e o ângulo relativo ao LiDAR. 
-        - Se direction for 0, verifica a frente.
-        - Se direction for positivo, verifica a direita.
-        - Se direction for negativo, verifica a esquerda.
-        - O ângulo varia de -6 a 6, correspondendo a uma variação de 15° por índice.
-        """
     def find_closest_wall_angle(self, direction: int = 0):
         """
         Retorna a menor distância e o ângulo relativo ao LiDAR. 
@@ -124,35 +108,20 @@ class SensorLidar:
         if direction == 0 and self.lidar_data__front < min_distance:
             min_distance = self.lidar_data__front
 
-        # Verifica a direção específica ou todas as direções
-        if direction >= 0:
-            for angle, distance in enumerate(self.lidar_data__right):
-                if distance < min_distance:
-                    min_distance = distance
-                    angle_of_min_distance = angle + 1
-
-        if direction <= 0:
-            for angle, distance in enumerate(self.lidar_data__left):
-                if distance < min_distance:
-                    min_distance = distance
-                    angle_of_min_distance = -(angle + 1)
-
-        # Verifica a frente apenas se direction for 0
-        if direction == 0 and self.lidar_data__front < min_distance:
-            min_distance = self.lidar_data__front
-
         return angle_of_min_distance, min_distance
     
     def print_range(self, direction=0):
-        if direction >= 0:
+        if direction > 0:
             for angle, distance in enumerate(self.lidar_data__right):
                 my_print(angle + 1, distance)
         if direction == 0:
+            for i in range(5, 0):
+                my_print(i + 1, self.lidar_data__right[i])
             my_print(0, self.lidar_data__front)
         if direction <= 0:
             for angle, distance in enumerate(self.lidar_data__left):
-                #my_print(-(angle + 1), distance)
-                print(f'{distance:.6f},')
+                my_print(-(angle + 1), distance)
+                
 
 def my_print(i, value):
     print(f'[{i:>2}] = {value:>8.6f}')

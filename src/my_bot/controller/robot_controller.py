@@ -17,7 +17,7 @@ class RobotController:
 
     def __init__(self, node: Node):
         self.node = node
-        self.nav = Navigation(25, 17)
+        self.nav = Navigation(25, 1)
         if self.nav.is_exist_rote():
             self.robo = Robot(self.node, self.handle_obstacle_detection, self.handle_aruco_detected)
             self.tracking = Tracking(node, self.robo)

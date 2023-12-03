@@ -7,13 +7,12 @@ from utils.constants import CALLBACK_INTERVAL, FACTOR_CORRECTION_TURN
 class Tracking:
     
     def __init__(self, node, robo: Robot):
-        self._id = None
         self.node = node
         self.robo:Robot = robo
         self.new_rotation_angle  = 0
         self.new_distance_aruco  = 0
-        self.old_rotation_angle  = self.new_rotation_angle
-        self.old_distance_aruco  = self.new_distance_aruco
+        self.old_rotation_angle  = 0
+        self.old_distance_aruco  = 0
         self.tracking            = False
         self.update              = False
         self._timer_turn = None
@@ -22,22 +21,10 @@ class Tracking:
     
     def start_turn(self, timer=CALLBACK_INTERVAL): #0.0001
         def __turn__callback():
-            if self.robo.sensor_camera.track_aruco_target:  
-                '''
-                if abs(self.robo.turn_diff) > abs(self.old_diff):
-                    self.robo.stop_turn()
-                '''
-                #if not self.robo.is_turnning() or ( self.new_distance_aruco < 2 and abs(self.robo.turn_diff) < 5 ):
-                   # if abs(self.new_rotation_angle) < abs(self.old_rotation_angle):
+            if self.tracking:  
                 self.robo.turn_by_angle( self.new_rotation_angle * FACTOR_CORRECTION_TURN)
-                       # self.robo.set_speed( self.robo.get_speed() + 0.05 )
-                    #else:
-                       # self.robo.turn_by_angle( self.old_rotation_angle )
-                        #self.robo.set_speed( self.robo.get_speed() - 0.1 )
                 self.old_diff = self.robo.turn_diff
-                self._timer_turn.cancel()
-            else:
-                self._timer_turn.cancel()
+            self._timer_turn.cancel()
     
         if self._timer_turn is not None:
             self._timer_turn.reset()
@@ -50,10 +37,7 @@ class Tracking:
             Executa os comandos na fila.
             """
             if self.is_update_info_direction():
-                if abs(self.new_rotation_angle) > abs(self.old_rotation_angle):
-                    speed = 0.2
-                else:
-                    speed = ajuste_speed( self.new_distance_aruco, self.new_rotation_angle, self.robo.get_speed() ) # SPEED_Z
+                speed = ajuste_speed( self.new_distance_aruco, self.new_rotation_angle, self.robo.get_speed() ) # SPEED_Z
                 self.robo.set_speed(speed)
             self._timer_move.cancel()
 
@@ -71,7 +55,7 @@ class Tracking:
         self.old_diff            = 0
         self.tracking            = False
         self.update              = False
-        self._id                 = None
+        self.update_tracking()
         if is_ON(self._timer_turn):
             self._timer_turn.cancel()
         if is_ON(self._timer_move):
@@ -79,6 +63,10 @@ class Tracking:
 
     def start_tracking(self):
         self.tracking = True
+        self.update_tracking()
+
+    def update_tracking(self):
+        self.robo.sensor_camera.track_aruco_target = self.tracking
 
     def stop_tracking(self):
         self.reset()
@@ -88,7 +76,6 @@ class Tracking:
 
     def fix_target(self, id:int) -> None:
         self.stop_tracking()
-        self._id = id
         self.robo.sensor_camera.fix_target(id)
 
     def handle_aruco_detected(self, distance, angle_error):

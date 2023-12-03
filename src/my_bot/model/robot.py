@@ -144,10 +144,7 @@ class Robot:
     def __move_timer_callback(self):
         travelled_distance = self.sensor_odom.get_travelled_distance()
         if self.distance - travelled_distance <= 0.001:
-            self.old_speed      = self.twist.linear.x
-            self.twist.linear.x = 0.0
-            self.twist_pub.publish(self.twist)
-            self.move_timer.cancel()
+            self.stop_move()
 
 
     def stop(self):
@@ -156,9 +153,6 @@ class Robot:
         """
         self.stop_turn()
         self.stop_move()
-
-        self.twist = Twist()
-        self.twist_pub.publish(self.twist)
         self.state = CommandType.STOP
         self.node.get_logger().warning(f'STOP')
 
@@ -193,7 +187,7 @@ class Robot:
         if speed == self.speed_ or speed == TOP_SPEED or speed == MIN_SPEED:
             if speed == MIN_SPEED and self.STOP:
                 self.move_forward(ZERO)
-            self.speed_timer.cancel()
+            self.stop_move()
     
     def set_speed(self, speed):
         if speed < MIN_SPEED:
@@ -251,9 +245,7 @@ class Robot:
         
         # Se a diferença for pequena o suficiente, pare o robô
         if abs(difference) <= 0.15:
-            self.turn_timer.cancel()
-            self.twist.angular.z = 0.0
-            self.twist_pub.publish(self.twist)
+            self.stop_turn()
         else:
             # Caso contrário, continue girando na direção mais curta para alcançar a orientação desejada
             angular_speed = get_angular_speed(degrees_to_radians(difference))

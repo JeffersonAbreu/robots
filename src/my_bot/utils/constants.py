@@ -40,6 +40,12 @@ TOP_SPEED_TURN = 1.0
 TOP_SPEED = 1.0
 MIN_SPEED = 0.1
 ZERO = 0.0
+WALL_COLID = 0.12
+WALL_MIN_SECURITY = 0.3
+'''Distancia minima já é uma colisão'''
+ 
+LIDAR_RANGE = 13
+LIDAR_RANGE_=LIDAR_RANGE-1
 
 
 '''
