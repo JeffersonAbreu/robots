@@ -57,7 +57,7 @@ class SensorCamera:
             self.aruco_detected_callback(distance_to_aruco, round(rotation_angle, 2))
             # Exibe informações na imagem
             
-            cv_image = self.display_info(img=cv_image, distance=distance_to_aruco, rotation=rotation_angle, full_info=False)       
+            cv_image = self.display_info(cv_image)       
             cv_image = self.draw_line_center_x(cv_image)
             # Exibe a imagem com o ArUco detectado e a linha central
             cv2.imshow('Aruco Detector', cv_image)

@@ -56,7 +56,7 @@ class Tracking:
         self.old_diff            = 0
         self.tracking            = False
         self.update              = False
-        self.update_tracking()
+        self.update_tracking_camera()
         if is_ON(self._timer_turn):
             self._timer_turn.cancel()
         if is_ON(self._timer_move):
@@ -64,15 +64,15 @@ class Tracking:
 
     def start_tracking(self):
         self.tracking = True
-        self.update_tracking()
+        self.update_tracking_camera()
 
-    def update_tracking(self):
+    def update_tracking_camera(self):
         self.robo.sensor_camera.track_aruco_target = self.tracking
 
     def stop_tracking(self):
         self.reset()
 
-    def is_tracking(self) -> bool:
+    def are_you_tracking(self) -> bool:
         return self.tracking
 
     def fix_target(self, id:int) -> None:
@@ -85,15 +85,16 @@ class Tracking:
         """
         if distance == 0 and angle_error == 0:
             self.update = False
-            self.count_not_detected  += 1
+            if self.are_you_tracking():
+                self.count_not_detected  += 1
         else:
-            self.update = True
             self.old_rotation_angle  = self.new_rotation_angle
             self.old_distance_aruco  = self.new_distance_aruco
             self.new_rotation_angle  = angle_error
             self.new_distance_aruco  = distance
+            self.update = True
             self.count_not_detected  = 0
-            if self.tracking and is_OFF(self._timer_turn):
+            if self.are_you_tracking() and is_OFF(self._timer_turn):
                 self.start_turn()
         
 

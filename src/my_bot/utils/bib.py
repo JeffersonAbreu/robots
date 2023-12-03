@@ -2,7 +2,7 @@ import math
 import inspect
 from scipy.spatial.transform import Rotation as R
 from geometry_msgs.msg import Quaternion
-from utils.constants import MIN_SPEED, TOP_SPEED
+from utils.constants import MIN_SPEED, TOP_SPEED, LOG_LINE
 
 def radians_to_degrees(radians) -> float:
     return radians * (180 / math.pi)
@@ -70,13 +70,13 @@ def ajuste_speed(distance, angle_rotation, speed_z):
     return max(MIN_SPEED, min(speed, TOP_SPEED))  # Garante que a velocidade esteja dentro dos limites
         
 
-def get_current_line_number(ajust_line:int=0):
+def get_current_line_number():
     '''
-    Função para obter o número da linha atual de onde ela é chamada
-    :ajust_line , pode ser usado se quiser ajustar linhas para ou para cima.
-    exemplo: estou na linha 100 e quero que mostre a linha 99, passo ajust_line = -1
+    Função para obter o número da linha e o codigo
     '''
-    return f"Line: {Color.yellow(inspect.currentframe().f_back.f_lineno + ajust_line)}"
+    if LOG_LINE:
+        frame = inspect.currentframe()
+        print(f"Line: {Color.yellow(frame.f_back.f_lineno)} : {Color.cyan(frame.f_back.f_code.co_name)}")
 
 def on_or_off(condition:bool):
     return Color.green(' ON') if condition else Color.red('OFF')

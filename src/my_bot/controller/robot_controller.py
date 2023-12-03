@@ -1,7 +1,7 @@
 from model import Robot, Navigation, Tracking
 from utils import Command, CommandQueue, CommandType, Graph, Path
-from utils.constants import CALLBACK_INTERVAL, CALLBACK_INTERVAL_TARGET, MIN_SPEED, TOP_SPEED
-from utils.bib import normalize_angle2, get_current_line_number, is_ON, is_OFF, on_or_off, yes_or_no
+from utils.constants import CALLBACK_INTERVAL, CALLBACK_INTERVAL_TARGET, MIN_SPEED, TOP_SPEED, ZERO
+from utils.bib import get_current_line_number as ondeTO, is_ON, is_OFF, on_or_off, yes_or_no
 from utils.bib import Color as cor
 from rclpy.node import Node
 import pdb # pdb.set_trace() # serve para debugar
@@ -21,8 +21,6 @@ class RobotController:
         if self.nav.is_exist_rote():
             self.robo = Robot(self.node, self.handle_obstacle_detection, self.handle_aruco_detected)
             self.tracking = Tracking(node, self.robo)
-            self._not_get_id = True
-            self.count_not_detected = 0
             self._timer_target   = None
             self._timer_controll = None
             self._timer_walker   = None
@@ -36,64 +34,72 @@ class RobotController:
         else:
             self.node.get_logger().error(f'Não foi localizado nenhuma rota!')
 
-    def start_show(self):
-        if self._timer_show_inf is None:
-            self._timer_show_inf = self.node.create_timer(CALLBACK_INTERVAL, self.show_infos)
+    def __start_callback(self, _timer, _callback):
+        if _timer is None:
+            _timer = self.node.create_timer(CALLBACK_INTERVAL, _callback)
         else:
-            self._timer_show_inf.reset()
+            _timer.reset()
+
+    def start_show(self):
+        ondeTO()
+        self.__start_callback(self._timer_show_inf, self.show_infos)
 
     def start_target(self):
+        ondeTO()
         if self._timer_target is None:
             self._timer_target = self.node.create_timer(CALLBACK_INTERVAL_TARGET, self.__target_callback)
         else:
             self._timer_target.reset()
 
     def start_walker(self):
+        ondeTO()
         if self._timer_walker is None:
             self._timer_walker = self.node.create_timer(CALLBACK_INTERVAL, self.__walker__callback)
         else:
             self._timer_walker.reset()
 
     def start_controll(self):
+        ondeTO()
         if self._timer_controll is None:
             self._timer_controll = self.node.create_timer(CALLBACK_INTERVAL, self.__execute_controll)
         else:
             self._timer_controll.reset()
 
     def stop_all_timers(self):
+        ondeTO()
         for _timer in self._timers:
             if is_ON(_timer):
                 _timer.cancel()
 
     
     def __execute_controll(self):
-        if self.tracking.is_tracking():
+        if self.tracking.are_you_tracking():
+            ondeTO()
             if self.is_area_of_interest():
+                ondeTO()
                 self.stop_all_timers()
                 self.area_of_interest()
                 return
             
-            elif not self.is_update_info():
-                self.count_not_detected  += 1
-                if self.count_not_detected > 100 and not self.is_update_info():
-                    print(cor.red(f"NOT DETECTED!!! {self.count_not_detected:>2}"), get_current_line_number())
+            elif not self.is_update_info() and self.tracking.count_not_detected > 100:
+                    print(cor.red(f"NOT DETECTED!!! {self.tracking.count_not_detected:>2}"), ondeTO())
                     self.stop_all_timers()
-                    self.robo.set_speed(0)
+                    self.robo.set_speed(ZERO)
                     self.start_walker()
         if self.robo.get_speed() > 0 and self.robo.get_distance_to_wall() < 0.3:
-            print(cor.red("PARAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!"), get_current_line_number())
+            print(cor.red("PARAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!"), ondeTO())
             self.robo.stop()
             self.stop_all_timers()
 
         angle, min_wall = self.robo.sensor_lidar.find_closest_wall_angle()
 
         if min_wall < 0.3 and (angle >= -45 or angle <= 45):
-            print(cor.red("PARAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!"), get_current_line_number())
+            print(cor.red("PARAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!"), ondeTO())
             print(f"angle: {angle} e min_wall: {min_wall}")
             self.robo.stop()
             self.stop_all_timers()
         if self.robo.get_state() == CommandType.STOP and is_OFF(self._timer_controll):
-            print(cor.red("Waaaaaalllllkkkkkkkeeeeeerrrrrrrrrrrrrr!!!"), get_current_line_number())
+            print(cor.red("Waaaaaalllllkkkkkkkeeeeeerrrrrrrrrrrrrr!!!"), ondeTO())
             self.start_walker()
     
     def is_area_of_interest(self) -> bool:
@@ -104,39 +110,42 @@ class RobotController:
                            
 
     def area_of_interest(self):
+        ondeTO()
         self.robo.set_speed(MIN_SPEED)
         if is_ON(self._timer_show_inf):
             self._timer_show_inf.cancel()
-        print(cor.red("area_of_interest!!!"), get_current_line_number())
+        print(cor.red("area_of_interest!!!"), ondeTO())
         self.tracking.stop_tracking()
-        self._not_get_id = True
         self._timer_area_of_interest    = self.node.create_timer(CALLBACK_INTERVAL, self.__area_of_interest__callback)
 
     def __area_of_interest__callback(self):
         speed = self.robo.get_speed()
         a = self.robo.get_acceleration()
-        print("ACELERAÇÂO: ", cor.blue(a), "VELOCIDADE ATUAL: ", cor.yellow(speed), get_current_line_number())
+        print("ACELERAÇÂO: ", cor.blue(a), "VELOCIDADE ATUAL: ", cor.yellow(speed), ondeTO())
         if a == -1:
+            ondeTO()
             '''
             Aguarde até parar a fenagem
             '''
             return
-
-        if self._not_get_id:
-            self._timer_area_of_interest.cancel()        
-            time.sleep(CALLBACK_INTERVAL)
-            self.go_next()
+        self._timer_area_of_interest.cancel()        
+        time.sleep(CALLBACK_INTERVAL)
+        ondeTO()
+        self.go_next()
     
     def go_next(self):
-        if self.nav.is_next() and self._not_get_id:
-            self.count_not_detected = 0
-            self.start_controll()
-            self._not_get_id = False
+        ondeTO()
+        if self.nav.is_next():
+            ondeTO()
             target = self.nav.get_next()
+            if target.id_destiny == 27:
+                self.node.destroy_node()
             self.tracking.fix_target(target.id_destiny)
+            ondeTO()
+            self.start_target()
             self.robo.turn_by_orientation(target.orientation)
             self.start_show()
-            self.start_target()
+            self.start_controll()
         else:
             self.node.get_logger().warning("Chegamos no destino!")
             self.robo.stop()
@@ -149,6 +158,7 @@ class RobotController:
         Aguarda o alinhamento para o alvo ou quase
         '''
         def go():
+            ondeTO()
             self._timer_target.cancel()
             self.robo.stop_turn()
             self.robo.set_speed( TOP_SPEED / 2 ) # velocidade média
@@ -163,6 +173,8 @@ class RobotController:
             :param angulo: Diferença angular em graus entre o ArUco e o centro da imagem da câmera.
             :return: Retorna True se for hora de seguir o ArUco, False caso contrário.
             """
+            if not self.is_update_info_direction():
+                return False
             distance = round(self.tracking.new_distance_aruco, 2)
             angle = round(abs(self.tracking.new_rotation_angle), 2)
             # Define os limites máximo e mínimo para a distância.
@@ -184,25 +196,27 @@ class RobotController:
             return angle <= angle_limit
 
             
-        if not self.robo.is_turnning():
-            print(cor.red("__next_target_callback CANSELADO!!!"), get_current_line_number(-1))
-            go()
-
-        elif self.is_update_info_direction() and should_follow_aruco():
-                print(cor.red("__next_target_callback CANSELADO!!!"), get_current_line_number(-1))
+        if not self.robo.is_turnning() or should_follow_aruco():
+                ondeTO()
+                print(cor.red("__next_target_callback CANSELADO!!!"))
                 go()
     
 
                         
                 
     def __walker__callback(self):
+        ondeTO()
         angle, min_dist = self.robo.sensor_lidar.find_closest_wall_angle(self.tracking.old_rotation_angle)
         if angle == 0 :
+            ondeTO()
             self.robo.stop_turn()
         if min_dist < 0.5:
+            ondeTO()
             if angle != 0:
                 esq = self.robo.get_distance_to_wall(angle - 1)
+                ondeTO()
                 dir = self.robo.get_distance_to_wall(angle + 1)
+                ondeTO()
                 angle = abs(dir) - abs(esq)
                 self.robo.turn_by_angle(angle)
             self.robo.move_backward(0.1)
@@ -243,26 +257,24 @@ class RobotController:
         dy = cor.magenta(f'{dy:>5}')
 
         id = f"{cor.black('[')} {cor.cyan(f'{self.robo.sensor_camera.id_aruco_target:>3}')} {cor.black(']')}"
-        r  = f"{yes_or_no(self.robo.sensor_camera.track_aruco_target)}"
-        r = f"{r:>6}"
         turn     = on_or_off( is_ON( self.tracking._timer_turn ))
         target   = on_or_off( is_ON( self._timer_target ))
         move     = on_or_off( is_ON( self.tracking._timer_move ))
         controll = on_or_off( is_ON( self._timer_controll ))
         walker   = on_or_off( is_ON( self._timer_walker ))
         z = cor.yellow(f'{self.robo.turn_diff:>6.2f}°')
-        w = f"{yes_or_no(self.tracking.is_tracking()):>7}"
+        w = f"{yes_or_no(self.tracking.are_you_tracking()):>6}"
+        n = f'{self.tracking.count_not_detected:>2}x' if self.tracking.are_you_tracking() else '-'
+        h = f'   não detectou: {cor.red(n) if self.tracking.count_not_detected > 0 else cor.black(n)}'
         
-        print(f" CONTROLL: {controll}    ID: {id} FIXED_ALVO: {r }")
+        print(f" CONTROLL: {controll}    ID: {id}   RASTREAR? {w }")
         print(f"     TURN: {turn    } ANGLE: {a }  ERRO TURN: {z }")
         print(f"     MOVE: {move    } SPEED: {t }   DISTANCE: {b }")
         print(f"   WALKER: {walker  }  WALL: {x }   MIN Wall: {dx}  angle: {dy} ]")
-        print(f"   TARGET: {target  } TRACK? {w }")
+        print(f"   TARGET: {target  }{h }")
         
 
         
-        n = f'{self.count_not_detected:>3}x'
-        h = f'not detected: {cor.red(n) if self.count_not_detected > 0 else cor.black(n)}'
         print("")
     
     # handle Lidar
