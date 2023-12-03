@@ -278,7 +278,6 @@ class RobotController:
         """
         ids detectados
         """
-        self.count_not_detected  = 0
         self.tracking.handle_aruco_detected(distance_to_aruco, angle_error)
         
 

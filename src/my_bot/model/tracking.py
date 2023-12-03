@@ -13,6 +13,7 @@ class Tracking:
         self.new_distance_aruco  = 0
         self.old_rotation_angle  = 0
         self.old_distance_aruco  = 0
+        self.count_not_detected  = 0
         self.tracking            = False
         self.update              = False
         self._timer_turn = None
@@ -84,12 +85,14 @@ class Tracking:
         """
         if distance == 0 and angle_error == 0:
             self.update = False
+            self.count_not_detected  += 1
         else:
             self.update = True
             self.old_rotation_angle  = self.new_rotation_angle
             self.old_distance_aruco  = self.new_distance_aruco
             self.new_rotation_angle  = angle_error
             self.new_distance_aruco  = distance
+            self.count_not_detected  = 0
             if self.tracking and is_OFF(self._timer_turn):
                 self.start_turn()
         
