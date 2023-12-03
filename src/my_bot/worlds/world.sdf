@@ -33,7 +33,7 @@
 
     <model name="car_bot">
       <self_collide>true</self_collide>
-      <pose relative_to='world'>0.5 -0.1 0 0 0 -1.5708</pose>
+      <pose relative_to='world'>0 -0.5 0 0 0 0</pose>
       <include merge="true">
         <uri>model://car_bot</uri>
       </include>
