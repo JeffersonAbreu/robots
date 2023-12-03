@@ -115,7 +115,7 @@ class SensorLidar:
             for angle, distance in enumerate(self.lidar_data__right):
                 my_print(angle + 1, distance)
         if direction == 0:
-            for i in range(5, 0):
+            for i in range(len(self.lidar_data__right)-1, -1, -1):
                 my_print(i + 1, self.lidar_data__right[i])
             my_print(0, self.lidar_data__front)
         if direction <= 0:
