@@ -154,10 +154,8 @@ class Robot:
         """
         Para o robô.
         """
-        if is_ON(self.turn_timer):
-            self.turn_timer.cancel()
-        if is_ON(self.speed_timer):
-            self.speed_timer.cancel()
+        self.stop_turn()
+        self.stop_move()
 
         self.twist = Twist()
         self.twist_pub.publish(self.twist)
@@ -169,7 +167,14 @@ class Robot:
             self.turn_timer.cancel()
             self.twist.angular.z = 0.0
             self.twist_pub.publish(self.twist)
-
+            self.turn_diff = 0
+            
+    def stop_move(self):
+        if is_ON(self.speed_timer):
+            self.speed_timer.cancel()
+        self.old_speed      = 0.0
+        self.twist.linear.x = 0.0
+        self.twist_pub.publish(self.twist)
 
     # Outros
     def get_state(self):
