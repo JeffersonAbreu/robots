@@ -59,6 +59,13 @@ class RobotController:
 
     
     def __execute_controll(self):
+        lidar_detected_front = self.robo.get_distance_to_wall()
+        if lidar_detected_front > 1 and not self.robo.is_turnning():
+            self.robo.set_speed(TOP_SPEED)
+            if self.tracking.not_is_discovered:
+                # se não achou nada cotinue
+                return
+
         if self.tracking.are_you_tracking():
             ondeTO()
             if self.is_area_of_interest():
@@ -125,21 +132,21 @@ class RobotController:
         if self.nav.is_next():
             ondeTO()
             target = self.nav.get_next()
-            if target.id_destiny == 27:
-                self.destroy_app()
             self.tracking.fix_target(target.id_destiny)
-            ondeTO()
-            self.start_target()
             self.robo.turn_by_orientation(target.orientation)
+            min_angle, min_distance = self.robo.sensor_lidar.find_closest_wall_angle()
+            min_angle = abs(min_angle)
+            if min_angle not in (0, 1, 2) and self.robo.turn_diff <= 45:
+                self.robo.set_speed(TOP_SPEED)
             self.start_show()
             self.start_controll()
+            self.start_target()
         else:
             self.node.get_logger().warning("Chegamos no destino!")
             self.robo.stop()
             self.stop_all_timers()
             self.tracking.stop_tracking()
-     
-
+    
     def __target_callback(self):
         '''
         Aguarda o alinhamento para o alvo ou quase
@@ -148,7 +155,7 @@ class RobotController:
             ondeTO()
             self._timer_target.cancel()
             self.robo.stop_turn()
-            self.robo.set_speed( TOP_SPEED / 2 ) # velocidade média
+            self.robo.set_speed(TOP_SPEED) # velocidade média
             self.tracking.start_tracking()
             return
         
@@ -254,7 +261,7 @@ class RobotController:
         print(f"     TURN: {turn    } ANGLE: {a }  ERRO TURN: {z }")
         print(f"     MOVE: {move    } SPEED: {t }   DISTANCE: {b }")
         print(f"   WALKER: {walker  }  WALL: {x }   MIN Wall: {dx}  angle: {dy} ]")
-        print(f"   TARGET: {target  }{h }")
+        print(f"   TARGET: {target  }{h } 1ª Detecção: {yes_or_no(not self.tracking.not_is_discovered)}")
         print("")
     
     # handle Lidar

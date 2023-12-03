@@ -19,6 +19,8 @@ class Tracking:
         self._timer_turn = None
         self._timer_move = None
         self.old_diff = 0
+        self.not_is_discovered = True
+        '''se ainda não foi detectado pela primeira vez'''
     
     def start_turn(self, timer=CALLBACK_INTERVAL): #0.0001
         def __turn__callback():
@@ -27,10 +29,7 @@ class Tracking:
                 self.old_diff = self.robo.turn_diff
             self._timer_turn.cancel()
     
-        if self._timer_turn is not None:
-            self._timer_turn.reset()
-        else:
-            self._timer_turn = self.node.create_timer(timer, __turn__callback)
+        self._timer_turn = self.node.create_timer(timer, __turn__callback)
     
     def start_move(self):
         def __move__callback():
@@ -64,9 +63,11 @@ class Tracking:
 
     def start_tracking(self):
         self.tracking = True
+        self.not_is_discovered = True
         self.update_tracking_camera()
 
     def update_tracking_camera(self):
+        '''Colorir a detecção do aruco'''
         self.robo.sensor_camera.track_aruco_target = self.tracking
 
     def stop_tracking(self):
@@ -96,6 +97,10 @@ class Tracking:
             self.count_not_detected  = 0
             if self.are_you_tracking() and is_OFF(self._timer_turn):
                 self.start_turn()
+                if self.not_is_discovered:
+                    self.not_is_discovered = False
+
+    
         
 
     

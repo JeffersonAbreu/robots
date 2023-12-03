@@ -223,10 +223,8 @@ class Robot:
         self.state = CommandType.TURN
         self.initial_orientation = round(normalize_angle_degrees(self.get_orientation()))
         self.destiny_orientation = normalize_angle2(self.orientation)
-        if self.turn_timer is None:
-            self.turn_timer = self.node.create_timer(CALLBACK_INTERVAL_TURN, self.__turn_timer_callback) 
-        else:
-            self.turn_timer.reset()
+        self.turn_timer = self.node.create_timer(CALLBACK_INTERVAL_TURN, self.__turn_timer_callback) 
+        
         self.log_info = False
     
     def turn_by_orientation(self, orientation) -> float:
