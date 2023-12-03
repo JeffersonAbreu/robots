@@ -11,7 +11,7 @@ import xml.etree.ElementTree as ET
 from constants import DISTANCE_TO_WALL, WALL_LARG, ARUCO_DICT, MARKER_SIZE, TAG_WIDTH, ANGLE_TAG_DOBLE
 
 HEIGHT_FROM_THE_FLOOR = 0.1
-CREATE_POINTS = True # criar a placa no chão a frente da area do aruco
+CREATE_POINTS = False # criar a placa no chão a frente da area do aruco
 from enum import Enum, auto
 class Orientation(Enum):
     NORTH = auto()
@@ -382,27 +382,25 @@ def check(arucos: list[Aruco_]) -> bool:
     
     return False
 
-def calc_side_triangle_retangle(hipotenusa, angulo_graus):
+def calc_side_triangle_retangle(hypotenuse, angle):
     # Converte o ângulo de graus para radianos
-    angulo_radianos = math.radians(angulo_graus)
+    angulo_rad = math.radians(angle)
 
     # Calcula o lado oposto usando seno
-    lado_oposto = hipotenusa * math.sin(angulo_radianos)
+    opposite_side = hypotenuse * math.sin(angulo_rad)
 
     # Calcula o lado adjacente usando cosseno
-    lado_adjacente = hipotenusa * math.cos(angulo_radianos)
+    adjacency_side = hypotenuse * math.cos(angulo_rad)
 
-    return lado_oposto, lado_adjacente
+    return opposite_side, adjacency_side
 
 
 def create_doble_arucos_(tag: Tag, orientation: Orientation):
-    opposite_side, lado_adjacente = calc_side_triangle_retangle(TAG_WIDTH, ANGLE_TAG_DOBLE)
-    print("Lado oposto:", opposite_side)
-    print("Lado adjacente:", lado_adjacente)
+    opposite_side, adjacency_side = calc_side_triangle_retangle(TAG_WIDTH, ANGLE_TAG_DOBLE)
     INCLINATION_ANGLE = math.radians(ANGLE_TAG_DOBLE)#Angulo de inclinação em radianos
     # Calcula o lado oposto (wall_offset) usando a fórmula para um triângulo retângulo
     WALL_OFFSET = opposite_side / 2  # Lado oposto calculado
-    SLIDE_TO_SIDE = lado_adjacente
+    SLIDE_TO_SIDE = adjacency_side / 2
 
     def tag_duplicate(is_tag_left):
         _tag = tag.copy()
@@ -410,21 +408,17 @@ def create_doble_arucos_(tag: Tag, orientation: Orientation):
         _x, _y, _z, _roll, _pitch, _yaw = _tag.pose
         if orientation == Orientation.SOUTH:
             _x   -= WALL_OFFSET
-            #_y = _y + SLIDE_TO_SIDE if is_tag_left else _y - SLIDE_TO_SIDE
             _y   += SLIDE_TO_SIDE if is_tag_left else -SLIDE_TO_SIDE
             _yaw += -INCLINATION_ANGLE if is_tag_left else INCLINATION_ANGLE
         elif orientation == Orientation.NORTH:
             _x   += WALL_OFFSET
-            #_y = _y - SLIDE_TO_SIDE if is_tag_left else _y + SLIDE_TO_SIDE
             _y   += -SLIDE_TO_SIDE if is_tag_left else SLIDE_TO_SIDE
             _yaw += -INCLINATION_ANGLE if is_tag_left else INCLINATION_ANGLE
         elif orientation == Orientation.WEST:
-            #_x = _x + SLIDE_TO_SIDE if is_tag_left else _x - SLIDE_TO_SIDE
             _x   += SLIDE_TO_SIDE if is_tag_left else -SLIDE_TO_SIDE
             _y   += WALL_OFFSET
             _yaw += -INCLINATION_ANGLE if is_tag_left else INCLINATION_ANGLE
         elif orientation == Orientation.EAST:
-            #_x = _x - SLIDE_TO_SIDE if is_tag_left else _x + SLIDE_TO_SIDE
             _x   += -SLIDE_TO_SIDE if is_tag_left else SLIDE_TO_SIDE
             _y   -= WALL_OFFSET
             _yaw += -INCLINATION_ANGLE if is_tag_left else INCLINATION_ANGLE
@@ -464,7 +458,7 @@ def main(arucos: list[Aruco_]):
         if ar.doble:
             tag_left, tag_right = create_doble_arucos_(tag, ar.orientation)
             maze.add_tag(tag_left)
-            maze.add_tag(tag)
+            maze.add_tag(tag_right)
         else:
             maze.add_tag(tag)
         
