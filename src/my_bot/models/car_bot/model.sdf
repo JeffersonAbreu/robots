@@ -250,7 +250,7 @@
       <self_collide>true</self_collide>
       <pose relative_to='chassis_link'>-0.09805 0 0.0027 0 0 0</pose>
       <include merge="true">
-        <uri>model://camera_v2</uri>
+        <uri>model://camera_90</uri>
       </include>
     </model>
 

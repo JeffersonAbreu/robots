@@ -40,12 +40,8 @@ class Tracking:
                 speed = ajuste_speed( self.new_distance_aruco, self.new_rotation_angle, self.robo.get_speed() ) # SPEED_Z
                 self.robo.set_speed(speed)
             self._timer_move.cancel()
-
-
-        if self._timer_move is not None:
-            self._timer_move.reset()
-        else:
-            self._timer_move = self.node.create_timer(CALLBACK_INTERVAL, __move__callback)
+        
+        self._timer_move = self.node.create_timer(CALLBACK_INTERVAL, __move__callback)
 
     def reset(self) -> None:
         self.new_rotation_angle  = 0
@@ -55,6 +51,7 @@ class Tracking:
         self.old_diff            = 0
         self.tracking            = False
         self.update              = False
+        self.not_is_discovered   = True
         self.update_tracking_camera()
         if is_ON(self._timer_turn):
             self._timer_turn.cancel()

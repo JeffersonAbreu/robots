@@ -9,7 +9,7 @@ WALL_LARG = 0.05
 '''Metade da largura da parede'''
 TAG_WIDTH = 0.2
 '''Largura da tag em metros'''
-ANGLE_TAG_DOBLE = 30
+ANGLE_TAG_DOBLE = 5
 '''Inclinação das TAGs que serão feitas dobradas'''
 
 
@@ -19,7 +19,7 @@ Configurações do ArUco
 ================================================================
 '''
 # Tamanho está para folha de papel A4 quadrada
-MARKER_SIZE = TAG_WIDTH  # Tamanho do marcador em centímetros
+MARKER_SIZE = 0.2  # Tamanho do marcador em centímetros
 ARUCO_DICT = aruco.DICT_4X4_100
 '''
 Dicionário:  DICT_4X4_100
@@ -39,10 +39,10 @@ DIST_COEFFS = np.zeros((5, 1))  # Coeficientes de distorção da câmera
 
 CALLBACK_INTERVAL = 0.5
 '''Timer callback 0.5'''
-CALLBACK_INTERVAL_TARGET = CALLBACK_INTERVAL / 2
+CALLBACK_INTERVAL_TARGET = 2.5
 CALLBACK_INTERVAL_TURN = 0.001
 '''Verifica a cada 0.001 segundos'''
-CALLBACK_INTERVAL_ACCELERATION = 0.2
+CALLBACK_INTERVAL_ACCELERATION = 0.1
 
 # ================================================================================
 # ROBO 

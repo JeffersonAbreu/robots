@@ -10,20 +10,25 @@ from .constants import CAMERA_MATRIX, DIST_COEFFS, ARUCO_DICT, MARKER_SIZE # Tam
 
 # Parâmetros da câmera
 #FOV_WIDTH = np.degrees(1.047)  # Campo de visão horizontal em graus, convertido de radianos
+ANGLE = 90
+'''
+Opções do angulo da camera:
+- 90°
+- 60°
+'''
 RAD_90 = 1.5708
 RAD_60 = 1.047
-FOV_WIDTH = np.degrees(RAD_90)
+RAD = RAD_60 if ANGLE == 60 else RAD_90
+FOV_WIDTH = np.degrees(RAD)
 IMAGE_WIDTH = 640  # Largura da imagem em pixels
 text_color = (0, 0, 0)  # Preto para texto
 blue_color = (255, 0, 0)  # Azul para resultados positivos
-red_color = (0, 0, 255)  # Vermelho para resultados negativos
+red_color  = (0, 0, 255)  # Vermelho para resultados negativos
 
 def calculate_rotation_angle(pixel_error, image_width, fov_width):
     pixels_to_degrees = fov_width / image_width
     rotation_angle = pixel_error * pixels_to_degrees
     return rotation_angle
-
-
 
 class SensorCamera:
     def __init__(self, node: Node, aruco_detected_callback):
@@ -33,12 +38,12 @@ class SensorCamera:
         :param camera_matrix: Matriz de câmera para a calibração da câmera.
         :param dist_coeffs: Coeficientes de distorção da câmera.
         """
-        self.camera_calibration_yaml ='support/dados_calibracao.yaml'
+        self.camera_calibration_yaml =f'support/dados_calibracao{ANGLE}.yaml'
         self.node = node
         self.aruco_detected_callback = aruco_detected_callback
-        self.marker_size    = MARKER_SIZE
-        self.camera_matrix  = CAMERA_MATRIX
-        self.dist_coeffs    = DIST_COEFFS
+        self.marker_size    = None
+        self.camera_matrix  = None
+        self.dist_coeffs    = None
         self.load_calibration()
         self.id_aruco_target = None
         self.track_aruco_target = False
@@ -120,19 +125,18 @@ class SensorCamera:
     
 
 
-    def highlight_target_aruco(self, cv_image, corners, target_id):
+    def highlight_target_aruco(self, cv_image, corner, target_id):
         """
         Destaca o marcador ArUco com o ID alvo.
         """
-        for i, corner in enumerate(corners):
-            if target_id == self.id_aruco_target:
-                # Destaca o marcador ArUco com uma borda mais espessa
-                if self.track_aruco_target:
-                    cv2.polylines(cv_image, [np.int32(corner)], True, (0, 255, 0), 1)
-                else:
-                    cv2.polylines(cv_image, [np.int32(corner)], True, (0, 0, 255), 1)
+        if target_id == self.id_aruco_target:
+            # Destaca o marcador ArUco com uma borda mais espessa
+            if self.track_aruco_target:
+                cv2.polylines(cv_image, [np.int32(corner)], True, (0, 255, 0), 1)
             else:
-                cv2.polylines(cv_image, [np.int32(corner)], True, (0, 255, 255), 1)
+                cv2.polylines(cv_image, [np.int32(corner)], True, (0, 0, 255), 1)
+        else:
+            cv2.polylines(cv_image, [np.int32(corner)], True, (0, 255, 255), 1)
         return cv_image
 
     

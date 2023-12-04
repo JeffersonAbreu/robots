@@ -78,7 +78,7 @@ class RobotController:
                     print(cor.red(f"NOT DETECTED!!! {self.tracking.count_not_detected:>2}"), ondeTO())
                     self.stop_all_timers()
                     self.robo.set_speed(ZERO)
-                    self.start_walker()
+                    #self.start_walker()
         if self.robo.get_speed() > 0 and self.robo.get_distance_to_wall() < 0.3:
             self.show_infos()
             ondeTO()
@@ -191,9 +191,11 @@ class RobotController:
 
             
         if not self.robo.is_turnning() or should_follow_aruco():
-                ondeTO()
-                print(cor.red("__next_target_callback CANSELADO!!!"))
-                go()
+            ondeTO()
+            print(cor.red("__next_target_callback CANSELADO!!!"))
+            go()
+        elif int(self.robo.turn_diff) <= 10 and self.robo.get_speed() == MIN_SPEED:
+            self.robo.set_speed(0.2)
         
     def __walker__callback(self):
         ondeTO()
@@ -205,9 +207,7 @@ class RobotController:
             ondeTO()
             if angle != 0:
                 esq = self.robo.get_distance_to_wall(angle - 1)
-                ondeTO()
                 dir = self.robo.get_distance_to_wall(angle + 1)
-                ondeTO()
                 angle = abs(dir) - abs(esq)
                 self.robo.turn_by_angle(angle)
             self.robo.move_backward(0.1)
