@@ -6,7 +6,7 @@ import cv2.aruco as aruco
 from cv_bridge import CvBridge, CvBridgeError
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from .constants import CAMERA_MATRIX, DIST_COEFFS, ARUCO_DICT, MARKER_SIZE # Tamanho real do marcador em metros (20cm)
+from .constants import CAMERA_ANGLE_VISION, DIST_COEFFS, ARUCO_DICT, MARKER_SIZE # Tamanho real do marcador em metros (20cm)
 
 # Parâmetros da câmera
 #FOV_WIDTH = np.degrees(1.047)  # Campo de visão horizontal em graus, convertido de radianos

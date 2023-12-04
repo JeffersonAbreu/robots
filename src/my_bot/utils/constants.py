@@ -9,7 +9,7 @@ WALL_LARG = 0.05
 '''Metade da largura da parede'''
 TAG_WIDTH = 0.2
 '''Largura da tag em metros'''
-ANGLE_TAG_DOBLE = 5
+ANGLE_TAG_DOBLE = 15
 '''Inclinação das TAGs que serão feitas dobradas'''
 
 
@@ -32,10 +32,7 @@ Dicionário:  DICT_4X4_100
 Configurações de simulação da câmera (valores fictícios, ajuste conforme necessário) 
 ==========================================================================================
 '''
-CAMERA_MATRIX = np.array([[1000, 0, 320],
-                          [0, 1000, 240],
-                          [0, 0, 1]], dtype=float)
-DIST_COEFFS = np.zeros((5, 1))  # Coeficientes de distorção da câmera
+CAMERA_ANGLE_VISION = 60 # 60 ou 90, lembre de trocar a camera no modelo para a específica
 
 CALLBACK_INTERVAL = 0.5
 '''Timer callback 0.5'''
@@ -73,4 +70,4 @@ FACTOR_CORRECTION_TURN = 0.1
 FACTOR_ACCELERATION = 0.001
 FACTOR_BRAKING = -0.03
 
-LOG_LINE = True
+LOG_LINE = False

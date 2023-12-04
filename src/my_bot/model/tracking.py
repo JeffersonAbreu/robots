@@ -94,7 +94,7 @@ class Tracking:
             self.count_not_detected  = 0
             if self.are_you_tracking() and is_OFF(self._timer_turn):
                 self.start_turn()
-                if self.not_is_discovered:
+                if self.not_is_discovered and self.robo.get_distance_to_wall() != float('inf'):
                     self.not_is_discovered = False
 
     

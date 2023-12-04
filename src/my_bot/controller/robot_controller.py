@@ -17,7 +17,7 @@ class RobotController:
 
     def __init__(self, node: Node):
         self.node = node
-        self.nav = Navigation(25, 1)
+        self.nav = Navigation(25, 5)
         if self.nav.is_exist_rote():
             self.robo = Robot(self.node, self.handle_obstacle_detection, self.handle_aruco_detected)
             self.tracking = Tracking(node, self.robo)
@@ -37,7 +37,7 @@ class RobotController:
 
     def start_show(self):
         ondeTO()
-        self._timer_show_inf = self.node.create_timer(CALLBACK_INTERVAL/2, self.show_infos)
+        self._timer_show_inf = self.node.create_timer(CALLBACK_INTERVAL, self.show_infos)
 
     def start_target(self):
         ondeTO()
@@ -73,6 +73,8 @@ class RobotController:
                 self.stop_all_timers()
                 self.area_of_interest()
                 return
+            if self.robo.get_speed() < MIN_SPEED:
+                self.robo.set_speed(MIN_SPEED)
             
             elif self.tracking.count_not_detected > 100:
                     ondeTO()
@@ -89,7 +91,7 @@ class RobotController:
 
         angle, min_wall = self.robo.sensor_lidar.find_closest_wall_angle()
 
-        if min_wall < 0.3 and (angle >= -45 or angle <= 45):
+        if min_wall < 0.3 and abs(angle) in (0, 1):
             self.show_infos()
             print(cor.red("PARAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!"), ondeTO())
             print(f"angle: {angle} e min_wall: {min_wall}")
@@ -177,7 +179,7 @@ class RobotController:
 
             # Define os limites máximo e mínimo para o ângulo.
             _MAX_ANGLE = 45.0  # graus
-            _MIN_ANGLE = 5.0   # graus
+            _MIN_ANGLE = 0.0   # graus
 
             # Calcula um fator de escala proporcional à distância
             scale_factor = round( (distance - _MIN_DISTANCE) / (_MAX_DISTANCE - _MIN_DISTANCE), 5 )
@@ -185,7 +187,6 @@ class RobotController:
             # Calcula o limite de ângulo com base no fator de escala
             angle_limit = _MIN_ANGLE + (_MAX_ANGLE - _MIN_ANGLE) * (1 - scale_factor)
 
-            print("scale_factor: ", cor.yellow(scale_factor), f" angle[ {cor.cyan(angle)} ] <= angle_limit[ {cor.blue(round(angle_limit, 2))} ] = ", on_or_off(angle <= angle_limit))
             # Verifica se o ângulo atual está dentro do limite calculado
             return angle <= angle_limit
 
@@ -194,12 +195,19 @@ class RobotController:
             ondeTO()
             print(cor.red("__next_target_callback CANSELADO!!!"))
             go()
-        elif abs(int(self.robo.turn_diff)) <= 10 and self.robo.get_speed() == MIN_SPEED:
+        else:
+            if self.is_update_info_direction():
+                if abs(self.tracking.new_rotation_angle) > abs(self.tracking.old_rotation_angle):
+                    go()
+        if abs(int(self.robo.turn_diff)) <= 10 and self.robo.get_speed() == MIN_SPEED:
             self.robo.set_speed(0.2)
         if self.robo.turn_diff < 0 and self.robo.get_distance_to_wall(-2) > 0.3 and self.robo.get_speed() == MIN_SPEED:
             self.robo.set_speed(0.2)
         if self.robo.turn_diff > 0 and self.robo.get_distance_to_wall(2) > 0.3 and self.robo.get_speed() == MIN_SPEED:
             self.robo.set_speed(0.2)
+        if self.robo.get_speed() < MIN_SPEED:
+            self.robo.set_speed(MIN_SPEED)
+        
 
         
     def __walker__callback(self):

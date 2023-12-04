@@ -5,10 +5,10 @@ import yaml
 from cv_bridge import CvBridge, CvBridgeError
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from .constants import ARUCO_DICT
+from .constants import ARUCO_DICT, CAMERA_ANGLE_VISION
 
 class SensorCamera:
-    def __init__(self, node: Node, aruco_detected_callback, angle=90, image_width=640):
+    def __init__(self, node: Node, aruco_detected_callback, angle=CAMERA_ANGLE_VISION, image_width=640):
         self.node = node
         self.aruco_detected_callback = aruco_detected_callback
         self.camera_calibration_yaml = f'support/dados_calibracao{angle}.yaml'
@@ -47,6 +47,8 @@ class SensorCamera:
                     distance, angle = self.calculate_marker_position(corner)
                     self.aruco_detected_callback(distance, round(angle, 2))
                 self.highlight_target_aruco(image, corner, marker_id)
+        else:
+            self.aruco_detected_callback(0, 0)
         cv2.imshow('Aruco Detector', image)
         cv2.waitKey(1)
 

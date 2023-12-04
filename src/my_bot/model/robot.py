@@ -190,8 +190,6 @@ class Robot:
             self.stop_move()
     
     def set_speed(self, speed):
-        if speed < MIN_SPEED:
-            speed = ZERO
         if self.get_speed() < MIN_SPEED and speed >= MIN_SPEED:
             self.move_forward(MIN_SPEED)
         if self.get_speed() == speed:

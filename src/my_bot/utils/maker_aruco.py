@@ -400,7 +400,7 @@ def create_doble_arucos_(tag: Tag, orientation: Orientation):
     INCLINATION_ANGLE = math.radians(ANGLE_TAG_DOBLE)#Angulo de inclinação em radianos
     # Calcula o lado oposto (wall_offset) usando a fórmula para um triângulo retângulo
     WALL_OFFSET = opposite_side / 2  # Lado oposto calculado
-    SLIDE_TO_SIDE = adjacency_side / 2
+    SLIDE_TO_SIDE = adjacency_side / 1.5
 
     def tag_duplicate(is_tag_left):
         _tag = tag.copy()
@@ -576,4 +576,4 @@ if __name__ == "__main__":
     ]
 
 
-    main(list_simples)
+    main(list_completa)
