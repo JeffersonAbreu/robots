@@ -102,7 +102,7 @@ class RobotController:
         '''
         Verifique se estou na aréa do aruco
         '''
-        return self.tracking.new_distance_aruco < 1 and self.robo.get_distance_to_wall() < 1
+        return self.tracking.new_distance_aruco < 1 and self.robo.get_distance_to_wall()
                            
 
     def area_of_interest(self):
@@ -134,12 +134,7 @@ class RobotController:
             target = self.nav.get_next()
             self.tracking.fix_target(target.id_destiny)
             self.robo.turn_by_orientation(target.orientation)
-            min_angle, min_distance = self.robo.sensor_lidar.find_closest_wall_angle()
-            min_angle = abs(min_angle)
-            if min_angle not in (0, 1, 2) and self.robo.turn_diff <= 45:
-                self.robo.set_speed(TOP_SPEED)
             self.start_show()
-            self.start_controll()
             self.start_target()
         else:
             self.node.get_logger().warning("Chegamos no destino!")
@@ -157,6 +152,7 @@ class RobotController:
             self.robo.stop_turn()
             self.robo.set_speed(TOP_SPEED) # velocidade média
             self.tracking.start_tracking()
+            self.start_controll()
             return
         
         def should_follow_aruco():
@@ -168,6 +164,7 @@ class RobotController:
             :return: Retorna True se for hora de seguir o ArUco, False caso contrário.
             """
             if not self.is_update_info_direction():
+                ondeTO()
                 return False
             distance = round(self.tracking.new_distance_aruco, 2)
             angle = round(abs(self.tracking.new_rotation_angle), 2)
@@ -194,8 +191,10 @@ class RobotController:
             ondeTO()
             print(cor.red("__next_target_callback CANSELADO!!!"))
             go()
-        elif int(self.robo.turn_diff) <= 10 and self.robo.get_speed() == MIN_SPEED:
+        elif abs(int(self.robo.turn_diff)) <= 10 and self.robo.get_speed() == MIN_SPEED:
             self.robo.set_speed(0.2)
+        elif self.robo.get_speed() == 0:
+            self.destroy_app()
         
     def __walker__callback(self):
         ondeTO()
@@ -212,7 +211,7 @@ class RobotController:
                 self.robo.turn_by_angle(angle)
             self.robo.move_backward(0.1)
             return 
-        self.robo.set_speed(0)
+        #self.robo.set_speed(0)
         if self.is_update_info():
             self._timer_walker.cancel()
             time.sleep(1.5)

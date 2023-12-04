@@ -492,7 +492,48 @@ def main(arucos: list[Aruco_]):
      
 
 if __name__ == "__main__":
-    main([
+    list_simples = [
+      Aruco_( 1, Orientation.SOUTH,"c15", 1.5),
+      Aruco_( 2, Orientation.SOUTH,"c14",-2.5),
+      Aruco_( 1, Orientation.EAST , "c0", 1.5),
+      Aruco_( 3, Orientation.SOUTH,"c12", 0.0),
+      Aruco_( 4, Orientation.SOUTH,"c12",-1.5),
+      Aruco_( 4, Orientation.WEST ,"c11", 1.5),
+      Aruco_( 5, Orientation.WEST , "a7", 2.0),
+      Aruco_( 6, Orientation.WEST , "c9",-1.5),
+      Aruco_( 7, Orientation.NORTH, "c7",-1.5),
+      Aruco_( 8, Orientation.SOUTH, "d7",-2.0),
+      Aruco_( 9, Orientation.WEST , "d2", 2.0),
+      Aruco_(10, Orientation.SOUTH, "d8", 2.0),
+      Aruco_(11, Orientation.EAST , "d4", 2.0),
+      Aruco_(12, Orientation.EAST , "d1",-1.5),
+      Aruco_(13, Orientation.EAST , "d1", 0.0),
+      Aruco_(14, Orientation.NORTH, "d8", 2.0),
+      Aruco_(15, Orientation.EAST , "d1", 2.0),
+      Aruco_(15, Orientation.SOUTH, "b3", 2.0),
+      Aruco_(16, Orientation.WEST , "d9",-2.0),
+      Aruco_(17, Orientation.NORTH, "c5",-2.5),
+      Aruco_(17, Orientation.WEST , "d4",-1.5),
+      Aruco_(18, Orientation.NORTH, "c4",-2.5),
+      Aruco_(19, Orientation.NORTH, "c4", 1.5),
+      Aruco_(19, Orientation.EAST , "c3",-1.5),
+      Aruco_(20, Orientation.EAST , "c2", 2.0),
+      Aruco_(21, Orientation.SOUTH, "b2", 2.0),
+      Aruco_(21, Orientation.EAST,  "c1", 2.0),
+      Aruco_(22, Orientation.SOUTH, "b2",-2.0),
+      Aruco_(22, Orientation.WEST,  "b1", 2.0),
+      Aruco_(23, Orientation.WEST , "d1", 2.0),
+      Aruco_(24, Orientation.WEST , "d1",-1.5),
+      Aruco_(25, Orientation.WEST , "a1",-2.0),
+      Aruco_(26, Orientation.EAST , "b1", 2.0),
+      Aruco_(27, Orientation.SOUTH, "b4",-1.0),
+      Aruco_(28, Orientation.NORTH, "b2", 1.5),
+      Aruco_(28, Orientation.EAST , "c0",-1.5),
+      Aruco_(29, Orientation.SOUTH, "b6",-1.0),
+      Aruco_(29, Orientation.WEST,  "a6", 2.0),
+      Aruco_(30, Orientation.WEST , "a6",-0.5)
+    ]
+    list_completa = [
       Aruco_( 1, Orientation.SOUTH,"c15", 1.5),
       Aruco_( 2, Orientation.SOUTH,"c14",-2.5, doble=True),
       Aruco_( 1, Orientation.EAST , "c0", 1.5),
@@ -532,4 +573,7 @@ if __name__ == "__main__":
       Aruco_(29, Orientation.SOUTH, "b6",-1.0),
       Aruco_(29, Orientation.WEST,  "a6", 2.0),
       Aruco_(30, Orientation.WEST , "a6",-0.5, doble=True)
-    ])
+    ]
+
+
+    main(list_simples)
