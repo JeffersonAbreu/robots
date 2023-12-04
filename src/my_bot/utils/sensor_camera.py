@@ -43,8 +43,8 @@ class SensorCamera:
         corners, ids, _ = aruco.detectMarkers(gray_image, self.aruco_dict, parameters=self.parameters, cameraMatrix=self.camera_matrix, distCoeff=self.dist_coeffs)
         if ids is not None:
             for corner, marker_id in zip(corners, ids.flatten()):
-                distance, angle = self.calculate_marker_position(corner)
                 if self.is_target_marker(marker_id):
+                    distance, angle = self.calculate_marker_position(corner)
                     self.aruco_detected_callback(distance, round(angle, 2))
                 self.highlight_target_aruco(image, corner, marker_id)
         cv2.imshow('Aruco Detector', image)
@@ -62,7 +62,7 @@ class SensorCamera:
 
     def highlight_target_aruco(self, image, corner, marker_id):
         line_color = (0, 255, 0) if self.is_target_marker(marker_id) else (0, 0, 255)
-        cv2.polylines(image, [np.int32(corner)], True, line_color, 2)
+        cv2.polylines(image, [np.int32(corner)], True, line_color, 1)
         rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corner, self.marker_size, self.camera_matrix, self.dist_coeffs)
         cv2.aruco.drawAxis(image, self.camera_matrix, self.dist_coeffs, rvec[0], tvec[0], self.marker_size * 0.5)
 

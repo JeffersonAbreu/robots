@@ -37,7 +37,7 @@ class RobotController:
 
     def start_show(self):
         ondeTO()
-        self._timer_show_inf = self.node.create_timer(CALLBACK_INTERVAL, self.show_infos)
+        self._timer_show_inf = self.node.create_timer(CALLBACK_INTERVAL/2, self.show_infos)
 
     def start_target(self):
         ondeTO()
@@ -75,15 +75,16 @@ class RobotController:
                 return
             
             elif self.tracking.count_not_detected > 100:
-                    print(cor.red(f"NOT DETECTED!!! {self.tracking.count_not_detected:>2}"), ondeTO())
+                    ondeTO()
+                    print(cor.red(f"NOT DETECTED!!! {self.tracking.count_not_detected:>2}"))
                     self.stop_all_timers()
                     self.robo.set_speed(ZERO)
                     #self.start_walker()
         if self.robo.get_speed() > 0 and self.robo.get_distance_to_wall() < 0.3:
             self.show_infos()
-            ondeTO()
             print(cor.red("PARAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!"))
             self.robo.stop()
+            ondeTO()
             self.stop_all_timers()
 
         angle, min_wall = self.robo.sensor_lidar.find_closest_wall_angle()
@@ -93,6 +94,7 @@ class RobotController:
             print(cor.red("PARAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!"), ondeTO())
             print(f"angle: {angle} e min_wall: {min_wall}")
             self.robo.stop()
+            ondeTO()
             self.stop_all_timers()
         if self.robo.get_state() == CommandType.STOP and is_OFF(self._timer_controll):
             print(cor.red("Waaaaaalllllkkkkkkkeeeeeerrrrrrrrrrrrrr!!!"), ondeTO())
@@ -139,6 +141,7 @@ class RobotController:
         else:
             self.node.get_logger().warning("Chegamos no destino!")
             self.robo.stop()
+            ondeTO()
             self.stop_all_timers()
             self.tracking.stop_tracking()
     
@@ -193,8 +196,11 @@ class RobotController:
             go()
         elif abs(int(self.robo.turn_diff)) <= 10 and self.robo.get_speed() == MIN_SPEED:
             self.robo.set_speed(0.2)
-        elif self.robo.get_speed() == 0:
-            self.destroy_app()
+        if self.robo.turn_diff < 0 and self.robo.get_distance_to_wall(-2) > 0.3 and self.robo.get_speed() == MIN_SPEED:
+            self.robo.set_speed(0.2)
+        if self.robo.turn_diff > 0 and self.robo.get_distance_to_wall(2) > 0.3 and self.robo.get_speed() == MIN_SPEED:
+            self.robo.set_speed(0.2)
+
         
     def __walker__callback(self):
         ondeTO()
