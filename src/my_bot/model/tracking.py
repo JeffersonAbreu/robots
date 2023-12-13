@@ -2,7 +2,7 @@ from model import Robot
 import math
 import time
 from utils.bib import is_ON, is_OFF, ajuste_speed
-from utils.constants import CALLBACK_INTERVAL, FACTOR_CORRECTION_TURN
+from utils.constants import CALLBACK_INTERVAL, FACTOR_CORRECTION_TURN, MIN_SPEED
 
 class Tracking:
     
@@ -27,20 +27,27 @@ class Tracking:
             if self.tracking:  
                 self.robo.turn_by_angle( self.new_rotation_angle * FACTOR_CORRECTION_TURN)
                 self.old_diff = self.robo.turn_diff
+                if self.robo.sensor_lidar.check_collision_router(self.new_rotation_angle):
+                    self._timer_turn.cancel()
+                    self._timer_turn = None
+                    self.start_move(-1 * (self.new_rotation_angle * FACTOR_CORRECTION_TURN), self.new_rotation_angle)
+                    self.stop_tracking()
+                    return
+
             self._timer_turn.cancel()
+            self._timer_turn = None
     
         self._timer_turn = self.node.create_timer(timer, __turn__callback)
     
-    def start_move(self):
+    def start_move(self, angle, rotation_angle):
+        self.__move_angle = angle
+        self.__move_rotation_angle = rotation_angle
         def __move__callback():
-            """
-            Executa os comandos na fila.
-            """
-            if self.is_update_info_direction():
-                speed = ajuste_speed( self.new_distance_aruco, self.new_rotation_angle, self.robo.get_speed() ) # SPEED_Z
-                self.robo.set_speed(speed)
-            self._timer_move.cancel()
-        
+            self.robo.turn_by_angle(self.__move_angle)
+            if not self.robo.sensor_lidar.check_collision_router(self.__move_rotation_angle):
+                self._timer_move.cancel()
+                self.start_tracking()
+        self.robo.set_speed(MIN_SPEED)
         self._timer_move = self.node.create_timer(CALLBACK_INTERVAL, __move__callback)
 
     def reset(self) -> None:

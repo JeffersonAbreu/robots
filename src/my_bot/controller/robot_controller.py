@@ -17,7 +17,7 @@ class RobotController:
 
     def __init__(self, node: Node):
         self.node = node
-        self.nav = Navigation(25, 5)
+        self.nav = Navigation(25, 30)
         if self.nav.is_exist_rote():
             self.robo = Robot(self.node, self.handle_obstacle_detection, self.handle_aruco_detected)
             self.tracking = Tracking(node, self.robo)
@@ -31,10 +31,12 @@ class RobotController:
             self.nav.select_a_route()
             self.robo.set_speed(MIN_SPEED)
             self.go_next()
+            #self.tracking.fix_target(26)
+            #self.tracking.start_tracking()
+            self.start_show()        
         else:
             self.node.get_logger().error(f'Não foi localizado nenhuma rota!')
-
-
+    
     def start_show(self):
         ondeTO()
         self._timer_show_inf = self.node.create_timer(CALLBACK_INTERVAL, self.show_infos)
@@ -261,8 +263,8 @@ class RobotController:
 
         id = f"{cor.black('[')} {cor.cyan(f'{self.robo.sensor_camera.id_aruco_target:>3}')} {cor.black(']')}"
         turn     = on_or_off( is_ON( self.tracking._timer_turn ))
-        target   = on_or_off( is_ON( self._timer_target ))
         move     = on_or_off( is_ON( self.tracking._timer_move ))
+        target   = on_or_off( is_ON( self._timer_target ))
         controll = on_or_off( is_ON( self._timer_controll ))
         walker   = on_or_off( is_ON( self._timer_walker ))
         z = cor.yellow(f'{self.robo.turn_diff:>6.2f}°')

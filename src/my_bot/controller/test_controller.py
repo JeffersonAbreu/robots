@@ -26,7 +26,7 @@ class TestController:
         """
         Verifica se há risco de colisão com base no ângulo fornecido.
         """
-        return self.robo.sensor_lidar.collision_router(direction=angle)
+        return self.robo.sensor_lidar.check_collision_router(direction=angle)
 
     def suggest_turn_direction(self):
         """
@@ -143,7 +143,7 @@ class TestController:
         self.robo.turn_by_angle(turn_angle)
 
         def __colid_wall__callback():
-            if self.robo.sensor_lidar.collision_router(angle):
+            if self.robo.sensor_lidar.check_collision_router(angle):
                 self.handle_collision_detected()
             else:
                 self.handle_no_collision_detected()

@@ -37,10 +37,10 @@ def normalize_angle2(angle: int) -> int:
     return angle
 
 def is_ON(thread):
-    return False if thread is None or thread.is_canceled() else True
+    return not is_OFF(thread)
 
 def is_OFF(thread):
-    return not ( is_ON(thread) )
+    return True if thread == None or thread.is_canceled() else False
 
 
 def ajuste_speed(distance, angle_rotation, speed_z):

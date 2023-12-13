@@ -3,21 +3,18 @@ from rclpy.node import Node
 
 class SensorLidar:
 
-    def __init__(self, node: Node, obstacle_detected_callback):
+    def __init__(self):
         """
         Inicializa o Lidar.
         """
-        self.node = node
-        self.lidar_sub = self.node.create_subscription(LaserScan, '/lidar', self.__lidar_callback, 10)
-        self.obstacle_detected_callback = obstacle_detected_callback
         self.lidar_data__front = 0.0
-        self.lidar_data__left  = [0.0] * 6
-        self.lidar_data__right = [0.0] * 6
+        self.lidar_data__left  = []
+        self.lidar_data__right = []
         
         '''Lateral espaça minimo para um caminho'''
 
 
-    def check_collision_router(self, direction=0) -> bool:
+    def collision_router(self, direction=0) -> bool:
         # Definindo os limiares de distância e a matriz de colisão
         thresholds = [0, 2.5, 5, 7.5, 10, 15]
         matrix_collision = [
@@ -33,19 +30,11 @@ class SensorLidar:
         index = next((i for i, t in enumerate(thresholds) if t >= abs(direction)), len(thresholds) - 1)
         collision_thresholds = matrix_collision[index]
 
+        direction = 0 if abs(direction) < 2.5 else (-1 if direction < 0 else 1 )
         # Verifica se há risco de colisão
-        return self.__check_collision(direction, collision_thresholds)
+        return self.check_collision(direction, collision_thresholds)
 
-    def __check_collision2(self, direction, collision_thresholds):
-        if direction == 0 and self.lidar_data__front < collision_thresholds[0]:
-            return True
-        if direction >= 0:
-            return any(distance < threshold for distance, threshold in zip(self.lidar_data__right, collision_thresholds))
-        if direction <= 0:
-            return any(distance < threshold for distance, threshold in zip(self.lidar_data__left, collision_thresholds))
-        return False
-    
-    def __check_collision(self, direction, collision_thresholds):
+    def check_collision(self, direction, collision_thresholds):
         if direction == 0:
             if self.lidar_data__front < collision_thresholds[0]:
                return True
@@ -74,24 +63,6 @@ class SensorLidar:
         return False
 
     
-    def __lidar_callback(self, msg: LaserScan):
-        """
-        Callback para dados do LiDAR.
-        Atualiza as variáveis com dados do LiDAR para direita, esquerda e frente.
-        """
-        # Atualizando dados do LiDAR para a direita
-        for i in range(6):
-            self.lidar_data__right[i] = msg.ranges[5 - i]
-
-        # Atualizando o dado do LiDAR para a frente
-        self.lidar_data__front = msg.ranges[6]
-
-        # Atualizando dados do LiDAR para a esquerda
-        for i in range(7, 13):
-            self.lidar_data__left[i - 7] = msg.ranges[i]
-        
-        self.obstacle_detected_callback()
-
         
     def get_data_range(self, grau:int = 0):
         """
@@ -155,4 +126,30 @@ def my_print(i, value):
     print(f'[{i:>2}] = {value:>8.6f}')
 
 
+# Vamos simular um teste para a função check_collision da classe SensorLidar
 
+# Criar uma instância da classe de teste
+sensor_test = SensorLidar()
+
+# Simular diferentes cenários de teste
+test_results = []
+
+# Cenário 1: Obstáculos próximos em todas as direções
+sensor_test.lidar_data__front = 1
+sensor_test.lidar_data__left = [0.902103, 0.404213, 0.265292, 0.209872, 0.184844, 0.174666]
+sensor_test.lidar_data__right = [0.902103, 0.404213, 0.265292, 0.209872, 0.184844, 0.174666]
+test_results.append(sensor_test.collision_router())
+
+# Cenário 2: Obstáculos apenas à frente
+sensor_test.lidar_data__front = 0.6
+sensor_test.lidar_data__left = [0.481064, 0.275839, 0.198622, 0.165227, 0.150698, 0.147149]
+sensor_test.lidar_data__right = [0.481064, 0.275839, 0.198622, 0.165227, 0.150698, 0.147149]
+test_results.append(sensor_test.collision_router())
+test_results.append(sensor_test.collision_router(-6))
+
+# Cenário 3: Sem obstáculos próximos
+sensor_test.lidar_data__front = 0.50
+sensor_test.lidar_data__left = [0.435427, 0.259953, 0.190666, 0.160348, 0.147420, 0.145077]
+sensor_test.lidar_data__right = [0.435427, 0.259953, 0.190666, 0.160348, 0.147420, 0.145077]
+test_results.append(sensor_test.collision_router())
+test_results.append(sensor_test.collision_router(3))
