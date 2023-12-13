@@ -1,6 +1,6 @@
 from model import Robot, Navigation, Tracking
 from utils import Command, CommandQueue, CommandType, Graph, Path
-from utils.constants import CALLBACK_INTERVAL, CALLBACK_INTERVAL_TARGET, MIN_SPEED, TOP_SPEED, ZERO
+from utils.constants import CALLBACK_INTERVAL, CALLBACK_INTERVAL_TARGET, MIN_SPEED, TOP_SPEED, ZERO, FACTOR_CORRECTION_TURN
 from utils.bib import get_current_line_number as ondeTO, is_ON, is_OFF, on_or_off, yes_or_no
 from utils.bib import Color as cor
 from rclpy.node import Node
@@ -17,7 +17,7 @@ class RobotController:
 
     def __init__(self, node: Node):
         self.node = node
-        self.nav = Navigation(25, 30)
+        self.nav = Navigation(25, 24)
         if self.nav.is_exist_rote():
             self.robo = Robot(self.node, self.handle_obstacle_detection, self.handle_aruco_detected)
             self.tracking = Tracking(node, self.robo)
@@ -25,6 +25,7 @@ class RobotController:
             self._timer_controll = None
             self._timer_walker   = None
             self._timer_show_inf = None
+            self._timer_move     = None
             self._timer_area_of_interest = None
             self._timers = [self._timer_target, self._timer_controll, self._timer_walker]
             
@@ -58,14 +59,42 @@ class RobotController:
         for _timer in self._timers:
             if is_ON(_timer):
                 _timer.cancel()
-
+    
+    def start_move(self, angle, rotation_angle):
+        self.tracking.stop_tracking()
+        self._timer_controll.cancel()
+        self.__move_angle = angle
+        self.__move_rotation_angle = rotation_angle
+        def __move__callback():
+            self.robo.turn_by_angle(self.__move_angle)
+            if not self.robo.sensor_lidar.check_collision_router(self.__move_rotation_angle):
+                self._timer_move.cancel()
+                self._timer_move = None
+                self.tracking.start_tracking()
+                self.start_controll()
+                return
+        self.robo.set_speed(MIN_SPEED)
+        self._timer_move = self.node.create_timer(CALLBACK_INTERVAL, __move__callback)
     
     def __execute_controll(self):
-        lidar_detected_front = self.robo.get_distance_to_wall()
-        if lidar_detected_front > 1 and not self.robo.is_turnning():
+        if not self.robo.sensor_lidar.check_collision_router() and not self.robo.is_turnning():
             self.robo.set_speed(TOP_SPEED)
             if self.tracking.not_is_discovered:
                 # se não achou nada cotinue
+                return
+        if self.tracking.is_update_info():
+            angle = self.tracking.new_rotation_angle
+            if self.robo.sensor_lidar.check_collision_router(angle):
+                self.start_move(-1 * (angle * FACTOR_CORRECTION_TURN), angle)
+                return
+        elif self.robo.sensor_lidar.check_collision_router():
+            DIRECTION_RIGHT =  5
+            DIRECTION_LEFT  = -5
+            if self.robo.sensor_lidar.check_collision_router(DIRECTION_RIGHT):
+                self.start_move(-1 * (DIRECTION_RIGHT * FACTOR_CORRECTION_TURN), DIRECTION_RIGHT)
+                return
+            elif self.robo.sensor_lidar.check_collision_router(DIRECTION_LEFT):
+                self.start_move(-1 * (DIRECTION_LEFT * FACTOR_CORRECTION_TURN), DIRECTION_LEFT)
                 return
 
         if self.tracking.are_you_tracking():
@@ -263,7 +292,7 @@ class RobotController:
 
         id = f"{cor.black('[')} {cor.cyan(f'{self.robo.sensor_camera.id_aruco_target:>3}')} {cor.black(']')}"
         turn     = on_or_off( is_ON( self.tracking._timer_turn ))
-        move     = on_or_off( is_ON( self.tracking._timer_move ))
+        move     = on_or_off( is_ON( self._timer_move ))
         target   = on_or_off( is_ON( self._timer_target ))
         controll = on_or_off( is_ON( self._timer_controll ))
         walker   = on_or_off( is_ON( self._timer_walker ))

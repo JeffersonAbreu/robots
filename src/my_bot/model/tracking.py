@@ -17,39 +17,24 @@ class Tracking:
         self.tracking            = False
         self.update              = False
         self._timer_turn = None
-        self._timer_move = None
         self.old_diff = 0
         self.not_is_discovered = True
         '''se ainda não foi detectado pela primeira vez'''
     
     def start_turn(self, timer=CALLBACK_INTERVAL): #0.0001
         def __turn__callback():
-            if self.tracking:  
-                self.robo.turn_by_angle( self.new_rotation_angle * FACTOR_CORRECTION_TURN)
+            if self.tracking:
+                if MIN_SPEED * 6 < self.robo.get_speed():  
+                    self.robo.turn_by_angle( self.new_rotation_angle/2 * FACTOR_CORRECTION_TURN)
+                else:
+                    self.robo.turn_by_angle( self.new_rotation_angle * FACTOR_CORRECTION_TURN)
                 self.old_diff = self.robo.turn_diff
-                if self.robo.sensor_lidar.check_collision_router(self.new_rotation_angle):
-                    self._timer_turn.cancel()
-                    self._timer_turn = None
-                    self.start_move(-1 * (self.new_rotation_angle * FACTOR_CORRECTION_TURN), self.new_rotation_angle)
-                    self.stop_tracking()
-                    return
 
             self._timer_turn.cancel()
             self._timer_turn = None
     
         self._timer_turn = self.node.create_timer(timer, __turn__callback)
     
-    def start_move(self, angle, rotation_angle):
-        self.__move_angle = angle
-        self.__move_rotation_angle = rotation_angle
-        def __move__callback():
-            self.robo.turn_by_angle(self.__move_angle)
-            if not self.robo.sensor_lidar.check_collision_router(self.__move_rotation_angle):
-                self._timer_move.cancel()
-                self.start_tracking()
-        self.robo.set_speed(MIN_SPEED)
-        self._timer_move = self.node.create_timer(CALLBACK_INTERVAL, __move__callback)
-
     def reset(self) -> None:
         self.new_rotation_angle  = 0
         self.new_distance_aruco  = 0
@@ -60,10 +45,6 @@ class Tracking:
         self.update              = False
         self.not_is_discovered   = True
         self.update_tracking_camera()
-        if is_ON(self._timer_turn):
-            self._timer_turn.cancel()
-        if is_ON(self._timer_move):
-            self._timer_move.cansel()
 
     def start_tracking(self):
         self.tracking = True
