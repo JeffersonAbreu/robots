@@ -17,7 +17,7 @@ class RobotController:
 
     def __init__(self, node: Node):
         self.node = node
-        self.nav = Navigation(25, 24)
+        self.nav = Navigation(25, 4)
         if self.nav.is_exist_rote():
             self.robo = Robot(self.node, self.handle_obstacle_detection, self.handle_aruco_detected)
             self.tracking = Tracking(node, self.robo)
@@ -26,6 +26,8 @@ class RobotController:
             self._timer_walker   = None
             self._timer_show_inf = None
             self._timer_move     = None
+            self.__move_angle    = None
+            self.__move_rotation_angle   = None
             self._timer_area_of_interest = None
             self._timers = [self._timer_target, self._timer_controll, self._timer_walker]
             
@@ -44,7 +46,7 @@ class RobotController:
 
     def start_target(self):
         ondeTO()
-        self._timer_target = self.node.create_timer(CALLBACK_INTERVAL_TARGET, self.__target_callback)
+        self._timer_target = self.node.create_timer(CALLBACK_INTERVAL_TARGET/3, self.__target_callback)
         
     def start_walker(self):
         ondeTO()
@@ -65,16 +67,22 @@ class RobotController:
         self._timer_controll.cancel()
         self.__move_angle = angle
         self.__move_rotation_angle = rotation_angle
-        def __move__callback():
-            self.robo.turn_by_angle(self.__move_angle)
-            if not self.robo.sensor_lidar.check_collision_router(self.__move_rotation_angle):
+        self.robo.set_speed(MIN_SPEED)
+        self._timer_move = self.node.create_timer(CALLBACK_INTERVAL, self.__move__callback)
+    
+    def __move__callback(self):
+        self.robo.turn_by_angle(self.__move_angle)
+        if not self.robo.sensor_lidar.check_collision_router(self.__move_rotation_angle):
+            if self._timer_move is not None:
                 self._timer_move.cancel()
                 self._timer_move = None
-                self.tracking.start_tracking()
-                self.start_controll()
-                return
-        self.robo.set_speed(MIN_SPEED)
-        self._timer_move = self.node.create_timer(CALLBACK_INTERVAL, __move__callback)
+            self.tracking.start_tracking()
+            self.start_controll()
+            self.robo.set_speed(TOP_SPEED)
+            return
+        else:
+            if self.robo.get_speed() < MIN_SPEED:
+               self.robo.set_speed(MIN_SPEED)
     
     def __execute_controll(self):
         if not self.robo.sensor_lidar.check_collision_router() and not self.robo.is_turnning():
@@ -85,7 +93,7 @@ class RobotController:
         if self.tracking.is_update_info():
             angle = self.tracking.new_rotation_angle
             if self.robo.sensor_lidar.check_collision_router(angle):
-                self.start_move(-1 * (angle * FACTOR_CORRECTION_TURN), angle)
+                self.start_move(-1 * (angle*3 * FACTOR_CORRECTION_TURN), angle)
                 return
         elif self.robo.sensor_lidar.check_collision_router():
             DIRECTION_RIGHT =  5
@@ -104,15 +112,24 @@ class RobotController:
                 self.stop_all_timers()
                 self.area_of_interest()
                 return
+            else:
+                if self.tracking.count_not_detected > 5 and self.robo.get_speed() > TOP_SPEED / 2:
+                      self.robo.set_speed(TOP_SPEED * 0.35)
+
+
+
             if self.robo.get_speed() < MIN_SPEED:
                 self.robo.set_speed(MIN_SPEED)
             
-            elif self.tracking.count_not_detected > 100:
-                    ondeTO()
-                    print(cor.red(f"NOT DETECTED!!! {self.tracking.count_not_detected:>2}"))
-                    self.stop_all_timers()
-                    self.robo.set_speed(ZERO)
-                    #self.start_walker()
+            elif self.tracking.count_not_detected == 15:
+                self.robo.turn_by_angle(self.tracking.old_rotation_angle/2)
+                return
+            elif self.tracking.count_not_detected == 50:
+                ondeTO()
+                print(cor.red(f"NOT DETECTED!!! {self.tracking.count_not_detected:>2}"))
+                self.stop_all_timers()
+                self.robo.set_speed(ZERO)
+                #self.start_walker()
         if self.robo.get_speed() > 0 and self.robo.get_distance_to_wall() < 0.3:
             self.show_infos()
             print(cor.red("PARAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!"))
@@ -202,6 +219,7 @@ class RobotController:
             if not self.is_update_info_direction():
                 ondeTO()
                 return False
+
             distance = round(self.tracking.new_distance_aruco, 2)
             angle = round(abs(self.tracking.new_rotation_angle), 2)
             # Define os limites máximo e mínimo para a distância.
@@ -222,22 +240,27 @@ class RobotController:
             return angle <= angle_limit
 
             
-        if not self.robo.is_turnning() or should_follow_aruco():
-            ondeTO()
-            print(cor.red("__next_target_callback CANSELADO!!!"))
-            go()
+        if abs(int(self.robo.turn_diff)) > 90:
+            if self.robo.get_speed() != MIN_SPEED/2:
+                self.robo.move_forward(MIN_SPEED/2)
         else:
-            if self.is_update_info_direction():
-                if abs(self.tracking.new_rotation_angle) > abs(self.tracking.old_rotation_angle):
-                    go()
-        if abs(int(self.robo.turn_diff)) <= 10 and self.robo.get_speed() == MIN_SPEED:
-            self.robo.set_speed(0.2)
-        if self.robo.turn_diff < 0 and self.robo.get_distance_to_wall(-2) > 0.3 and self.robo.get_speed() == MIN_SPEED:
-            self.robo.set_speed(0.2)
-        if self.robo.turn_diff > 0 and self.robo.get_distance_to_wall(2) > 0.3 and self.robo.get_speed() == MIN_SPEED:
-            self.robo.set_speed(0.2)
-        if self.robo.get_speed() < MIN_SPEED:
-            self.robo.set_speed(MIN_SPEED)
+            if not self.robo.is_turnning() or should_follow_aruco():
+                ondeTO()
+                print(cor.red("__next_target_callback CANSELADO!!!"))
+                go()
+            else:
+                if self.is_update_info_direction():
+                    if abs(self.tracking.new_rotation_angle) > abs(self.tracking.old_rotation_angle):
+                        go()
+
+            if abs(int(self.robo.turn_diff)) <= 10 and self.robo.get_speed() == MIN_SPEED:
+                self.robo.set_speed(MIN_SPEED*2)
+            if self.robo.turn_diff < 0 and self.robo.get_distance_to_wall(-2) > 0.3 and self.robo.get_speed() == MIN_SPEED:
+                self.robo.set_speed(MIN_SPEED*2)
+            if self.robo.turn_diff > 0 and self.robo.get_distance_to_wall(2) > 0.3 and self.robo.get_speed() == MIN_SPEED:
+                self.robo.set_speed(MIN_SPEED*2)
+            if self.robo.get_speed() < MIN_SPEED:
+                self.robo.set_speed(MIN_SPEED)
         
 
         
@@ -302,7 +325,7 @@ class RobotController:
         h = f'   não detectou: {cor.red(n) if self.tracking.count_not_detected > 0 else cor.black(n)}'
         
         print(f" CONTROLL: {controll}    ID: {id}   RASTREAR? {w }")
-        print(f"     TURN: {turn    } ANGLE: {a }  ERRO TURN: {z }")
+        print(f"     TURN: {turn    } ANGLE: {a }  ERRO TURN: {z } TURN: {self.tracking.ajust_turn_value}°")
         print(f"     MOVE: {move    } SPEED: {t }   DISTANCE: {b }")
         print(f"   WALKER: {walker  }  WALL: {x }   MIN Wall: {dx}  angle: {dy} ]")
         print(f"   TARGET: {target  }{h } 1ª Detecção: {yes_or_no(not self.tracking.not_is_discovered)}")

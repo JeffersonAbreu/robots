@@ -39,7 +39,7 @@
               <texture texture="Marker0_png-sampler" texcoord="UVMap"/>
             </diffuse>
             <specular>
-              <color sid="specular">0.5 0.5 0.5 1</color>
+              <color sid="specular">1 1 1 1</color>
             </specular>
             <shininess>
               <float sid="shininess">50</float>

@@ -67,7 +67,7 @@ LIDAR_RANGE_=LIDAR_RANGE-1
 # ================================================================================
 FACTOR_CORRECTION_TURN = 0.1
 '''Usado para ajustar a velocidade da rotação'''
-FACTOR_ACCELERATION = 0.001
+FACTOR_ACCELERATION = 0.0025
 FACTOR_BRAKING = -0.03
 
 LOG_LINE = False

@@ -24,7 +24,7 @@
       <visual name='visual_border'>
         <geometry>
           <cylinder>
-            <radius>0.33</radius> <!-- Raio total incluindo a borda -->
+            <radius>0.53</radius> <!-- Raio total incluindo a borda -->
             <length>0.0009</length> <!-- Altura muito pequena -->
           </cylinder>
         </geometry>
@@ -39,7 +39,7 @@
       <visual name='visual_center'>
         <geometry>
           <cylinder>
-            <radius>0.3</radius> <!-- Raio do centro branco -->
+            <radius>0.5</radius> <!-- Raio do centro branco -->
             <length>0.001</length> <!-- Altura muito pequena -->
           </cylinder>
         </geometry>

@@ -187,7 +187,7 @@ class Robot:
         if speed == self.speed_ or speed == TOP_SPEED or speed == MIN_SPEED:
             if speed == MIN_SPEED and self.STOP:
                 self.move_forward(ZERO)
-            self.stop_move()
+            self.speed_timer.cancel()
     
     def set_speed(self, speed):
         if self.get_speed() < MIN_SPEED and speed >= MIN_SPEED:

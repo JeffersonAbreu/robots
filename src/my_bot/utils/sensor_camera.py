@@ -42,15 +42,26 @@ class SensorCamera:
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         corners, ids, _ = aruco.detectMarkers(gray_image, self.aruco_dict, parameters=self.parameters, cameraMatrix=self.camera_matrix, distCoeff=self.dist_coeffs)
         if ids is not None:
+            symmetry_score = float('-inf')
+            distance = None
+            angle = None
             for corner, marker_id in zip(corners, ids.flatten()):
                 if self.is_target_marker(marker_id):
-                    distance, angle = self.calculate_marker_position(corner)
-                    self.aruco_detected_callback(distance, round(angle, 2))
+                    _dist, _angl = self.calculate_marker_position(corner)
+                    _symmetry = self.detectedArUcoFront(corner)
+                    if _symmetry > symmetry_score:
+                        symmetry_score = _symmetry
+                        distance = _dist
+                        angle = _angl
                 self.highlight_target_aruco(image, corner, marker_id)
+            if angle is not None and distance is not None:
+                self.aruco_detected_callback(distance, round(angle, 2))
+        
         else:
             self.aruco_detected_callback(0, 0)
         cv2.imshow('Aruco Detector', image)
         cv2.waitKey(1)
+        
 
     def is_target_marker(self, marker_id):
         return self.id_aruco_target is not None and self.id_aruco_target == marker_id
@@ -67,4 +78,14 @@ class SensorCamera:
         cv2.polylines(image, [np.int32(corner)], True, line_color, 1)
         rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corner, self.marker_size, self.camera_matrix, self.dist_coeffs)
         cv2.aruco.drawAxis(image, self.camera_matrix, self.dist_coeffs, rvec[0], tvec[0], self.marker_size * 0.5)
+    
+    def detectedArUcoFront(self, corner):
+        # Calculando a razão entre as diagonais
+        diagonal1 = np.linalg.norm(corner[0][0] - corner[0][2])
+        diagonal2 = np.linalg.norm(corner[0][1] - corner[0][3])
+        ratio = min(diagonal1, diagonal2) / max(diagonal1, diagonal2)
+
+        # Calculando a nota de simetria
+        symmetry_score = 10 * ratio  # Ajustando para que o valor máximo seja 10
+        return symmetry_score
 
