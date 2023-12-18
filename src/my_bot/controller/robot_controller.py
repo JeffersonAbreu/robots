@@ -1,6 +1,6 @@
 from model import Robot, Navigation, Tracking
-from utils import Command, CommandQueue, CommandType, Graph, Path
-from utils.constants import CALLBACK_INTERVAL, CALLBACK_INTERVAL_TARGET, MIN_SPEED, TOP_SPEED, ZERO, FACTOR_CORRECTION_TURN
+from utils import CommandType
+from utils.constants import CALLBACK_INTERVAL, CALLBACK_INTERVAL_TARGET, MIN_SPEED, TOP_SPEED, ZERO, FACTOR_CORRECTION_TURN, DISTANCE_AREA_OF_INTEREST
 from utils.bib import get_current_line_number as ondeTO, is_ON, is_OFF, on_or_off, yes_or_no
 from utils.bib import Color as cor
 from rclpy.node import Node
@@ -154,7 +154,7 @@ class RobotController:
         '''
         Verifique se estou na aréa do aruco
         '''
-        return self.tracking.new_distance_aruco < 1 and self.robo.get_distance_to_wall()
+        return self.tracking.new_distance_aruco < DISTANCE_AREA_OF_INTEREST and self.robo.get_distance_to_wall()
                            
 
     def area_of_interest(self):
@@ -253,7 +253,7 @@ class RobotController:
                     if abs(self.tracking.new_rotation_angle) > abs(self.tracking.old_rotation_angle):
                         go()
 
-            if abs(int(self.robo.turn_diff)) <= 10 and self.robo.get_speed() == MIN_SPEED:
+            if abs(int(self.robo.turn_diff)) <= 50 and self.robo.get_speed() == MIN_SPEED:
                 self.robo.set_speed(MIN_SPEED*2)
             if self.robo.turn_diff < 0 and self.robo.get_distance_to_wall(-2) > 0.3 and self.robo.get_speed() == MIN_SPEED:
                 self.robo.set_speed(MIN_SPEED*2)
@@ -325,7 +325,7 @@ class RobotController:
         h = f'   não detectou: {cor.red(n) if self.tracking.count_not_detected > 0 else cor.black(n)}'
         
         print(f" CONTROLL: {controll}    ID: {id}   RASTREAR? {w }")
-        print(f"     TURN: {turn    } ANGLE: {a }  ERRO TURN: {z } TURN: {self.tracking.ajust_turn_value}°")
+        print(f"     TURN: {turn    } ANGLE: {a }  ERRO TURN: {z } TURN: {round(self.tracking.ajust_turn_value, 2)}°")
         print(f"     MOVE: {move    } SPEED: {t }   DISTANCE: {b }")
         print(f"   WALKER: {walker  }  WALL: {x }   MIN Wall: {dx}  angle: {dy} ]")
         print(f"   TARGET: {target  }{h } 1ª Detecção: {yes_or_no(not self.tracking.not_is_discovered)}")

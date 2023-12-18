@@ -25,16 +25,13 @@ class Tracking:
     def start_turn(self, timer=CALLBACK_INTERVAL): #0.0001
         def __turn__callback():
             if self.tracking:
-                self.ajust_turn(self.new_rotation_angle, self.robo.get_speed(), self.new_distance_aruco)
-                '''
                 if self.robo.get_speed() > TOP_SPEED*0.5:
-                    turn = self.ajust_turn(self.new_rotation_angle, self.robo.get_speed(), self.new_distance_aruco)
-                    self.robo.turn_by_angle(turn * FACTOR_CORRECTION_TURN)
+                    self.ajust_turn(self.new_rotation_angle, self.robo.get_speed(), self.new_distance_aruco)
                 elif self.robo.get_speed() > TOP_SPEED*0.25:
                     self.robo.turn_by_angle( self.new_rotation_angle * FACTOR_CORRECTION_TURN)
                 else:
                     self.robo.turn_by_angle( self.new_rotation_angle * FACTOR_CORRECTION_TURN * 2)
-                '''
+                
                 self.old_diff = self.robo.turn_diff
             self._timer_turn.cancel()
             self._timer_turn = None
@@ -68,7 +65,10 @@ class Tracking:
         # Aplica o giro com o ângulo ajustado
         self.robo.turn_by_angle(adjusted_angle)
         if self.new_distance_aruco < 5:
-            self.robo.set_speed(max(MIN_SPEED*2, TOP_SPEED*2 - abs(adjusted_angle)))
+            if self.new_distance_aruco < 2 and self.robo.get_speed() > TOP_SPEED/2:
+                self.robo.set_speed(TOP_SPEED/2)
+            else:
+                self.robo.set_speed(max(MIN_SPEED*2, TOP_SPEED*2 - abs(adjusted_angle)))
         else:
             self.robo.set_speed(max(MIN_SPEED*2, TOP_SPEED - abs(adjusted_angle)))
         
